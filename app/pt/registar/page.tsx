@@ -1,0 +1,132 @@
+'use client';
+import { useState } from 'react';
+import Link from 'next/link';
+import { translations } from '@/lib/translations';
+
+const t = translations.pt;
+
+export default function RegisterPage() {
+  const [step, setStep] = useState<'form' | 'success'>('form');
+
+  if (step === 'success') {
+    return (
+      <main className="min-h-screen bg-slate-50 flex items-center justify-center px-6">
+        <div className="max-w-md w-full text-center bg-white p-8 rounded-2xl shadow-sm">
+          <div className="text-5xl mb-4">✅</div>
+          <h2 className="text-2xl font-bold mb-3">Conta Criada!</h2>
+          <p className="text-slate-600 mb-6">Bem-vindo ao AngolaLab. Iremos verificar a sua conta em breve.</p>
+          <Link
+            href="/pt"
+            className="inline-block bg-emerald-600 text-white px-6 py-3 rounded-lg hover:bg-emerald-700"
+          >
+            Página Inicial
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="min-h-screen bg-slate-50 py-12 px-6">
+      <div className="max-w-md mx-auto">
+        <Link href="/pt" className="text-emerald-600 mb-6 inline-block">
+          ← {t.common.backHome}
+        </Link>
+
+        <h1 className="text-3xl font-bold mb-2">Criar Conta</h1>
+        <p className="text-slate-600 mb-8">Junte-se à comunidade AngolaLab</p>
+
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            setStep('success');
+          }}
+          className="bg-white p-8 rounded-2xl shadow-sm space-y-5"
+        >
+          <div>
+            <label className="block text-sm font-medium mb-1">{t.submit.fullName} *</label>
+            <input
+              type="text"
+              required
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              placeholder="Seu nome completo"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">{t.submit.email} *</label>
+            <input
+              type="email"
+              required
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              placeholder="seu@email.com"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">{t.submit.phone} *</label>
+            <div className="flex gap-3">
+              <input
+                type="tel"
+                required
+                className="flex-1 px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                placeholder="+244 9XX XXX XXX"
+              />
+              <button
+                type="button"
+                className="bg-slate-100 px-4 py-2.5 rounded-lg hover:bg-slate-200 whitespace-nowrap text-sm"
+              >
+                {t.submit.sendCode}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Código de Verificação *</label>
+            <input
+              type="text"
+              required
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              placeholder="Digite o código recebido por SMS"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">{t.submit.password} *</label>
+            <input
+              type="password"
+              required
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              placeholder="Crie uma palavra-passe segura"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">🪪 Foto do Documento *</label>
+            <input
+              type="file"
+              accept="image/*,.pdf"
+              required
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-lg"
+            />
+            <p className="text-xs text-slate-500 mt-1">Armazenada em segurança — nunca será exibida publicamente.</p>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-emerald-600 text-white py-3 rounded-lg font-medium hover:bg-emerald-700 mt-2"
+          >
+            Criar Conta
+          </button>
+
+          <p className="text-center text-sm text-slate-500 mt-4">
+            Já tem conta?{' '}
+            <Link href="/pt/entrar" className="text-emerald-600 hover:underline">
+              {t.nav.signIn}
+            </Link>
+          </p>
+        </form>
+      </div>
+    </main>
+  );
+}
