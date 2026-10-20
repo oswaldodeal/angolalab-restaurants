@@ -57,6 +57,7 @@ export default function RegisterRestaurantPage() {
                   placeholder="Seu nome completo"
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-medium mb-1">{t.submit.email} *</label>
                 <input
@@ -66,6 +67,7 @@ export default function RegisterRestaurantPage() {
                   placeholder="seu@email.com"
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-medium mb-1">{t.submit.phone} *</label>
                 <div className="flex gap-3">
@@ -83,6 +85,7 @@ export default function RegisterRestaurantPage() {
                   </button>
                 </div>
               </div>
+
               <div>
                 <label className="block text-sm font-medium mb-1">Código de Verificação</label>
                 <input
@@ -91,6 +94,7 @@ export default function RegisterRestaurantPage() {
                   placeholder="Digite o código recebido"
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-medium mb-1">{t.submit.password} *</label>
                 <input
@@ -100,6 +104,7 @@ export default function RegisterRestaurantPage() {
                   placeholder="Crie uma palavra-passe"
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-medium mb-1">🪪 {t.submit.idPhoto} *</label>
                 <input
@@ -126,6 +131,7 @@ export default function RegisterRestaurantPage() {
                   placeholder="Nome do estabelecimento"
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-medium mb-1">{t.submit.cuisineType} *</label>
                 <select
@@ -138,8 +144,10 @@ export default function RegisterRestaurantPage() {
                   ))}
                 </select>
               </div>
+
               <div>
-                <label className="block text-sm font-medium mb-1">{t.submit.city} *</label>
+                {/* ✅ FIXED: Use plain text instead of missing t.submit.city */}
+                <label className="block text-sm font-medium mb-1">Cidade *</label>
                 <select
                   required
                   className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
@@ -150,6 +158,7 @@ export default function RegisterRestaurantPage() {
                   ))}
                 </select>
               </div>
+
               <div>
                 <label className="block text-sm font-medium mb-1">{t.submit.fullAddress} *</label>
                 <input
@@ -159,6 +168,7 @@ export default function RegisterRestaurantPage() {
                   placeholder="Rua, Bairro, Município"
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-medium mb-1">{t.submit.openingHours}</label>
                 <input
@@ -167,6 +177,7 @@ export default function RegisterRestaurantPage() {
                   placeholder="Ex: Seg–Dom: 08h00 – 23h00"
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-medium mb-1">📖 {t.submit.menuUpload}</label>
                 <input
@@ -175,6 +186,7 @@ export default function RegisterRestaurantPage() {
                   className="w-full px-4 py-2.5 border border-slate-200 rounded-lg"
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-medium mb-1">📷 {t.submit.restaurantPhotos}</label>
                 <input
