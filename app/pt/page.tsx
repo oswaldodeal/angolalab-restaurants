@@ -3,48 +3,37 @@ import Link from 'next/link';
 export default function PortugueseHomePage() {
   return (
     <>
-      {/* HERO — Darker Grey, Fixed Position ✅ */}
-      <section 
-        className="w-full bg-slate-100 py-12 px-6"
-        style={{ flexShrink: 0 }}
-      >
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+      <section className="sticky top-0 z-30 w-full px-6 py-12 md:py-14" 
+        style={{ backgroundColor: "#f3f4f6", animation: "none", transform: "none", transition: "none" }}>
+        <div className="mx-auto max-w-5xl">
+          <h1 className="mb-4 text-3xl font-bold text-slate-900 md:text-4xl">
             Comida autêntica, perto de si
           </h1>
-          <p className="text-lg text-slate-600 mb-8 max-w-2xl">
+          <p className="mb-8 max-w-2xl text-lg text-slate-600">
             Restaurantes verificados, ementas reais, locais de confiança. Grátis para listar, grátis para descobrir.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Link
-              href="/pt/restaurantes"
-              className="bg-emerald-600 text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-emerald-700"
-            >
+          <div className="flex flex-col gap-4 sm:flex-row">
+            <Link href="/pt/restaurantes" className="rounded-lg bg-emerald-600 px-8 py-3 text-center text-lg font-medium text-white hover:bg-emerald-700">
               Ver Restaurantes
             </Link>
-            <Link
-              href="/pt/restaurantes/registar"
-              className="border-2 border-emerald-600 text-emerald-600 px-8 py-3 rounded-lg text-lg font-medium hover:bg-emerald-50"
-            >
+            <Link href="/pt/restaurantes/registar" className="rounded-lg border-2 border-emerald-600 px-8 py-3 text-center text-lg font-medium text-emerald-600 hover:bg-emerald-50">
               + Adicionar Restaurante — Grátis
             </Link>
           </div>
         </div>
       </section>
-
-      {/* Content Area — Lighter Grey ✅ */}
-      <section className="py-16 px-6 bg-slate-50">
-        <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-6">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-            <h3 className="font-semibold text-lg mb-2">Grátis para Todos</h3>
+      <section className="bg-white px-6 py-16">
+        <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
+          <div className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
+            <h3 className="mb-2 text-lg font-semibold">Grátis para Todos</h3>
             <p className="text-slate-600">Qualquer restaurante em Angola pode publicar sem custos.</p>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-            <h3 className="font-semibold text-lg mb-2">Verificado pela nossa equipa</h3>
+          <div className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
+            <h3 className="mb-2 text-lg font-semibold">Verificado pela nossa equipa</h3>
             <p className="text-slate-600">Confirmamos cada estabelecimento. Só locais reais.</p>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-            <h3 className="font-semibold text-lg mb-2">Direções no Google Maps</h3>
+          <div className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
+            <h3 className="mb-2 text-lg font-semibold">Direções no Google Maps</h3>
             <p className="text-slate-600">Coordenadas exatas — nunca se perde.</p>
           </div>
         </div>
