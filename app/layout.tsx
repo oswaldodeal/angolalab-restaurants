@@ -16,11 +16,13 @@ export default function RootLayout({
   return (
     <html lang="pt">
       <body className="min-h-screen bg-white text-slate-900 flex flex-col">
+        {/* HEADER — always first */}
         <Header />
         
-        {/* Gold divider line — matches AngolaLab.uk ✅ */}
+        {/* ✨ GOLD LINE — directly under header, above everything else ✨ */}
         <div className="w-full h-0.5 bg-amber-500"></div>
         
+        {/* PAGE CONTENT — hero starts here with light grey */}
         <main className="flex-grow">
           {children}
         </main>
