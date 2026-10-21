@@ -1,56 +1,45 @@
-import Link from 'next/link';
-import { translations } from '@/lib/translations';
+import Link from 'next/link'
 
-const t = translations.en;
-
-export default function HomePage() {
+export default function EnglishHomePage() {
   return (
     <main>
-
-      <section className="max-w-5xl mx-auto px-6 py-20 text-center">
-        <h1 className="text-4xl md:text-5xl font-bold mb-6">{t.home.title}</h1>
-        <p className="text-lg md:text-xl text-slate-600 mb-10 max-w-3xl mx-auto">
-          {t.home.subtitle}
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link
-            href="/en/restaurants"
-            className="bg-emerald-600 text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-emerald-700 transition-colors"
-          >
-            🍽️ {t.home.browseRestaurants}
-          </Link>
-          <Link
-            href="/en/restaurants/submit"
-            className="bg-white border-2 border-emerald-600 text-emerald-600 px-8 py-4 rounded-lg text-lg font-medium hover:bg-emerald-50 transition-colors"
-          >
-            + {t.home.addRestaurant}
-          </Link>
-        </div>
-      </section>
-
-      <section className="max-w-6xl mx-auto px-6 pb-24">
-        <div className="grid md:grid-cols-3 gap-8">
-          <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-            <h3 className="text-xl font-semibold mb-3">🆓 {t.home.featureFreeTitle}</h3>
-            <p className="text-slate-600">{t.home.featureFreeDesc}</p>
-          </div>
-          <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-            <h3 className="text-xl font-semibold mb-3">🛡️ {t.home.featureVerifiedTitle}</h3>
-            <p className="text-slate-600">{t.home.featureVerifiedDesc}</p>
-          </div>
-          <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-            <h3 className="text-xl font-semibold mb-3">🗺️ {t.home.featureMapTitle}</h3>
-            <p className="text-slate-600">{t.home.featureMapDesc}</p>
+      {/* HERO — No header above! Layout already has the header ✅ */}
+      <section className="w-full bg-slate-50 py-20 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
+            Authentic food, near you
+          </h1>
+          <p className="text-lg text-slate-600 mb-8 max-w-2xl mx-auto">
+            Verified restaurants, real menus, trusted locations. Free to list, free to discover.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/en/restaurants" className="bg-emerald-600 text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-emerald-700">
+              Browse Restaurants
+            </Link>
+            <Link href="/en/restaurants/submit" className="border-2 border-emerald-600 text-emerald-600 px-8 py-3 rounded-lg text-lg font-medium hover:bg-emerald-50">
+              + Add Your Restaurant — Free
+            </Link>
           </div>
         </div>
       </section>
 
-      <footer className="bg-slate-900 text-slate-300 py-10 px-6">
-        <div className="max-w-6xl mx-auto text-center">
-          <p className="mb-2 text-white font-semibold">AngolaLab</p>
-          <p className="text-sm">© 2026 AngolaLab — {t.footer.allRights}</p>
+      {/* Features Section */}
+      <section className="py-16 px-6">
+        <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-6">
+          <div className="bg-white p-6 rounded-xl shadow-sm">
+            <h3 className="font-semibold text-lg mb-2">Free Forever</h3>
+            <p className="text-slate-600">Every restaurant in Angola can list at no cost.</p>
+          </div>
+          <div className="bg-white p-6 rounded-xl shadow-sm">
+            <h3 className="font-semibold text-lg mb-2">Verified by Us</h3>
+            <p className="text-slate-600">We check every listing. Only real businesses.</p>
+          </div>
+          <div className="bg-white p-6 rounded-xl shadow-sm">
+            <h3 className="font-semibold text-lg mb-2">Google Maps Directions</h3>
+            <p className="text-slate-600">Exact coordinates — never get lost.</p>
+          </div>
         </div>
-      </footer>
+      </section>
     </main>
-  );
+  )
 }
