@@ -92,12 +92,7 @@ export default function RestaurantsListPage() {
       </section>
 
       {/* Rodapé */}
-      <footer className="bg-slate-900 text-slate-300 py-10 px-6 mt-12">
-        <div className="max-w-6xl mx-auto text-center">
-          <p className="mb-2 text-white font-semibold">AngolaLab</p>
-          <p className="text-sm">© 2026 AngolaLab — {t.footer.allRights}</p>
-        </div>
-      </footer>
+      
     </main>
   );
 }
