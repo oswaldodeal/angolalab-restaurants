@@ -3,8 +3,11 @@ import Link from 'next/link';
 export default function PortugueseHomePage() {
   return (
     <>
-      {/* HERO — Light Grey, Fixed Position ✅ */}
-      <section className="w-full bg-slate-50 py-12 px-6">
+      {/* HERO — Darker Grey, Locked in Place ✅ */}
+      <section 
+        className="w-full bg-slate-100 py-12 px-6"
+        style={{ flexShrink: 0 }}
+      >
         <div className="max-w-7xl mx-auto">
           <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
             Comida autêntica, perto de si
@@ -29,7 +32,7 @@ export default function PortugueseHomePage() {
         </div>
       </section>
 
-      {/* Content Area — White Cards on Light Grey Body */}
+      {/* Content Area — same grey as body, white cards ✅ */}
       <section className="py-16 px-6">
         <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-6">
           <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
