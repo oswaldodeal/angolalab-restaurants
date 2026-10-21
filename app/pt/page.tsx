@@ -3,8 +3,8 @@ import Link from 'next/link';
 export default function PortugueseHomePage() {
   return (
     <>
-      <section className="w-full px-6 py-12 md:py-14" 
-        style={{ backgroundColor: "#f3f4f6", position: "static", animation: "none", transform: "none", transition: "none" }}>
+      <section className="sticky top-0 z-30 w-full px-6 py-12 md:py-14" 
+        style={{ backgroundColor: "#f3f4f6", animation: "none", transform: "none", transition: "none" }}>
         <div className="mx-auto max-w-5xl">
           <h1 className="mb-4 text-3xl font-bold text-slate-900 md:text-4xl">
             Comida autêntica, perto de si
