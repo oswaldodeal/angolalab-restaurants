@@ -15,14 +15,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt">
-      <body className="min-h-screen bg-white text-slate-900 flex flex-col">
-        {/* HEADER — always first */}
+      {/* Main background = LIGHT GREY ✅ everywhere below header */}
+      <body className="min-h-screen bg-slate-50 text-slate-900 flex flex-col">
         <Header />
         
-        {/* ✨ GOLD LINE — directly under header, above everything else ✨ */}
+        {/* Gold line — stays perfectly under header */}
         <div className="w-full h-0.5 bg-amber-500"></div>
         
-        {/* PAGE CONTENT — hero starts here with light grey */}
         <main className="flex-grow">
           {children}
         </main>
