@@ -3,7 +3,7 @@ import Link from 'next/link';
 export default function PortugueseHomePage() {
   return (
     <>
-      {/* HERO — Darker Grey, Locked in Place ✅ */}
+      {/* HERO — Darker Grey, Fixed Position ✅ */}
       <section 
         className="w-full bg-slate-100 py-12 px-6"
         style={{ flexShrink: 0 }}
@@ -32,8 +32,8 @@ export default function PortugueseHomePage() {
         </div>
       </section>
 
-      {/* Content Area — same grey as body, white cards ✅ */}
-      <section className="py-16 px-6">
+      {/* Content Area — Lighter Grey ✅ */}
+      <section className="py-16 px-6 bg-slate-50">
         <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-6">
           <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
             <h3 className="font-semibold text-lg mb-2">Grátis para Todos</h3>
