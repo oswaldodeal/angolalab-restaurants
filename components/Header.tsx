@@ -7,16 +7,16 @@ export default function Header() {
   const lang = path.startsWith('/en') ? 'en' : 'pt';
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-slate-100 px-6 py-4">
+    <header className="sticky top-0 z-50 bg-white border-b border-slate-100 px-6 py-4">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        {/* Logo — green Angola, gold LAB, shifted right */}
-        <Link href={`/${lang}`} className="flex items-center gap-0 ml-3">
+        {/* LOGO — Left side, fixed position like OpenTable ✅ */}
+        <Link href={`/${lang}`} className="flex items-center gap-0">
           <span className="text-xl font-bold text-emerald-600">Angola</span>
           <span className="text-xl font-bold text-amber-500">Lab</span>
         </Link>
 
-        {/* Navigation — shows correct links per language */}
-        <nav className="hidden md:flex items-center gap-6 text-sm">
+        {/* NAVIGATION — Right side ✅ */}
+        <nav className="flex items-center gap-6 text-sm">
           {lang === 'pt' ? (
             <>
               <Link href="/pt/restaurantes" className="text-slate-600 hover:text-slate-900">Restaurantes</Link>
