@@ -91,8 +91,7 @@ export default function RestaurantsListPage() {
         </div>
       </section>
 
-      {/* Rodapé */}
-      
+         
     </main>
   );
 }
