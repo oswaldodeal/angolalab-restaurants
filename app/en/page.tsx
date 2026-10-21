@@ -5,31 +5,7 @@ const t = translations.en;
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900">
-      <header className="bg-white shadow-sm px-6 py-4">
-        <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <Link href="/en" className="text-2xl font-bold text-emerald-700">
-            AngolaLab 🍽️
-          </Link>
-          <nav className="flex items-center gap-4">
-            <Link href="/en/restaurants" className="text-slate-600 hover:text-emerald-600">
-              {t.nav.restaurants}
-            </Link>
-            <Link href="/pt" className="text-sm text-slate-500 hover:text-emerald-600">
-              PT
-            </Link>
-            <Link href="/en/signin" className="text-slate-600 hover:text-emerald-600">
-              {t.nav.signIn}
-            </Link>
-            <Link
-              href="/en/signup"
-              className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
-            >
-              {t.nav.signUp}
-            </Link>
-          </nav>
-        </div>
-      </header>
+    <main>
 
       <section className="max-w-5xl mx-auto px-6 py-20 text-center">
         <h1 className="text-4xl md:text-5xl font-bold mb-6">{t.home.title}</h1>
