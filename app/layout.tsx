@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
   title: 'AngolaLab — Restaurantes Verificados',
@@ -14,10 +15,17 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt">
-      <body className="min-h-screen bg-white text-slate-900">
-        {/* ONE header → automatically on EVERY page ✅ */}
+      <body className="min-h-screen bg-white text-slate-900 flex flex-col">
+        {/* ONE Header → ALL pages ✅ */}
         <Header />
-        <main>{children}</main>
+        
+        {/* Page content → clean, no headers inside ✅ */}
+        <main className="flex-grow">
+          {children}
+        </main>
+        
+        {/* ONE Footer → ALL pages ✅ */}
+        <Footer />
       </body>
     </html>
   );
