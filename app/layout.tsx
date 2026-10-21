@@ -16,15 +16,15 @@ export default function RootLayout({
   return (
     <html lang="pt">
       <body className="min-h-screen bg-white text-slate-900 flex flex-col">
-        {/* ONE Header → ALL pages ✅ */}
         <Header />
         
-        {/* Page content → clean, no headers inside ✅ */}
+        {/* Gold divider line — matches AngolaLab.uk ✅ */}
+        <div className="w-full h-0.5 bg-amber-500"></div>
+        
         <main className="flex-grow">
           {children}
         </main>
         
-        {/* ONE Footer → ALL pages ✅ */}
         <Footer />
       </body>
     </html>
