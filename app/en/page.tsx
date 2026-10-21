@@ -1,10 +1,10 @@
-import Link from 'next/link'
+import Link from 'next/link';
 
 export default function EnglishHomePage() {
   return (
-    <main>
-            {/* HERO — WHITE BACKGROUND ✅ */}
-      <section className="w-full bg-white py-12 px-6">
+    <>
+      {/* HERO — Light Grey, Fixed Position ✅ */}
+      <section className="w-full bg-slate-50 py-12 px-6">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
             Authentic food, near you
@@ -13,33 +13,39 @@ export default function EnglishHomePage() {
             Verified restaurants, real menus, trusted locations. Free to list, free to discover.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
-            <Link href="/en/restaurants" className="bg-emerald-600 text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-emerald-700">
+            <Link
+              href="/en/restaurants"
+              className="bg-emerald-600 text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-emerald-700"
+            >
               Browse Restaurants
             </Link>
-            <Link href="/en/restaurants/submit" className="border-2 border-emerald-600 text-emerald-600 px-8 py-3 rounded-lg text-lg font-medium hover:bg-emerald-50">
+            <Link
+              href="/en/restaurants/submit"
+              className="border-2 border-emerald-600 text-emerald-600 px-8 py-3 rounded-lg text-lg font-medium hover:bg-emerald-50"
+            >
               + Add Your Restaurant — Free
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Content Area — White Cards on Light Grey Body */}
       <section className="py-16 px-6">
         <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-6">
-          <div className="bg-white p-6 rounded-xl shadow-sm">
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
             <h3 className="font-semibold text-lg mb-2">Free Forever</h3>
             <p className="text-slate-600">Every restaurant in Angola can list at no cost.</p>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm">
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
             <h3 className="font-semibold text-lg mb-2">Verified by Us</h3>
             <p className="text-slate-600">We check every listing. Only real businesses.</p>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm">
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
             <h3 className="font-semibold text-lg mb-2">Google Maps Directions</h3>
             <p className="text-slate-600">Exact coordinates — never get lost.</p>
           </div>
         </div>
       </section>
-    </main>
-  )
+    </>
+  );
 }
