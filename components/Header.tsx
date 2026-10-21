@@ -12,7 +12,7 @@ export default function Header() {
         {/* Logo — green Angola, gold LAB, shifted right */}
         <Link href={`/${lang}`} className="flex items-center gap-0 ml-3">
           <span className="text-xl font-bold text-emerald-600">Angola</span>
-          <span className="text-xl font-bold text-amber-500">LAB</span>
+          <span className="text-xl font-bold text-amber-500">Lab</span>
         </Link>
 
         {/* Navigation — shows correct links per language */}
