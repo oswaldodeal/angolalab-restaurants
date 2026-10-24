@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { CITIES, COUNTRIES, CUISINES, getGoogleMapsUrl, type Restaurant } from '@/lib/store';
 import { demoRestaurantPhoto } from '@/lib/demo-photos';
 
@@ -7,7 +6,6 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
   language: 'pt' | 'en';
 }) {
   const pt = language === 'pt';
-  const base = pt ? '/pt/restaurantes' : '/en/restaurants';
   const city = CITIES.find((c) => c.id === restaurant.city)?.[language] ?? restaurant.city;
   const country = COUNTRIES.find((c) => c.id === restaurant.country)?.[language] ?? restaurant.country;
   const cuisine = CUISINES.find((c) => c.id === restaurant.cuisine)?.[language] ?? restaurant.cuisine;
@@ -16,13 +14,10 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
   const isDemo = restaurant.ownerId === 'demo';
 
   return (
-    <main className="min-h-screen bg-[#fafafa] px-4 py-7 text-[#242424] sm:px-8 sm:py-12">
-      <article className="mx-auto max-w-7xl overflow-hidden rounded-2xl border border-[#e9e5db] bg-white shadow-[0_12px_36px_rgba(0,0,0,0.05)]">
+    <div className="bg-[#fafafa] px-4 py-10 text-[#242424] sm:px-8 sm:py-14">
+      <article className="mx-auto max-w-6xl overflow-hidden rounded-2xl border border-[#e9e5db] bg-white shadow-[0_12px_36px_rgba(0,0,0,0.05)]">
         <div className="px-5 pt-7 sm:px-10 sm:pt-10 lg:px-14">
-          <Link href={base} className="text-sm font-semibold text-[#936b0d] underline-offset-4 hover:underline">
-            ← {pt ? 'Voltar aos restaurantes' : 'Back to restaurants'}
-          </Link>
-          <p className="mt-8 text-xs font-bold uppercase tracking-[0.16em] text-[#987515]">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#987515]">
             {pt ? 'AngolaLab · Perfil do restaurante' : 'AngolaLab · Restaurant profile'}
           </p>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-5xl">{restaurant.name}</h1>
@@ -103,6 +98,6 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
           </div>
         </div>
       </article>
-    </main>
+    </div>
   );
 }
