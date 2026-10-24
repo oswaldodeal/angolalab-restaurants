@@ -5,6 +5,7 @@ export type Restaurant = {
   // Basic info — visible immediately
   name: string;
   cuisine: string;
+  country: string
   city: string;
   neighbourhood: string;
   address: string;
@@ -21,12 +22,22 @@ export type Restaurant = {
   menuPhotos: string[];
   photos: string[];
 
-  status: 'pending' | 'basic' | 'verified';
-  submittedAt: string;
-  verifiedAt?: string;
+ // Independent business verification
+status: 'pending' | 'basic' | 'verified';
+submittedAt: string;
+verifiedAt?: string;
 
-  isPremium: boolean;
+// Website profile plan
+profilePlan?: 'basic' | 'verified' | 'pro';
+
+// Legacy field — retained during migration
+isPremium: boolean;
 };
+
+export const COUNTRIES = [
+  { id: 'AO', pt: 'Angola', en: 'Angola' },
+  { id: 'PT', pt: 'Portugal', en: 'Portugal' },
+];
 
 export const CUISINES = [
   { id: 'angolan', pt: 'Angolana', en: 'Angolan' },
@@ -40,23 +51,38 @@ export const CUISINES = [
 ];
 
 export const CITIES = [
-  { id: 'luanda', pt: 'Luanda', en: 'Luanda' },
-  { id: 'benguela', pt: 'Benguela', en: 'Benguela' },
-  { id: 'huambo', pt: 'Huambo', en: 'Huambo' },
-  { id: 'lobito', pt: 'Lobito', en: 'Lobito' },
-  { id: 'namibe', pt: 'Namibe', en: 'Namibe' },
-  { id: 'bissau', pt: 'Bissau', en: 'Bissau' },
-  { id: 'praia', pt: 'Praia', en: 'Praia' },
-  { id: 'other', pt: 'Outra Cidade / Outro País', en: 'Other City / Country' },
+  // Angola
+  { id: 'luanda', country: 'AO', pt: 'Luanda', en: 'Luanda' },
+  { id: 'benguela', country: 'AO', pt: 'Benguela', en: 'Benguela' },
+  { id: 'huambo', country: 'AO', pt: 'Huambo', en: 'Huambo' },
+  { id: 'lobito', country: 'AO', pt: 'Lobito', en: 'Lobito' },
+  { id: 'namibe', country: 'AO', pt: 'Namibe', en: 'Namibe' },
+
+  // Portugal
+  { id: 'lisboa', country: 'PT', pt: 'Lisboa', en: 'Lisbon' },
+  { id: 'porto', country: 'PT', pt: 'Porto', en: 'Porto' },
+  { id: 'coimbra', country: 'PT', pt: 'Coimbra', en: 'Coimbra' },
+  { id: 'faro', country: 'PT', pt: 'Faro', en: 'Faro' },
 ];
 
 // Helper: generate Google Maps link
 export function getGoogleMapsUrl(restaurant: Restaurant): string {
-  if (restaurant.lat && restaurant.lng) {
+  if (restaurant.lat !== null && restaurant.lng !== null) {
     return `https://www.google.com/maps/search/?api=1&query=${restaurant.lat},${restaurant.lng}`;
   }
-  const encoded = encodeURIComponent(`${restaurant.name}, ${restaurant.address}, ${restaurant.city}`);
-  return `https://www.google.com/maps/search/?api=1&query=${encoded}`;
+
+  const country = COUNTRIES.find(
+    (item) => item.id === restaurant.country
+  );
+
+  const location = [
+    restaurant.name,
+    restaurant.address,
+    restaurant.city,
+    country?.en ?? restaurant.country,
+  ].join(', ');
+
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
 }
 
 // Sample data
@@ -66,6 +92,7 @@ export const initialRestaurants: Restaurant[] = [
     ownerId: 'demo',
     name: 'Restaurante Vulola',
     cuisine: 'angolan',
+    country: 'AO',
     city: 'luanda',
     neighbourhood: 'Viana',
     address: 'Bairro Bela Vista, Viana, Luanda',
@@ -86,6 +113,7 @@ export const initialRestaurants: Restaurant[] = [
     ownerId: 'demo',
     name: 'Sabores de Luanda',
     cuisine: 'international',
+    country: 'AO',
     city: 'luanda',
     neighbourhood: 'Ingombota',
     address: 'Rua de São Tomé, Ingombota, Luanda',

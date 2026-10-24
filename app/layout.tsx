@@ -19,12 +19,11 @@ export default function RootLayout({
       <body className="min-h-screen bg-white text-slate-900 flex flex-col">
         <Header />
         
-        {/* Gold line — stays fixed under header ✅ */}
-        <div className="w-full h-0.5 bg-amber-500"></div>
         
-        <main className="flex-grow">
-          {children}
-        </main>
+        
+        <main className="flex-grow lab-dark-section">
+  {children}
+</main>
         
         <Footer />
       </body>

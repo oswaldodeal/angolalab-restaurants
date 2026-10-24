@@ -5,10 +5,17 @@ import { initialRestaurants, CUISINES, CITIES, getGoogleMapsUrl } from '@/lib/st
 
 const t = translations.en;
 
-type Props = { params: { id: string } };
+type Props = {
+  params: Promise<{ id: string }>;
+};
 
-export default function RestaurantPage({ params }: Props) {
-  const restaurant = initialRestaurants.find(r => r.id === params.id);
+export default async function RestaurantPage({ params }: Props) {
+  const { id } = await params;
+
+  const restaurant = initialRestaurants.find(
+    (r) => r.id === id
+  );
+
   if (!restaurant) notFound();
 
   const cuisineLabel = CUISINES.find(c => c.id === restaurant.cuisine)?.en || restaurant.cuisine;
@@ -20,9 +27,7 @@ export default function RestaurantPage({ params }: Props) {
     <main className="min-h-screen bg-slate-50 text-slate-900">
       <header className="bg-white shadow-sm px-6 py-4">
         <div className="max-w-5xl mx-auto flex justify-between items-center">
-          <Link href="/en/restaurants" className="text-emerald-600 font-medium">
-            ← {t.common.backHome}
-          </Link>
+          
           <Link href="/pt" className="text-sm text-slate-500 hover:text-emerald-600">
             PT
           </Link>

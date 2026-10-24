@@ -5,10 +5,17 @@ import { initialRestaurants, CUISINES, CITIES, getGoogleMapsUrl } from '@/lib/st
 
 const t = translations.pt;
 
-type Props = { params: { id: string } };
+type Props = {
+  params: Promise<{ id: string }>;
+};
 
-export default function RestaurantPage({ params }: Props) {
-  const restaurant = initialRestaurants.find(r => r.id === params.id);
+export default async function RestaurantPage({ params }: Props) {
+  const { id } = await params;
+
+  const restaurant = initialRestaurants.find(
+    (r) => r.id === id
+  );
+
   if (!restaurant) notFound();
 
   const cuisineLabel = CUISINES.find(c => c.id === restaurant.cuisine)?.pt || restaurant.cuisine;
@@ -18,17 +25,7 @@ export default function RestaurantPage({ params }: Props) {
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
-      {/* Cabeçalho */}
-      <header className="bg-white shadow-sm px-6 py-4">
-        <div className="max-w-5xl mx-auto flex justify-between items-center">
-          <Link href="/pt/restaurantes" className="text-emerald-600 font-medium">
-            ← {t.common.backHome}
-          </Link>
-          <Link href="/en" className="text-sm text-slate-500 hover:text-emerald-600">
-            EN
-          </Link>
-        </div>
-      </header>
+    
 
       {/* Conteúdo Principal */}
       <section className="max-w-3xl mx-auto px-6 py-10">
@@ -114,13 +111,7 @@ export default function RestaurantPage({ params }: Props) {
         </div>
       </section>
 
-      {/* Rodapé */}
-      <footer className="bg-slate-900 text-slate-300 py-10 px-6 mt-12">
-        <div className="max-w-5xl mx-auto text-center">
-          <p className="mb-2 text-white font-semibold">AngolaLab</p>
-          <p className="text-sm">© 2026 AngolaLab — {t.footer.allRights}</p>
-        </div>
-      </footer>
+      
     </main>
   );
 }
