@@ -38,7 +38,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-slate-800 mt-8 pt-6 text-center text-slate-500 text-sm">
+        <div className="border-t border-[#F2C94C] mt-8 pt-6 text-center text-slate-500 text-sm">
           © {new Date().getFullYear()} AngolaLab — Todos os direitos reservados
         </div>
       </div>
