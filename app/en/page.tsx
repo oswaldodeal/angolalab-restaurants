@@ -1,27 +1,31 @@
-import Link from 'next/link';
+import Link from "next/link";
 
 export default function EnglishHomePage() {
   return (
     <>
-      {/* HERO — Light Grey, Fixed Position ✅ */}
-      <section className="w-full bg-slate-50 py-12 px-6">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+      {/* HERO */}
+      <section className="lab-dark-section w-full px-6 py-12 md:py-14">
+        <div className="mx-auto max-w-5xl">
+          <h1 className="mb-4 text-3xl font-bold text-white md:text-4xl">
             Authentic food, near you
           </h1>
-          <p className="text-lg text-slate-600 mb-8 max-w-2xl">
-            Verified restaurants, real menus, trusted locations. Free to list, free to discover.
+
+          <p className="mb-8 max-w-2xl text-lg text-slate-300">
+            Verified restaurants, real menus, trusted locations.
+            Free to list, free to discover.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4">
+
+          <div className="flex flex-col gap-4 sm:flex-row">
             <Link
               href="/en/restaurants"
-              className="bg-emerald-600 text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-emerald-700"
+              className="rounded-lg bg-emerald-600 px-8 py-3 text-center text-lg font-medium text-white hover:bg-emerald-700"
             >
               Browse Restaurants
             </Link>
+
             <Link
               href="/en/restaurants/submit"
-              className="border-2 border-emerald-600 text-emerald-600 px-8 py-3 rounded-lg text-lg font-medium hover:bg-emerald-50"
+              className="rounded-lg border-2 border-emerald-400 px-8 py-3 text-center text-lg font-medium text-white hover:bg-white/10"
             >
               + Add Your Restaurant — Free
             </Link>
@@ -29,21 +33,37 @@ export default function EnglishHomePage() {
         </div>
       </section>
 
-      {/* Content Area — White Cards on Light Grey Body */}
-      <section className="py-16 px-6">
-        <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-6">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-            <h3 className="font-semibold text-lg mb-2">Free Forever</h3>
-            <p className="text-slate-600">Every restaurant in Angola can list at no cost.</p>
+      {/* INFORMATION CARDS */}
+      <section className="lab-dark-section px-6 py-16">
+        <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
+
+          <div className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
+            <h3 className="mb-2 text-lg font-semibold text-slate-900">
+              Free for Everyone
+            </h3>
+            <p className="text-slate-600">
+              Any restaurant in Angola can create a free listing.
+            </p>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-            <h3 className="font-semibold text-lg mb-2">Verified by Us</h3>
-            <p className="text-slate-600">We check every listing. Only real businesses.</p>
+
+          <div className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
+            <h3 className="mb-2 text-lg font-semibold text-slate-900">
+              Verified by Our Team
+            </h3>
+            <p className="text-slate-600">
+              We review businesses before awarding verification status.
+            </p>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-            <h3 className="font-semibold text-lg mb-2">Google Maps Directions</h3>
-            <p className="text-slate-600">Exact coordinates — never get lost.</p>
+
+          <div className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
+            <h3 className="mb-2 text-lg font-semibold text-slate-900">
+              Google Maps Directions
+            </h3>
+            <p className="text-slate-600">
+              Find restaurant locations and directions.
+            </p>
           </div>
+
         </div>
       </section>
     </>

@@ -1,7 +1,15 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+﻿@import "tailwindcss";
+
+:root {
+  --lab-background: #22262d;
+  --lab-gold: #f2c94c;
+}
 
 body {
   font-family: system-ui, -apple-system, sans-serif;
+}
+
+.lab-dark-section {
+  background-color: var(--lab-background);
+  color: #ffffff;
 }
