@@ -36,7 +36,7 @@ export default function Header() {
               <Link href="/pt" className="text-[#F2C94C] hover:text-white">PT</Link>
               <Link href="/en" className="text-[#F2C94C] hover:text-white">EN</Link>
               <Link href="/pt/entrar" className="text-[#F2C94C] hover:text-white">Entrar</Link>
-              <Link href="/pt/registar" className="shrink-0 whitespace-nowrap rounded-lg bg-emerald-600 px-2.5 py-2 font-semibold text-[#F2C94C] hover:bg-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] sm:px-4">Criar Conta</Link>
+              <Link href="/pt/registar" className="shrink-0 whitespace-nowrap rounded-lg bg-emerald-600 px-2.5 py-2 font-semibold text-white hover:bg-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] sm:px-4">Criar Conta</Link>
             </>
           ) : (
             <>
@@ -44,7 +44,7 @@ export default function Header() {
               <Link href="/pt" className="text-[#F2C94C] hover:text-white">PT</Link>
               <Link href="/en" className="text-[#F2C94C] hover:text-white">EN</Link>
               <Link href="/en/signin" className="text-[#F2C94C] hover:text-white">Sign In</Link>
-              <Link href="/en/signup" className="shrink-0 whitespace-nowrap rounded-lg bg-emerald-600 px-2.5 py-2 font-semibold text-[#F2C94C] hover:bg-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] sm:px-4">Create Account</Link>
+              <Link href="/en/signup" className="shrink-0 whitespace-nowrap rounded-lg bg-emerald-600 px-2.5 py-2 font-semibold text-white hover:bg-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] sm:px-4">Create Account</Link>
             </>
           )}
         </nav>
