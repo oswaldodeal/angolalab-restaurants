@@ -12,6 +12,24 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
   const photo = demoRestaurantPhoto(restaurant.id);
   const verified = restaurant.status === 'verified';
   const isDemo = restaurant.ownerId === 'demo';
+  // Illustrative Basic-profile offers only; replace with reviewed owner-submitted data later.
+  const demoBasicOffers = isDemo && restaurant.status === 'basic' ? [
+    {
+      key: 'breakfast',
+      title: pt ? 'Pequeno-almoço' : 'Breakfast',
+      image: 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?auto=format&fit=crop&w=640&q=80',
+      price: 'AOA 3 500',
+      period: pt ? 'Dias úteis' : 'Weekdays',
+    },
+    {
+      key: 'lunch',
+      title: pt ? 'Almoço' : 'Lunch',
+      image: 'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=640&q=80',
+      price: 'AOA 5 000',
+      period: pt ? 'Fins de semana' : 'Weekends',
+    },
+  ] : [];
+
 
   return (
     <div className="bg-[#fafafa] text-[#242424]">
@@ -80,6 +98,24 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
                     ? (pt ? 'A ementa ainda não foi adicionada.' : 'The menu has not been added yet.')
                     : null}
                 </p>
+                {demoBasicOffers.length > 0 && (
+                  <div className="mt-5 space-y-4">
+                    <p className="text-sm text-[#6b5b35]">{pt ? 'Exemplos ilustrativos de refeições, preços e períodos. Não são ofertas reais.' : 'Illustrative meals, prices and availability periods. These are not real offers.'}</p>
+                    {demoBasicOffers.map((offer) => (
+                      <article key={offer.key} className="flex flex-col gap-4 rounded-xl border border-[#e9e5db] bg-white p-4 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="min-w-0 flex-1">
+                          <h3 className="text-lg font-semibold">{offer.title}</h3>
+                          <p className="mt-3 text-sm text-[#555]"><span className="font-semibold text-[#242424]">{pt ? 'Preço ilustrativo' : 'Illustrative price'}:</span> {offer.price}</p>
+                          <p className="mt-2 text-sm text-[#555]"><span className="font-semibold text-[#242424]">{pt ? 'Disponibilidade ilustrativa' : 'Illustrative availability'}:</span> {offer.period}</p>
+                          <span className="mt-4 inline-block rounded-md bg-[#fbf7ed] px-3 py-1.5 text-xs font-semibold text-[#866415]">{pt ? 'Demonstração · Sem reservas' : 'Demo · No bookings'}</span>
+                        </div>
+                        {/* Temporary illustrative food photograph, not owner-submitted. */}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={offer.image} alt={pt ? `Imagem ilustrativa: ${offer.title}` : `Illustrative image: ${offer.title}`} className="h-44 w-full rounded-lg object-cover sm:h-36 sm:w-44 sm:shrink-0" />
+                      </article>
+                    ))}
+                  </div>
+                )}
                 {restaurant.menuPhotos.length > 0 && (
                   <div className="mt-5 grid gap-4 sm:grid-cols-2">
                     {restaurant.menuPhotos.map((src, index) => (
