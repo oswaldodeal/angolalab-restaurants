@@ -14,8 +14,8 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
   const isDemo = restaurant.ownerId === 'demo';
 
   return (
-    <div className="bg-[#fafafa] px-4 py-10 text-[#242424] sm:px-8 sm:py-14">
-      <article className="mx-auto max-w-6xl overflow-hidden rounded-2xl border border-[#e9e5db] bg-white shadow-[0_12px_36px_rgba(0,0,0,0.05)]">
+    <div className="bg-[#fafafa] text-[#242424]">
+      <article className="mx-auto max-w-6xl overflow-hidden border-x border-[#e9e5db] bg-white">
         <div className="px-5 pt-7 sm:px-10 sm:pt-10 lg:px-14">
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#987515]">
             {pt ? 'AngolaLab · Perfil do restaurante' : 'AngolaLab · Restaurant profile'}
