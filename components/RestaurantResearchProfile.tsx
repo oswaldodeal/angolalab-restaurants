@@ -76,10 +76,23 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
               <section className="rounded-xl border border-[#e9e5db] p-6 sm:p-8">
                 <h2 className="text-xl font-semibold">{pt ? '02 · Ementa' : '02 · Menu'}</h2>
                 <p className="mt-4 text-[#555]">
-                  {verified
-                    ? (pt ? 'As imagens e os pratos da ementa serão adicionados aqui.' : 'Menu images and dishes will be added here.')
-                    : (pt ? 'A ementa ficará disponível após a análise do perfil.' : 'The menu will be available after profile review.')}
+                  {restaurant.menuPhotos.length === 0 && !restaurant.menuPdf
+                    ? (pt ? 'A ementa ainda não foi adicionada.' : 'The menu has not been added yet.')
+                    : null}
                 </p>
+                {restaurant.menuPhotos.length > 0 && (
+                  <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                    {restaurant.menuPhotos.map((src, index) => (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img key={src + index} src={src} alt={pt ? `Ementa, página ${index + 1}` : `Menu, page ${index + 1}`} className="w-full rounded-lg border border-[#e9e5db] object-contain" />
+                    ))}
+                  </div>
+                )}
+                {restaurant.menuPdf && (
+                  <a href={restaurant.menuPdf} target="_blank" rel="noopener noreferrer" className="mt-5 inline-block rounded-lg border border-[#b18a23] px-4 py-2 text-sm font-semibold text-[#75570d] hover:bg-[#fbf7ed]">
+                    {pt ? 'Abrir ementa ↗' : 'Open menu ↗'}
+                  </a>
+                )}
               </section>
               <section className="rounded-xl border border-[#e9e5db] p-6 sm:p-8">
                 <h2 className="text-xl font-semibold">{pt ? '03 · Comentários' : '03 · Comments'}</h2>
@@ -100,7 +113,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
                       : (pt ? 'Perfil básico / em análise' : 'Basic / under review')}
                 </p>
               </section>
-              {verified && (
+              {verified && !isDemo && (
                 <section className="rounded-xl border border-[#e9e5db] p-6">
                   <h2 className="text-lg font-semibold">{pt ? 'Localização e horário' : 'Location and hours'}</h2>
                   <p className="mt-4 text-sm leading-relaxed text-[#555]">{restaurant.address}</p>
