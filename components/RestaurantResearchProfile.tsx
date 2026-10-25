@@ -16,7 +16,22 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
   return (
     <div className="bg-[#fafafa] text-[#242424]">
       <article className="mx-auto max-w-6xl overflow-hidden border-x border-[#e9e5db] bg-white">
-        <div className="px-5 pt-7 sm:px-10 sm:pt-10 lg:px-14">
+        {/* Mobile: photograph immediately below header, full width as in the approved reference. */}
+        <section className="sm:hidden" aria-label={pt ? 'Fotografia do restaurante' : 'Restaurant photograph'}>
+          <div className="relative h-[290px] w-full overflow-hidden bg-gradient-to-br from-[#ad8b50] to-[#252a32]">
+            {photo && (
+              // Temporary illustrative imagery; not a photo of a verified business.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={photo} alt={pt ? 'Fotografia ilustrativa de restaurante' : 'Illustrative restaurant interior photograph'} className="h-full w-full object-cover" />
+            )}
+            {isDemo && <span className="absolute bottom-4 left-4 right-4 rounded-md bg-[#fff0b0] px-3 py-2 text-center text-xs font-bold text-[#57410c]">
+              AngolaLab Test · {pt ? 'Imagem ilustrativa' : 'Illustrative image'}
+            </span>}
+          </div>
+        </section>
+
+        {/* Desktop: retain the approved Research Archive order and gold divider. */}
+        <div className="hidden px-5 pt-7 sm:block sm:px-10 sm:pt-10 lg:px-14">
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#987515]">
             {pt ? 'AngolaLab · Perfil do restaurante' : 'AngolaLab · Restaurant profile'}
           </p>
@@ -24,30 +39,31 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
           <p className="mt-3 text-base text-[#555]">{cuisine} · {city}, {country}</p>
           <div className="mt-7 h-[2px] w-full bg-[#D2AC37]" aria-hidden="true" />
         </div>
-
-        <section className="px-5 pt-7 sm:px-10 lg:px-14" aria-label={pt ? 'Fotografia do restaurante' : 'Restaurant photograph'}>
-          <div className="relative h-[260px] overflow-hidden rounded-xl border border-[#e9e5db] bg-gradient-to-br from-[#ad8b50] to-[#252a32] sm:h-[390px] lg:h-[510px]">
+        <section className="hidden px-5 pt-7 sm:block sm:px-10 lg:px-14" aria-label={pt ? 'Fotografia do restaurante' : 'Restaurant photograph'}>
+          <div className="relative h-[390px] overflow-hidden rounded-xl border border-[#e9e5db] bg-gradient-to-br from-[#ad8b50] to-[#252a32] lg:h-[510px]">
             {photo && (
-              // Remote images are temporary illustrative imagery, not business photography.
               // eslint-disable-next-line @next/next/no-img-element
               <img src={photo} alt={pt ? 'Fotografia ilustrativa de restaurante' : 'Illustrative restaurant interior photograph'} className="h-full w-full object-cover" />
             )}
-            {isDemo && (
-              <span className="absolute bottom-4 left-4 rounded-md bg-[#fff0b0] px-4 py-2 text-xs font-bold text-[#57410c] sm:bottom-6 sm:left-6 sm:text-sm">
-                AngolaLab Test · {pt ? 'Imagem ilustrativa' : 'Illustrative image'}
-              </span>
-            )}
+            {isDemo && <span className="absolute bottom-6 left-6 rounded-md bg-[#fff0b0] px-4 py-2 text-sm font-bold text-[#57410c]">
+              AngolaLab Test · {pt ? 'Imagem ilustrativa' : 'Illustrative image'}
+            </span>}
           </div>
         </section>
 
-        <div className="px-5 pb-12 pt-8 sm:px-10 lg:px-14">
+        <div className="px-5 pb-12 pt-7 sm:px-10 sm:pt-8 lg:px-14">
           {isDemo && (
-            <p className="mb-8 border-l-4 border-[#D2AC37] bg-[#fbf7ed] px-5 py-4 text-sm leading-relaxed text-[#514321]">
+            <p className="mb-7 border-l-4 border-[#D2AC37] bg-[#fbf7ed] px-4 py-4 text-sm leading-relaxed text-[#514321] sm:mb-8 sm:px-5">
               {pt
                 ? 'Perfil fictício para testes de design. As fotografias, os dados e o estado apresentado não representam um restaurante real ou verificado.'
                 : 'Fictional profile for design testing. Photos, details and status do not represent a real or verified restaurant.'}
             </p>
           )}
+          <div className="mb-7 sm:hidden">
+            <h1 className="text-3xl font-semibold tracking-tight">{restaurant.name}</h1>
+            <p className="mt-3 text-base text-[#555]">{cuisine} · {city}, {country}</p>
+            <div className="mt-6 h-[2px] w-full bg-[#D2AC37]" aria-hidden="true" />
+          </div>
 
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(270px,1fr)]">
             <div className="space-y-6">
