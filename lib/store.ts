@@ -43,6 +43,7 @@ export const COUNTRIES = [
 export const CUISINES = [
   { id: 'angolan', pt: 'Angolana', en: 'Angolan' },
   { id: 'portuguese', pt: 'Portuguesa', en: 'Portuguese' },
+  { id: 'brazilian', pt: 'Brasileira', en: 'Brazilian' },
   { id: 'seafood', pt: 'Marisco', en: 'Seafood' },
   { id: 'grill', pt: 'Churrascaria', en: 'Grill' },
   { id: 'pizzeria', pt: 'Pizzaria', en: 'Pizzeria' },
