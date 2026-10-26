@@ -14,8 +14,8 @@ export default function BusinessAbout({ language }: { language: 'pt' | 'en' }) {
         { title: 'Digital trust', body: 'Fake websites, impersonation and misleading claims can harm online users. We aim to reduce uncertainty through transparent information, business identity checks and education about fraud prevention.' },
       ];
   return (
-    <main className="min-h-screen bg-[#fafafa] px-4 py-10 text-[#252525] sm:px-8">
-      <article className="mx-auto max-w-5xl border border-[#e9e5db] bg-white px-6 py-10 sm:px-12 sm:py-14">
+    <main className="min-h-full bg-[#fafafa] text-[#252525]">
+      <article className="mx-auto max-w-6xl border-[#e9e5db] bg-white px-5 py-10 sm:border-x sm:px-10 sm:py-12 lg:px-14">
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#987515]">
           {pt ? 'AngolaLab · Ligação entre empresas' : 'AngolaLab · Business Connection'}
         </p>
