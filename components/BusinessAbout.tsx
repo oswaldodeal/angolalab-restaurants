@@ -1,5 +1,3 @@
-import Link from 'next/link';
-
 export default function BusinessAbout({ language }: { language: 'pt' | 'en' }) {
   const pt = language === 'pt';
   const sections = pt
@@ -57,9 +55,7 @@ export default function BusinessAbout({ language }: { language: 'pt' | 'en' }) {
             ? 'Verificamos empresas. Promovemos a transparência. Ajudamos os utilizadores a tomar decisões informadas.'
             : 'We verify businesses. We promote transparency. We help users make informed decisions.'}
         </p>
-        <Link href={pt ? '/pt' : '/en'} className="mt-8 inline-block font-semibold text-[#866415] hover:underline">
-          ← {pt ? 'Voltar ao início' : 'Back to home'}
-        </Link>
+
       </article>
     </main>
   );
