@@ -1,5 +1,6 @@
 import { CITIES, COUNTRIES, CUISINES, getGoogleMapsUrl, type Restaurant } from '@/lib/store';
 import { demoRestaurantPhoto } from '@/lib/demo-photos';
+import RestaurantMenuPreview from '@/components/RestaurantMenuPreview';
 
 export default function RestaurantResearchProfile({ restaurant, language }: {
   restaurant: Restaurant;
@@ -116,6 +117,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
                     ))}
                   </div>
                 )}
+                <RestaurantMenuPreview restaurant={restaurant} language={language} />
                 {restaurant.menuPhotos.length > 0 && (
                   <div className="mt-5 grid gap-4 sm:grid-cols-2">
                     {restaurant.menuPhotos.map((src, index) => (
