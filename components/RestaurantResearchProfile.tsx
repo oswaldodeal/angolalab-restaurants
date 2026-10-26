@@ -18,14 +18,14 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
       key: 'breakfast',
       title: pt ? 'Pequeno-almoço' : 'Breakfast',
       image: 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?auto=format&fit=crop&w=640&q=80',
-      price: 'AOA 3 500',
+      price: restaurant.country === 'GB' ? '£8.50' : 'AOA 3 500',
       period: pt ? 'Dias úteis' : 'Weekdays',
     },
     {
       key: 'lunch',
       title: pt ? 'Almoço' : 'Lunch',
       image: 'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=640&q=80',
-      price: 'AOA 5 000',
+      price: restaurant.country === 'GB' ? '£12.00' : 'AOA 5 000',
       period: pt ? 'Fins de semana' : 'Weekends',
     },
   ] : [];
