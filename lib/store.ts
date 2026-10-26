@@ -37,6 +37,7 @@ isPremium: boolean;
 export const COUNTRIES = [
   { id: 'AO', pt: 'Angola', en: 'Angola' },
   { id: 'PT', pt: 'Portugal', en: 'Portugal' },
+  { id: 'GB', pt: 'Inglaterra (Reino Unido)', en: 'England (United Kingdom)' },
 ];
 
 export const CUISINES = [
@@ -63,6 +64,13 @@ export const CITIES = [
   { id: 'porto', country: 'PT', pt: 'Porto', en: 'Porto' },
   { id: 'coimbra', country: 'PT', pt: 'Coimbra', en: 'Coimbra' },
   { id: 'faro', country: 'PT', pt: 'Faro', en: 'Faro' },
+
+  // England, United Kingdom — initial city coverage for the UK pilot
+  { id: 'manchester', country: 'GB', pt: 'Manchester', en: 'Manchester' },
+  { id: 'oldham', country: 'GB', pt: 'Oldham', en: 'Oldham' },
+  { id: 'london', country: 'GB', pt: 'Londres', en: 'London' },
+  { id: 'birmingham', country: 'GB', pt: 'Birmingham', en: 'Birmingham' },
+  { id: 'liverpool', country: 'GB', pt: 'Liverpool', en: 'Liverpool' },
 ];
 
 // Helper: generate Google Maps link
