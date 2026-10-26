@@ -72,6 +72,10 @@ export default function RestaurantMenuPreview({
   if (!isDemo) return null;
   const categories = restaurant.country === 'GB' ? manchesterMenu : luandaMenu;
   const currency = restaurant.country === 'GB' ? 'GBP' : 'AOA';
+  // Basic profiles render only two illustrative food items; restricted items are not present in the HTML.
+  const visibleCategories = isBasic
+    ? categories.filter((category) => category.kind === 'food').slice(0, 1).map((category) => ({ ...category, items: category.items.slice(0, 2) }))
+    : categories;
   const formatPrice = (value: number) =>
     new Intl.NumberFormat(pt ? 'pt-PT' : 'en-GB', { style: 'currency', currency }).format(value);
 
@@ -89,9 +93,9 @@ export default function RestaurantMenuPreview({
         </span>
       </div>
       <div className="relative mt-6">
-        <div className={isBasic ? 'max-h-64 overflow-hidden' : ''}>
+        <div>
           <div className="space-y-6">
-            {categories.map((category) => (
+            {visibleCategories.map((category) => (
               <section key={category.id} className="border-t border-[#e9e5db] pt-5">
                 <h4 className="font-semibold text-[#292929]">
                   {category.kind === 'drinks' ? (pt ? 'Bebidas · ' : 'Drinks · ') : (pt ? 'Comida · ' : 'Food · ')}
@@ -114,7 +118,7 @@ export default function RestaurantMenuPreview({
           </div>
         </div>
         {isBasic && (
-          <div className="relative -mt-20 flex min-h-44 flex-col items-center justify-end bg-gradient-to-b from-transparent via-[#fffdf9]/95 to-[#fffdf9] px-3 pb-2 text-center">
+          <div className="mt-6 flex flex-col items-center rounded-lg border-t border-[#e9e5db] bg-[#fffdf9] px-3 pb-3 pt-6 text-center">
             <p className="font-semibold text-[#5d4716]">🔒 {pt ? 'Ementa completa disponível nos perfis Verificados' : 'Full menu available on Verified profiles'}</p>
             <p className="mt-2 max-w-md text-sm text-[#665e4f]">
               {pt ? 'O perfil Básico mantém duas refeições em destaque. A ementa completa e as bebidas exigem a verificação da empresa.' : 'Basic profiles show two featured meals. Full food and drinks menus require business verification.'}
