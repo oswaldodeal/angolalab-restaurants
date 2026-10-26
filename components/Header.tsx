@@ -29,10 +29,11 @@ export default function Header() {
     <span className="text-[#F2C94C]">Lab</span>
   </span>
 </Link>
-        <nav aria-label="Main navigation" className="flex w-full flex-nowrap items-center justify-between gap-x-1 text-[clamp(0.68rem,2.9vw,0.875rem)] sm:ml-auto sm:w-auto sm:justify-end sm:gap-x-6 sm:text-sm">
+        <nav aria-label="Main navigation" className="flex w-full flex-wrap items-center justify-between gap-x-2 gap-y-2 text-[clamp(0.68rem,2.9vw,0.875rem)] sm:ml-auto sm:w-auto sm:flex-nowrap sm:justify-end sm:gap-x-6 sm:text-sm">
           {lang === 'pt' ? (
             <>
               <Link href="/pt/restaurantes" className="text-[#F2C94C] hover:text-white">Restaurantes</Link>
+              <Link href="/pt/sobre" className="text-[#F2C94C] hover:text-white">Sobre Nós</Link>
               <Link href="/pt" className="text-[#F2C94C] hover:text-white">PT</Link>
               <Link href="/en" className="text-[#F2C94C] hover:text-white">EN</Link>
               <Link href="/pt/entrar" className="text-[#F2C94C] hover:text-white">Entrar</Link>
@@ -41,6 +42,7 @@ export default function Header() {
           ) : (
             <>
               <Link href="/en/restaurants" className="text-[#F2C94C] hover:text-white">Restaurants</Link>
+              <Link href="/en/about" className="text-[#F2C94C] hover:text-white">About Us</Link>
               <Link href="/pt" className="text-[#F2C94C] hover:text-white">PT</Link>
               <Link href="/en" className="text-[#F2C94C] hover:text-white">EN</Link>
               <Link href="/en/signin" className="text-[#F2C94C] hover:text-white">Sign In</Link>
