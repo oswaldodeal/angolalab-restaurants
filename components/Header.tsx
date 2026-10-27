@@ -37,6 +37,8 @@ export default function Header() {
     if (exploreRef.current) exploreRef.current.open = false;
   }, [path]);
 
+  const navLinkClass = 'rounded-md text-[#F2C94C] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C]';
+
   const exploreMenu = (
     <details ref={exploreRef} className="group relative">
       <summary className="flex cursor-pointer list-none items-center gap-1 rounded-md px-1 py-2 text-[#F2C94C] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#F2C94C] [&::-webkit-details-marker]:hidden">
@@ -71,7 +73,7 @@ export default function Header() {
       <div className="w-full flex flex-col items-start gap-y-4 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-x-6 sm:px-8 lg:px-12">
        <Link
   href={`/${lang}`}
-  className="inline-flex shrink-0 items-center gap-3 text-xl font-bold"
+  className="inline-flex shrink-0 items-center gap-3 rounded-md text-xl font-bold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C]"
   aria-label="AngolaLab home"
 >
   <Image
@@ -92,19 +94,19 @@ export default function Header() {
           {lang === 'pt' ? (
             <>
               {exploreMenu}
-              <Link href="/pt/sobre" className="text-[#F2C94C] hover:text-white">Sobre Nós</Link>
-              <Link href="/pt" className="text-[#F2C94C] hover:text-white">PT</Link>
-              <Link href="/en" className="text-[#F2C94C] hover:text-white">EN</Link>
-              <Link href="/pt/entrar" className="text-[#F2C94C] hover:text-white">Entrar</Link>
+              <Link href="/pt/sobre" className={navLinkClass}>Sobre Nós</Link>
+              <Link href="/pt" className={navLinkClass}>PT</Link>
+              <Link href="/en" className={navLinkClass}>EN</Link>
+              <Link href="/pt/entrar" className={navLinkClass}>Entrar</Link>
               <Link href="/pt/registar" className="shrink-0 whitespace-nowrap rounded-lg bg-emerald-600 px-2.5 py-2 font-semibold text-white hover:bg-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] sm:px-4">Criar Conta</Link>
             </>
           ) : (
             <>
               {exploreMenu}
-              <Link href="/en/about" className="text-[#F2C94C] hover:text-white">About Us</Link>
-              <Link href="/pt" className="text-[#F2C94C] hover:text-white">PT</Link>
-              <Link href="/en" className="text-[#F2C94C] hover:text-white">EN</Link>
-              <Link href="/en/signin" className="text-[#F2C94C] hover:text-white">Sign In</Link>
+              <Link href="/en/about" className={navLinkClass}>About Us</Link>
+              <Link href="/pt" className={navLinkClass}>PT</Link>
+              <Link href="/en" className={navLinkClass}>EN</Link>
+              <Link href="/en/signin" className={navLinkClass}>Sign In</Link>
               <Link href="/en/signup" className="shrink-0 whitespace-nowrap rounded-lg bg-emerald-600 px-2.5 py-2 font-semibold text-white hover:bg-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] sm:px-4">Create Account</Link>
             </>
           )}
