@@ -3,7 +3,7 @@
 import { FormEvent, useState } from 'react';
 import Link from 'next/link';
 import { CITIES, COUNTRIES, CUISINES } from '@/lib/store';
-import { BUSINESS_TYPES, type BusinessType } from '@/lib/business-types';
+import { BUSINESS_TYPES, BASIC_PROFILE_LIMITS, basicProfileItemCount, type BusinessType } from '@/lib/business-types';
 
 type Language = 'pt' | 'en';
 type Fields = {
@@ -91,6 +91,16 @@ export default function RestaurantRegistration({ language }: { language: Languag
             <p className="mt-3 text-sm text-[#555]">
               {BUSINESS_TYPES.find((type) => type.id === businessType)?.[pt ? 'focusPt' : 'focusEn']}
             </p>
+            <div className="mt-4 rounded-lg border border-[#e9e5db] bg-white p-4 text-sm">
+              <p className="font-semibold">{pt ? 'Capacidade do perfil Básico' : 'Basic profile capacity'}: {basicProfileItemCount(businessType)} {pt ? 'itens' : 'items'}</p>
+              <p className="mt-1 text-[#555]">
+                {BASIC_PROFILE_LIMITS[businessType].featured} {pt ? 'itens em destaque com fotografia' : 'featured items with photos'}
+                {BASIC_PROFILE_LIMITS[businessType].textOnly > 0 && (
+                  <> · {BASIC_PROFILE_LIMITS[businessType].textOnly} {pt ? 'itens adicionais sem fotografia' : 'additional text-only items'}</>
+                )}
+              </p>
+              <p className="mt-2 text-xs text-[#777]">{pt ? 'Modelo de investigação; a edição de perfis para outras categorias ainda não está disponível.' : 'Research model; profile editing for other categories is not available yet.'}</p>
+            </div>
             <p className="mt-3 text-xs text-[#6d5c32]">
               {pt ? 'Nesta fase, apenas o registo de restaurantes está ativo. As outras categorias são exemplos de investigação, sem envio de dados.' : 'Only restaurant registration is active at this stage. Other categories are research previews and do not submit data.'}
             </p>
