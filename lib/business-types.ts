@@ -10,3 +10,22 @@ export const BUSINESS_TYPES = [
 ] as const;
 
 export type BusinessType = (typeof BUSINESS_TYPES)[number]['id'];
+
+// Approved Brick 009A Basic-profile capacity. The existing restaurant
+// editor remains unchanged; other business profiles are not active yet.
+export const BASIC_PROFILE_LIMITS: Record<BusinessType, {
+  featured: number;
+  textOnly: number;
+}> = {
+  restaurant: { featured: 2, textOnly: 2 },
+  cafe: { featured: 2, textOnly: 1 },
+  pub: { featured: 2, textOnly: 0 },
+  bar: { featured: 2, textOnly: 0 },
+  takeaway: { featured: 2, textOnly: 1 },
+  bakery: { featured: 2, textOnly: 1 },
+};
+
+export function basicProfileItemCount(type: BusinessType): number {
+  const limits = BASIC_PROFILE_LIMITS[type];
+  return limits.featured + limits.textOnly;
+}
