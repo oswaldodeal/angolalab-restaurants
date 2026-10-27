@@ -2,10 +2,39 @@
 import Image from "next/image";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { BUSINESS_TYPES } from '@/lib/business-types';
 
 export default function Header() {
   const path = usePathname();
   const lang = path.startsWith('/en') ? 'en' : 'pt';
+
+  const exploreMenu = (
+    <details className="group relative">
+      <summary className="flex cursor-pointer list-none items-center gap-1 rounded-md px-1 py-2 text-[#F2C94C] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#F2C94C] [&::-webkit-details-marker]:hidden">
+        {lang === 'pt' ? 'Explorar' : 'Explore'}
+        <span aria-hidden="true" className="text-xs transition-transform group-open:rotate-180">▾</span>
+      </summary>
+      <div className="absolute left-0 top-full z-[60] mt-2 w-60 rounded-xl border border-[#e4d5a6] bg-white p-2 text-sm text-[#242424] shadow-xl sm:left-auto sm:right-0">
+        <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-[#987515]">
+          {lang === 'pt' ? 'Tipos de negócio' : 'Business types'}
+        </p>
+        {BUSINESS_TYPES.map((type) => type.id === 'restaurant' ? (
+          <Link
+            key={type.id}
+            href={lang === 'pt' ? '/pt/restaurantes' : '/en/restaurants'}
+            className="block rounded-lg px-3 py-2.5 font-medium hover:bg-[#fbf7ed] focus-visible:outline-2 focus-visible:outline-[#b18a23]"
+          >
+            {type[lang]}
+          </Link>
+        ) : (
+          <div key={type.id} className="flex items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-[#666]">
+            <span>{type[lang]}</span>
+            <span className="text-[10px] text-[#876613]">{lang === 'pt' ? 'Em breve' : 'Planned'}</span>
+          </div>
+        ))}
+      </div>
+    </details>
+  );
 
   return (
 <header className="sticky top-0 z-50 w-full bg-[#22262D] shadow-sm">   
@@ -32,7 +61,7 @@ export default function Header() {
         <nav aria-label="Main navigation" className="flex w-full flex-wrap items-center justify-between gap-x-2 gap-y-2 text-[clamp(0.68rem,2.9vw,0.875rem)] sm:ml-auto sm:w-auto sm:flex-nowrap sm:justify-end sm:gap-x-6 sm:text-sm">
           {lang === 'pt' ? (
             <>
-              <Link href="/pt/restaurantes" className="text-[#F2C94C] hover:text-white">Restaurantes</Link>
+              {exploreMenu}
               <Link href="/pt/sobre" className="text-[#F2C94C] hover:text-white">Sobre Nós</Link>
               <Link href="/pt" className="text-[#F2C94C] hover:text-white">PT</Link>
               <Link href="/en" className="text-[#F2C94C] hover:text-white">EN</Link>
@@ -41,7 +70,7 @@ export default function Header() {
             </>
           ) : (
             <>
-              <Link href="/en/restaurants" className="text-[#F2C94C] hover:text-white">Restaurants</Link>
+              {exploreMenu}
               <Link href="/en/about" className="text-[#F2C94C] hover:text-white">About Us</Link>
               <Link href="/pt" className="text-[#F2C94C] hover:text-white">PT</Link>
               <Link href="/en" className="text-[#F2C94C] hover:text-white">EN</Link>
