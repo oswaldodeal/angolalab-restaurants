@@ -10,6 +10,28 @@ export default function Header() {
   const lang = path.startsWith('/en') ? 'en' : 'pt';
   const exploreRef = useRef<HTMLDetailsElement>(null);
 
+  // Dismiss the menu when the visitor clicks elsewhere or presses Escape.
+  useEffect(() => {
+    function handleOutsidePointer(event: PointerEvent) {
+      const menu = exploreRef.current;
+      if (menu?.open && event.target instanceof Node && !menu.contains(event.target)) {
+        menu.open = false;
+      }
+    }
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === 'Escape' && exploreRef.current?.open) {
+        exploreRef.current.open = false;
+        exploreRef.current.querySelector('summary')?.focus();
+      }
+    }
+    document.addEventListener('pointerdown', handleOutsidePointer);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('pointerdown', handleOutsidePointer);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, []);
+
   // Close Explore after navigating, including browser back/forward.
   useEffect(() => {
     if (exploreRef.current) exploreRef.current.open = false;
