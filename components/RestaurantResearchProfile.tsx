@@ -95,7 +95,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
               <section className="rounded-xl border border-[#e9e5db] p-6 sm:p-8">
                 <h2 className="text-xl font-semibold">{pt ? '02 · Ementa' : '02 · Menu'}</h2>
                 <p className="mt-4 text-[#555]">
-                  {restaurant.menuPhotos.length === 0 && !restaurant.menuPdf
+                  {restaurant.menuPhotos.length === 0 && !restaurant.menuPdf && !isDemo
                     ? (pt ? 'A ementa ainda não foi adicionada.' : 'The menu has not been added yet.')
                     : null}
                 </p>
@@ -118,6 +118,14 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
                   </div>
                 )}
                 <RestaurantMenuPreview restaurant={restaurant} language={language} />
+                {isDemo && (
+                  <a
+                    href={pt ? '/pt/editor-ementa' : '/en/menu-editor'}
+                    className="mt-5 inline-block rounded-lg border border-[#b18a23] bg-[#fffdf8] px-4 py-3 text-sm font-semibold text-[#75570d] hover:bg-[#fbf7ed]"
+                  >
+                    {pt ? '🧱 Brick 008 · Experimentar o editor de ementa (demonstração) →' : '🧱 Brick 008 · Try the menu editor (demo) →'}
+                  </a>
+                )}
                 {restaurant.menuPhotos.length > 0 && (
                   <div className="mt-5 grid gap-4 sm:grid-cols-2">
                     {restaurant.menuPhotos.map((src, index) => (
