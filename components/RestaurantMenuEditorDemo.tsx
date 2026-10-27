@@ -23,6 +23,8 @@ export default function RestaurantMenuEditorDemo({ language }: { language: 'pt' 
   const [categories, setCategories] = useState<MenuCategory[]>(() => structuredClone(startingMenu));
   const [newCategory, setNewCategory] = useState('');
   const [newKind, setNewKind] = useState<'food' | 'drinks'>('food');
+  const [firstItemName, setFirstItemName] = useState('');
+  const [firstItemPrice, setFirstItemPrice] = useState('');
   const counter = useRef(10);
   const canEdit = tier === 'verified';
   const currency = country === 'GB' ? 'GBP' : 'AOA';
@@ -42,8 +44,14 @@ export default function RestaurantMenuEditorDemo({ language }: { language: 'pt' 
     event.preventDefault();
     const name = newCategory.trim();
     if (!canEdit || !name) return;
-    setCategories((previous) => [...previous, { id: 'category-' + nextId(), name: name.slice(0, 70), kind: newKind, items: [] }]);
+    const itemName = firstItemName.trim();
+    const price = firstItemPrice.trim() === '' ? 0 : Number(firstItemPrice);
+    if (itemName && (!Number.isFinite(price) || price < 0 || price > 99999999)) return;
+    const items: MenuItem[] = itemName ? [{ id: 'item-' + nextId(), name: itemName.slice(0, 100), price }] : [];
+    setCategories((previous) => [...previous, { id: 'category-' + nextId(), name: name.slice(0, 70), kind: newKind, items }]);
     setNewCategory('');
+    setFirstItemName('');
+    setFirstItemPrice('');
   };
   const addItem = (categoryId: string) => {
     if (!canEdit) return;
@@ -96,7 +104,7 @@ export default function RestaurantMenuEditorDemo({ language }: { language: 'pt' 
             <section aria-label={pt ? 'Editar ementa' : 'Edit menu'}>
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2 className="text-xl font-semibold">{pt ? 'Editar categorias e itens' : 'Edit categories and items'}</h2>
-                <button type="button" onClick={() => { setCategories(structuredClone(startingMenu)); setNewCategory(''); }} className={buttonClass}>
+                <button type="button" onClick={() => { setCategories(structuredClone(startingMenu)); setNewCategory(''); setFirstItemName(''); setFirstItemPrice(''); }} className={buttonClass}>
                   {pt ? 'Repor exemplo' : 'Reset example'}
                 </button>
               </div>
@@ -153,6 +161,7 @@ export default function RestaurantMenuEditorDemo({ language }: { language: 'pt' 
               </div>
               <form onSubmit={addCategory} className="mt-5 rounded-xl border border-dashed border-[#c9ae6d] p-4">
                 <h3 className="font-semibold">{pt ? 'Criar categoria personalizada' : 'Create a custom category'}</h3>
+                <p className="mt-2 text-xs text-[#665e4f]">{pt ? 'Escolha qualquer nome de categoria. O preço pertence ao prato ou bebida, não à categoria. Pode adicionar o primeiro item já aqui.' : 'Choose any category name. Prices belong to dishes or drinks, not to the category. You can add the first item here.'}</p>
                 <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1fr)_130px]">
                   <label className="text-xs font-semibold text-[#555]">
                     {pt ? 'Nome' : 'Name'}
@@ -164,6 +173,16 @@ export default function RestaurantMenuEditorDemo({ language }: { language: 'pt' 
                       <option value="food">{pt ? 'Comida' : 'Food'}</option>
                       <option value="drinks">{pt ? 'Bebidas' : 'Drinks'}</option>
                     </select>
+                  </label>
+                </div>
+                <div className="mt-4 grid gap-3 rounded-lg bg-[#fffaf0] p-3 sm:grid-cols-[minmax(0,1fr)_130px]">
+                  <label className="text-xs font-semibold text-[#555]">
+                    {pt ? 'Primeiro prato ou bebida (opcional)' : 'First dish or drink (optional)'}
+                    <input value={firstItemName} maxLength={100} onChange={(event) => setFirstItemName(event.target.value)} placeholder={pt ? 'Ex.: Mufete' : 'e.g. Grilled fish'} className={inputClass + ' mt-1'} />
+                  </label>
+                  <label className="text-xs font-semibold text-[#555]">
+                    {pt ? 'Preço do item' : 'Item price'} ({currency})
+                    <input type="number" min="0" max="99999999" step="any" value={firstItemPrice} onChange={(event) => setFirstItemPrice(event.target.value)} placeholder={country === 'GB' ? '12.50' : '5500'} className={inputClass + ' mt-1'} />
                   </label>
                 </div>
                 <button type="submit" className="mt-3 rounded-lg bg-[#252a32] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#3d434d]">
