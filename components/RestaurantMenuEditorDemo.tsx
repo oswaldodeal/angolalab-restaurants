@@ -19,6 +19,12 @@ const initialFeaturedMeals: FeaturedMeal[] = [
   { id: 'lunch', name: 'Lunch', price: 12, availability: 'Weekends' },
 ];
 
+type BasicMenuItem = { id: 'preview-1' | 'preview-2'; name: string; price: number };
+const initialBasicMenuItems: BasicMenuItem[] = [
+  { id: 'preview-1', name: 'House stew with rice', price: 14.5 },
+  { id: 'preview-2', name: 'Grilled vegetable plate', price: 11.95 },
+];
+
 const inputClass = 'w-full rounded-lg border border-[#ded8c9] bg-white px-3 py-2 text-sm text-[#242424] focus:outline-none focus:ring-2 focus:ring-[#c9a43b]';
 const buttonClass = 'rounded-lg border border-[#c9ae6d] bg-white px-3 py-2 text-sm font-semibold text-[#75570d] hover:bg-[#fbf7ed]';
 
@@ -28,6 +34,7 @@ export default function RestaurantMenuEditorDemo({ language }: { language: 'pt' 
   const [country, setCountry] = useState<'GB' | 'AO'>('GB');
   const [categories, setCategories] = useState<MenuCategory[]>(() => structuredClone(startingMenu));
   const [featuredMeals, setFeaturedMeals] = useState<FeaturedMeal[]>(() => structuredClone(initialFeaturedMeals));
+  const [basicMenuItems, setBasicMenuItems] = useState<BasicMenuItem[]>(() => structuredClone(initialBasicMenuItems));
   const [newCategory, setNewCategory] = useState('');
   const [newKind, setNewKind] = useState<'food' | 'drinks'>('food');
   const [firstItemName, setFirstItemName] = useState('');
@@ -41,6 +48,9 @@ export default function RestaurantMenuEditorDemo({ language }: { language: 'pt' 
   const nextId = () => String(++counter.current);
   const updateFeaturedMeal = (id: FeaturedMeal['id'], patch: Partial<FeaturedMeal>) => {
     setFeaturedMeals((previous) => previous.map((meal) => meal.id === id ? { ...meal, ...patch } : meal));
+  };
+  const updateBasicMenuItem = (id: BasicMenuItem['id'], patch: Partial<BasicMenuItem>) => {
+    setBasicMenuItems((previous) => previous.map((item) => item.id === id ? { ...item, ...patch } : item));
   };
   const updateCategory = (id: string, patch: Partial<MenuCategory>) => {
     setCategories((previous) => previous.map((category) => category.id === id ? { ...category, ...patch } : category));
@@ -76,7 +86,7 @@ export default function RestaurantMenuEditorDemo({ language }: { language: 'pt' 
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#987515]">AngolaLab · {pt ? 'Laboratório do proprietário' : 'Owner laboratory'}</p>
         <h1 className="mt-3 text-3xl font-semibold">{pt ? 'Brick 008 · Editor de ementa' : 'Brick 008 · Restaurant Menu Editor'}</h1>
         <p className="mt-3 max-w-3xl text-sm leading-relaxed text-[#555]">
-{pt ? 'No perfil Básico, edite duas refeições em destaque. No perfil Verificado, experimente categorias e ementas completas. Tudo é fictício; as alterações desaparecem ao atualizar a página.' : 'Basic owners can edit two featured meals. Verified owners can explore categories and full menus. Everything is fictional and resets on refresh.'}
+{pt ? 'No perfil Básico, edite duas refeições em destaque e dois itens adicionais. No perfil Verificado, experimente categorias e ementas completas. Tudo é fictício; as alterações desaparecem ao atualizar a página.' : 'Basic owners can edit two featured meals and two additional menu items. Verified owners can explore categories and full menus. Everything is fictional and resets on refresh.'}
         </p>
         <div className="mt-6 border-l-4 border-[#D2AC37] bg-[#fbf7ed] px-4 py-3 text-sm">
           <strong>{pt ? 'Demonstração apenas.' : 'Demonstration only.'}</strong>{' '}
@@ -136,10 +146,42 @@ export default function RestaurantMenuEditorDemo({ language }: { language: 'pt' 
               <button type="button" onClick={() => setFeaturedMeals(structuredClone(initialFeaturedMeals))} className={buttonClass + ' mt-4'}>
                 {pt ? 'Repor refeições de exemplo' : 'Reset example meals'}
               </button>
+              <section className="mt-8" aria-label={pt ? 'Editar dois itens adicionais' : 'Edit two additional menu items'}>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <h2 className="text-xl font-semibold">{pt ? 'Mais dois itens da ementa' : 'Two additional menu items'}</h2>
+                  <span className="rounded-lg border border-[#c9ae6d] bg-[#fff5d9] px-3 py-1.5 text-xs font-semibold text-[#75570d]">2 / 2 · Basic</span>
+                </div>
+                <p className="mt-3 text-sm text-[#555]">
+                  {pt ? 'Estes dois itens aparecem na pré-visualização da ementa sem fotografias. Altere os nomes e preços quando necessário.' : 'These two items appear in the text-only menu preview, without photos. Update their names and prices whenever needed.'}
+                </p>
+                <div className="mt-5 space-y-4">
+                  {basicMenuItems.map((item, index) => (
+                    <section key={item.id} className="rounded-xl border border-[#e9e5db] bg-white p-5">
+                      <h3 className="font-semibold">{pt ? 'Item adicional' : 'Additional item'} {index + 1}</h3>
+                      <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_140px]">
+                        <label className="text-xs font-semibold text-[#555]">
+                          {pt ? 'Nome do prato' : 'Dish name'}
+                          <input maxLength={100} value={item.name} onChange={(event) => updateBasicMenuItem(item.id, { name: event.target.value })} className={inputClass + ' mt-1'} />
+                        </label>
+                        <label className="text-xs font-semibold text-[#555]">
+                          {pt ? 'Preço' : 'Price'} ({currency})
+                          <input type="number" min="0" max="99999999" step="any" value={item.price} onChange={(event) => {
+                            const price = Number(event.target.value);
+                            if (Number.isFinite(price)) updateBasicMenuItem(item.id, { price: Math.min(99999999, Math.max(0, price)) });
+                          }} className={inputClass + ' mt-1'} />
+                        </label>
+                      </div>
+                    </section>
+                  ))}
+                </div>
+                <button type="button" onClick={() => setBasicMenuItems(structuredClone(initialBasicMenuItems))} className={buttonClass + ' mt-4'}>
+                  {pt ? 'Repor itens de exemplo' : 'Reset example items'}
+                </button>
+              </section>
               <div className="mt-6 rounded-xl border border-[#e9e5db] bg-[#fffdf8] p-5">
                 <h3 className="font-semibold text-[#75570d]">🔒 {pt ? 'Ementa completa · Perfis Verificados' : 'Full menu · Verified profiles'}</h3>
                 <p className="mt-2 text-sm text-[#555]">
-                  {pt ? 'O perfil Básico mantém as duas refeições em destaque e a pré-visualização da ementa acordada no Brick 007. As categorias personalizadas e a ementa completa são funcionalidades Verificadas. A verificação depende de evidências e não é garantida pelo pagamento.' : 'Basic retains two featured meals and the Brick 007 menu preview. Custom categories and full menus belong to Verified profiles. Verification is evidence-based and is not guaranteed by payment.'}
+                  {pt ? 'O perfil Básico permite editar duas refeições em destaque e dois itens adicionais sem fotografia, conforme o Brick 007. As categorias personalizadas e a ementa completa são funcionalidades Verificadas. A verificação depende de evidências e não é garantida pelo pagamento.' : 'Basic owners can edit two featured meals and two additional text-only menu items, preserving Brick 007. Custom categories and full menus belong to Verified profiles. Verification is evidence-based and is not guaranteed by payment.'}
                 </p>
                 <button type="button" onClick={() => setTier('verified')} className={buttonClass + ' mt-4'}>
                   {pt ? 'Experimentar editor Verificado (demonstração)' : 'Try Verified editor (demo)'}
@@ -148,7 +190,7 @@ export default function RestaurantMenuEditorDemo({ language }: { language: 'pt' 
             </section>
             <aside aria-label={pt ? 'Pré-visualização das refeições' : 'Featured meals preview'} className="self-start rounded-xl border border-[#e9e5db] bg-[#fffdf9] p-5 lg:sticky lg:top-6">
               <div className="flex items-center justify-between gap-2">
-                <h2 className="text-xl font-semibold">{pt ? 'Pré-visualização · Básico' : 'Preview · Basic'}</h2>
+                <h2 className="text-xl font-semibold">{pt ? 'Pré-visualização · 4 itens' : 'Preview · 4 items'}</h2>
                 <span className="rounded-md bg-[#fff5d9] px-2 py-1 text-xs font-semibold text-[#75570d]">DEMO</span>
               </div>
               <p className="mt-2 text-xs text-[#777]">{pt ? 'Não publicado · Apenas nesta página' : 'Not published · This page only'}</p>
@@ -161,8 +203,19 @@ export default function RestaurantMenuEditorDemo({ language }: { language: 'pt' 
                   </article>
                 ))}
               </div>
+              <div className="mt-6 border-t border-[#e9e5db] pt-4">
+                <h3 className="font-semibold">{pt ? 'Ementa · Mais dois itens (sem fotografia)' : 'Menu · Two more items (no photos)'}</h3>
+                <div className="mt-3 space-y-3">
+                  {basicMenuItems.map((item) => (
+                    <div key={item.id} className="flex items-start justify-between gap-3 text-sm">
+                      <span>{item.name.trim() || (pt ? 'Item sem nome' : 'Unnamed item')}</span>
+                      <span className="shrink-0 tabular-nums">{money(item.price)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
               <p className="mt-5 border-t border-[#e9e5db] pt-4 text-xs text-[#777]">
-                {pt ? 'Esta pré-visualização mostra apenas as duas refeições em destaque. O perfil público de demonstração não é alterado.' : 'This preview shows only the two featured meals. The demonstration public profile is not changed.'}
+                {pt ? 'A pré-visualização mostra quatro itens: duas refeições em destaque e dois itens adicionais. Nenhuma alteração é guardada ou publicada no perfil público.' : 'Preview shows four items: two featured meals and two additional menu items. Nothing is saved or published to the public profile.'}
               </p>
             </aside>
           </div>
