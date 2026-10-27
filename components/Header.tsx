@@ -2,14 +2,21 @@
 import Image from "next/image";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useEffect, useRef } from 'react';
 import { BUSINESS_TYPES } from '@/lib/business-types';
 
 export default function Header() {
   const path = usePathname();
   const lang = path.startsWith('/en') ? 'en' : 'pt';
+  const exploreRef = useRef<HTMLDetailsElement>(null);
+
+  // Close Explore after navigating, including browser back/forward.
+  useEffect(() => {
+    if (exploreRef.current) exploreRef.current.open = false;
+  }, [path]);
 
   const exploreMenu = (
-    <details className="group relative">
+    <details ref={exploreRef} className="group relative">
       <summary className="flex cursor-pointer list-none items-center gap-1 rounded-md px-1 py-2 text-[#F2C94C] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#F2C94C] [&::-webkit-details-marker]:hidden">
         {lang === 'pt' ? 'Explorar' : 'Explore'}
         <span aria-hidden="true" className="text-xs transition-transform group-open:rotate-180">▾</span>
@@ -22,6 +29,7 @@ export default function Header() {
           <Link
             key={type.id}
             href={lang === 'pt' ? '/pt/restaurantes' : '/en/restaurants'}
+            onClick={() => { if (exploreRef.current) exploreRef.current.open = false; }}
             className="block rounded-lg px-3 py-2.5 font-medium hover:bg-[#fbf7ed] focus-visible:outline-2 focus-visible:outline-[#b18a23]"
           >
             {type[lang]}
