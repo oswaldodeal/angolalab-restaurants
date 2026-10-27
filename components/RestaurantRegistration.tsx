@@ -3,6 +3,7 @@
 import { FormEvent, useState } from 'react';
 import Link from 'next/link';
 import { CITIES, COUNTRIES, CUISINES } from '@/lib/store';
+import { BUSINESS_TYPES, type BusinessType } from '@/lib/business-types';
 
 type Language = 'pt' | 'en';
 type Fields = {
@@ -25,6 +26,7 @@ const empty: Fields = {
 export default function RestaurantRegistration({ language }: { language: Language }) {
   const pt = language === 'pt';
   const [form, setForm] = useState<Fields>(empty);
+  const [businessType, setBusinessType] = useState<BusinessType>('restaurant');
   const [saving, setSaving] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
@@ -40,6 +42,8 @@ export default function RestaurantRegistration({ language }: { language: Languag
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    // Non-restaurant categories are research previews, not active registration.
+    if (businessType !== 'restaurant') return;
     setSaving(true);
     setError('');
     try {
@@ -77,6 +81,22 @@ export default function RestaurantRegistration({ language }: { language: Languag
             : 'Submit details for review. Your restaurant will not be published or verified automatically.'}
         </p>
 
+        {!submitted && (
+          <section className="mb-7 rounded-xl border border-[#ded8c5] bg-[#fffdf8] p-6" aria-label={pt ? 'Tipo de negócio' : 'Business type'}>
+            <h2 className="mb-3 text-lg font-semibold text-[#987515]">{pt ? '🧱 Brick 009A · Tipo de negócio' : '🧱 Brick 009A · Business type'}</h2>
+            <label htmlFor="businessType" className={labelClass}>{pt ? 'Escolha o tipo de negócio' : 'Choose your business type'}</label>
+            <select id="businessType" className={inputClass} value={businessType} onChange={(event) => setBusinessType(event.target.value as BusinessType)}>
+              {BUSINESS_TYPES.map((type) => <option key={type.id} value={type.id}>{type[language]}</option>)}
+            </select>
+            <p className="mt-3 text-sm text-[#555]">
+              {BUSINESS_TYPES.find((type) => type.id === businessType)?.[pt ? 'focusPt' : 'focusEn']}
+            </p>
+            <p className="mt-3 text-xs text-[#6d5c32]">
+              {pt ? 'Nesta fase, apenas o registo de restaurantes está ativo. As outras categorias são exemplos de investigação, sem envio de dados.' : 'Only restaurant registration is active at this stage. Other categories are research previews and do not submit data.'}
+            </p>
+          </section>
+        )}
+
         {submitted ? (
           <div role="status" className="rounded-xl border border-[#ded8c5] bg-[#fffaf0] p-8">
             <h2 className="mb-3 text-2xl font-semibold">{pt ? 'Registo recebido' : 'Registration received'}</h2>
@@ -89,6 +109,16 @@ export default function RestaurantRegistration({ language }: { language: Languag
               {pt ? 'Ver restaurantes' : 'Browse restaurants'}
             </Link>
           </div>
+        ) : businessType !== 'restaurant' ? (
+          <section className="rounded-xl border border-[#ded8c5] bg-[#fbf7ed] p-7" role="status">
+            <h2 className="text-xl font-semibold">{pt ? 'Categoria em preparação' : 'Category in research'}</h2>
+            <p className="mt-3 text-sm leading-relaxed text-[#555]">
+              {pt ? 'Estamos a estudar como adaptar os perfis Básico e Verificado a este tipo de negócio. Ainda não é possível enviar um registo nesta categoria.' : 'We are researching how Basic and Verified profiles should adapt to this business type. Registration for this category is not available yet.'}
+            </p>
+            <button type="button" onClick={() => setBusinessType('restaurant')} className="mt-5 rounded-lg border border-[#b18a23] bg-white px-5 py-3 text-sm font-semibold text-[#75570d]">
+              {pt ? 'Voltar ao registo de restaurante' : 'Return to restaurant registration'}
+            </button>
+          </section>
         ) : (
           <form onSubmit={submit} className="space-y-7">
             <section className="rounded-xl border border-[#ded8c5] p-6">
