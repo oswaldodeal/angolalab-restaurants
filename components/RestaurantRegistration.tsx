@@ -27,6 +27,7 @@ export default function RestaurantRegistration({ language }: { language: Languag
   const pt = language === 'pt';
   const [form, setForm] = useState<Fields>(empty);
   const [businessType, setBusinessType] = useState<BusinessType>('restaurant');
+  const [previewTier, setPreviewTier] = useState<'basic' | 'verified'>('basic');
   const [saving, setSaving] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
@@ -104,14 +105,43 @@ export default function RestaurantRegistration({ language }: { language: Languag
             {/* Brick 010: visual-only adaptive profile research, no submissions or uploads. */}
             <div className="mt-5 rounded-xl border border-[#ded8c5] bg-[#faf9f6] p-4 sm:p-5">
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#987515]">
-                {pt ? 'Brick 010B · Pré-visualização adaptável' : 'Brick 010B · Adaptive profile preview'}
+                {pt ? 'Brick 010D · Pré-visualização adaptável' : 'Brick 010D · Adaptive profile preview'}
               </p>
               <h3 className="mt-2 text-lg font-semibold">
-                {BUSINESS_TYPES.find((type) => type.id === businessType)?.[language]} · {pt ? 'Perfil Básico' : 'Basic Profile'}
+                {BUSINESS_TYPES.find((type) => type.id === businessType)?.[language]} · {previewTier === 'basic' ? (pt ? 'Perfil Básico' : 'Basic Profile') : (pt ? 'Perfil Verificado (exemplo)' : 'Verified Profile (example)')}
               </h3>
               <p className="mt-1 text-xs leading-relaxed text-[#666]">
                 {pt ? 'Exemplo ilustrativo: não representa um negócio real, nem publica produtos.' : 'Illustrative example: not a real business and no products are published.'}
               </p>
+              <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label={pt ? 'Escolher demonstração de perfil' : 'Choose profile demonstration'}>
+                {(['basic', 'verified'] as const).map((tier) => (
+                  <button
+                    key={tier}
+                    type="button"
+                    aria-pressed={previewTier === tier}
+                    onClick={() => setPreviewTier(tier)}
+                    className={`rounded-lg border px-4 py-2 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b18a23] ${previewTier === tier ? 'border-[#987515] bg-[#fff0bd] text-[#59430a]' : 'border-[#d9d5c9] bg-white text-[#555] hover:bg-[#fffaf0]'}`}
+                  >
+                    {tier === 'basic' ? (pt ? 'Básico' : 'Basic') : (pt ? 'Verificado · Exemplo' : 'Verified · Example')}
+                  </button>
+                ))}
+              </div>
+              {previewTier === 'verified' && (
+                <div className="mt-4 rounded-lg border border-[#ded8c5] bg-white p-4 text-sm" role="status">
+                  <p className="font-semibold text-[#76570f]">{pt ? 'Exemplo de funcionalidades após verificação' : 'Example features after verification'}</p>
+                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                    {(pt
+                      ? ['Mais fotografias do negócio', 'Morada completa e mapa', 'Horário de funcionamento detalhado', 'Informações adicionais do responsável']
+                      : ['Additional business photos', 'Full address and map', 'Detailed opening hours', 'Additional owner information']
+                    ).map((feature) => (
+                      <div key={feature} className="rounded-md border border-[#ece8dc] bg-[#faf9f6] p-3">{feature}</div>
+                    ))}
+                  </div>
+                  <p className="mt-3 text-xs leading-relaxed text-[#666]">
+                    {pt ? 'Apenas uma demonstração visual. Não foi verificada nenhuma empresa; não são apresentados dados reais, mapas ativos ou serviços pagos.' : 'Visual demonstration only. No business has been verified; no real business data, active maps or paid services are shown.'}
+                  </p>
+                </div>
+              )}
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 {Array.from({ length: BASIC_PROFILE_LIMITS[businessType].featured }, (_, index) => (
                   <div key={`featured-${index}`} className="overflow-hidden rounded-lg border border-[#e9e5db] bg-white">
@@ -133,12 +163,7 @@ export default function RestaurantRegistration({ language }: { language: Languag
                   ))}
                 </div>
               )}
-              <div className="mt-4 rounded-lg border border-dashed border-[#c8b98b] bg-white p-3">
-                <p className="text-sm font-semibold">{pt ? 'Perfil Verificado · Pré-visualização futura' : 'Verified Profile · Future preview'}</p>
-                <p className="mt-1 text-xs leading-relaxed text-[#666]">
-                  {pt ? 'Mais fotografias e detalhes após análise. A verificação não está ativa para estas categorias.' : 'More photos and details after review. Verification is not active for these categories.'}
-                </p>
-              </div>
+
             </div>
             <p className="mt-3 text-xs text-[#6d5c32]">
               {pt ? 'Nesta fase, apenas o registo de restaurantes está ativo. As outras categorias são exemplos de investigação, sem envio de dados.' : 'Only restaurant registration is active at this stage. Other categories are research previews and do not submit data.'}
