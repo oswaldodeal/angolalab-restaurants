@@ -101,6 +101,45 @@ export default function RestaurantRegistration({ language }: { language: Languag
               </p>
               <p className="mt-2 text-xs text-[#777]">{pt ? 'Modelo de investigação; a edição de perfis para outras categorias ainda não está disponível.' : 'Research model; profile editing for other categories is not available yet.'}</p>
             </div>
+            {/* Brick 010: visual-only adaptive profile research, no submissions or uploads. */}
+            <div className="mt-5 rounded-xl border border-[#ded8c5] bg-[#faf9f6] p-4 sm:p-5">
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#987515]">
+                {pt ? 'Brick 010 · Pré-visualização adaptável' : 'Brick 010 · Adaptive profile preview'}
+              </p>
+              <h3 className="mt-2 text-lg font-semibold">
+                {BUSINESS_TYPES.find((type) => type.id === businessType)?.[language]} · {pt ? 'Perfil Básico' : 'Basic Profile'}
+              </h3>
+              <p className="mt-1 text-xs leading-relaxed text-[#666]">
+                {pt ? 'Exemplo ilustrativo: não representa um negócio real, nem publica produtos.' : 'Illustrative example: not a real business and no products are published.'}
+              </p>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                {Array.from({ length: BASIC_PROFILE_LIMITS[businessType].featured }, (_, index) => (
+                  <div key={`featured-${index}`} className="overflow-hidden rounded-lg border border-[#e9e5db] bg-white">
+                    <div className="flex h-24 items-center justify-center bg-[#eae7df] text-xs font-medium text-[#6c665a]" aria-hidden="true">
+                      {pt ? 'Espaço para fotografia' : 'Photo placeholder'}
+                    </div>
+                    <div className="p-3 text-sm font-medium">
+                      {pt ? `Produto em destaque ${index + 1}` : `Featured item ${index + 1}`}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {BASIC_PROFILE_LIMITS[businessType].textOnly > 0 && (
+                <div className="mt-3 space-y-2">
+                  {Array.from({ length: BASIC_PROFILE_LIMITS[businessType].textOnly }, (_, index) => (
+                    <div key={`text-${index}`} className="rounded-lg border border-[#e9e5db] bg-white px-4 py-3 text-sm">
+                      {pt ? `Produto sem fotografia ${index + 1}` : `Text-only item ${index + 1}`}
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="mt-4 rounded-lg border border-dashed border-[#c8b98b] bg-white p-3">
+                <p className="text-sm font-semibold">{pt ? 'Perfil Verificado · Pré-visualização futura' : 'Verified Profile · Future preview'}</p>
+                <p className="mt-1 text-xs leading-relaxed text-[#666]">
+                  {pt ? 'Mais fotografias e detalhes após análise. A verificação não está ativa para estas categorias.' : 'More photos and details after review. Verification is not active for these categories.'}
+                </p>
+              </div>
+            </div>
             <p className="mt-3 text-xs text-[#6d5c32]">
               {pt ? 'Nesta fase, apenas o registo de restaurantes está ativo. As outras categorias são exemplos de investigação, sem envio de dados.' : 'Only restaurant registration is active at this stage. Other categories are research previews and do not submit data.'}
             </p>
