@@ -29,3 +29,36 @@ export function basicProfileItemCount(type: BusinessType): number {
   const limits = BASIC_PROFILE_LIMITS[type];
   return limits.featured + limits.textOnly;
 }
+
+ 
+// Brick 010B: bilingual illustrative labels for research-only Basic previews.
+// No real products, pricing, inventory, alcohol promotion or business claims.
+export const BASIC_PROFILE_EXAMPLES: Record<BusinessType, {
+  en: { featured: readonly string[]; textOnly: readonly string[] };
+  pt: { featured: readonly string[]; textOnly: readonly string[] };
+}> = {
+  restaurant: {
+    en: { featured: ['House main dish', 'Vegetarian dish'], textOnly: ['Soup of the day', 'Seasonal dessert'] },
+    pt: { featured: ['Prato principal da casa', 'Prato vegetariano'], textOnly: ['Sopa do dia', 'Sobremesa da época'] },
+  },
+  cafe: {
+    en: { featured: ['Coffee speciality', 'Breakfast pastry'], textOnly: ['Fresh sandwich'] },
+    pt: { featured: ['Especialidade de café', 'Pastel de pequeno-almoço'], textOnly: ['Sandes fresca'] },
+  },
+  pub: {
+    en: { featured: ['Pub lunch', 'Vegetarian pub meal'], textOnly: [] },
+    pt: { featured: ['Almoço de pub', 'Refeição vegetariana'], textOnly: [] },
+  },
+  bar: {
+    en: { featured: ['Non-alcoholic house drink', 'Sharing snack'], textOnly: [] },
+    pt: { featured: ['Bebida da casa sem álcool', 'Petisco para partilhar'], textOnly: [] },
+  },
+  takeaway: {
+    en: { featured: ['Takeaway main meal', 'Vegetarian takeaway'], textOnly: ['Side dish'] },
+    pt: { featured: ['Refeição principal para levar', 'Refeição vegetariana para levar'], textOnly: ['Acompanhamento'] },
+  },
+  bakery: {
+    en: { featured: ['Fresh bread', 'House pastry'], textOnly: ['Daily baked speciality'] },
+    pt: { featured: ['Pão fresco', 'Pastel da casa'], textOnly: ['Especialidade do dia'] },
+  },
+};
