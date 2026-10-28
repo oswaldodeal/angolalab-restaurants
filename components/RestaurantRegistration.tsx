@@ -3,7 +3,7 @@
 import { FormEvent, useState } from 'react';
 import Link from 'next/link';
 import { CITIES, COUNTRIES, CUISINES } from '@/lib/store';
-import { BUSINESS_TYPES, BASIC_PROFILE_LIMITS, basicProfileItemCount, type BusinessType } from '@/lib/business-types';
+import { BUSINESS_TYPES, BASIC_PROFILE_LIMITS, BASIC_PROFILE_EXAMPLES, basicProfileItemCount, type BusinessType } from '@/lib/business-types';
 
 type Language = 'pt' | 'en';
 type Fields = {
@@ -104,7 +104,7 @@ export default function RestaurantRegistration({ language }: { language: Languag
             {/* Brick 010: visual-only adaptive profile research, no submissions or uploads. */}
             <div className="mt-5 rounded-xl border border-[#ded8c5] bg-[#faf9f6] p-4 sm:p-5">
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#987515]">
-                {pt ? 'Brick 010 · Pré-visualização adaptável' : 'Brick 010 · Adaptive profile preview'}
+                {pt ? 'Brick 010B · Pré-visualização adaptável' : 'Brick 010B · Adaptive profile preview'}
               </p>
               <h3 className="mt-2 text-lg font-semibold">
                 {BUSINESS_TYPES.find((type) => type.id === businessType)?.[language]} · {pt ? 'Perfil Básico' : 'Basic Profile'}
@@ -119,7 +119,7 @@ export default function RestaurantRegistration({ language }: { language: Languag
                       {pt ? 'Espaço para fotografia' : 'Photo placeholder'}
                     </div>
                     <div className="p-3 text-sm font-medium">
-                      {pt ? `Produto em destaque ${index + 1}` : `Featured item ${index + 1}`}
+                      {BASIC_PROFILE_EXAMPLES[businessType][language].featured[index]}
                     </div>
                   </div>
                 ))}
@@ -128,7 +128,7 @@ export default function RestaurantRegistration({ language }: { language: Languag
                 <div className="mt-3 space-y-2">
                   {Array.from({ length: BASIC_PROFILE_LIMITS[businessType].textOnly }, (_, index) => (
                     <div key={`text-${index}`} className="rounded-lg border border-[#e9e5db] bg-white px-4 py-3 text-sm">
-                      {pt ? `Produto sem fotografia ${index + 1}` : `Text-only item ${index + 1}`}
+                      {BASIC_PROFILE_EXAMPLES[businessType][language].textOnly[index]}
                     </div>
                   ))}
                 </div>
