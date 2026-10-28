@@ -141,10 +141,22 @@ export default function RestaurantRegistration({ language }: { language: Languag
                     <div className="mt-4 rounded-lg border border-dashed border-[#c8b98b] bg-[#fffaf0] p-4">
                       <p className="text-sm font-semibold text-[#76570f]">{pt ? 'Funcionalidades futuras · Ainda não disponíveis' : 'Future features · Not available yet'}</p>
                       <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                        {(pt ? ['Domínio próprio do negócio (planeado)', 'Cartão de visita digital (planeado)'] : ['Business-owned domain (planned)', 'Digital business card (planned)']).map((item) => (
+                        {(pt ? ['Domínio próprio do negócio (planeado)', 'Cartão de visita digital com ligação ao perfil (planeado)', 'Design de cartão físico com identidade exclusiva do negócio (planeado)', 'Impressão de cartões físicos sob encomenda (planeado; custo separado)'] : ['Business-owned domain (planned)', 'Digital business card linking to the profile (planned)', 'Physical card design using only the business identity (planned)', 'Made-to-order physical printing (planned; separately priced)']).map((item) => (
                           <div key={item} className="rounded-md border border-[#ece8dc] bg-white p-3">{item}</div>
                         ))}
                       </div>
+                      <p className="mt-3 text-xs text-[#666]">{pt ? 'Os cartões mostram apenas a identidade do negócio, sem marca AngolaLab. Um código QR no cartão poderá abrir o perfil público.' : 'Cards show only the participating business identity, without AngolaLab branding. A QR code on the card could open its public profile.'}</p>
+                      {businessType === 'restaurant' && (
+                        <div className="mt-4 rounded-lg border border-[#d8d1bd] bg-white p-4">
+                          <p className="text-sm font-semibold text-[#76570f]">{pt ? 'Encomendas por QR na mesa · Investigação futura' : 'Table QR ordering · Future research'}</p>
+                          <p className="mt-2 text-xs leading-relaxed text-[#555]">
+                            {pt ? 'Exemplo conceptual: Mesa 05 → Ler QR da mesa → Consultar menu → Selecionar ACC271026 → Enviar pedido → Restaurante confirma.' : 'Concept only: Table 05 → Scan table QR → View menu → Select ACC271026 → Submit order → Restaurant confirms.'}
+                          </p>
+                          <p className="mt-2 text-xs leading-relaxed text-[#666]">
+                            {pt ? 'O QR da mesa é diferente do QR do cartão de visita. Não existe código QR funcional, encomenda, pagamento ou integração com a cozinha nesta versão. O atendimento tradicional continua disponível.' : 'The table QR is distinct from the business-card QR. This version has no functional QR code, ordering, payment or kitchen integration. Traditional waiter-assisted service remains an option.'}
+                          </p>
+                        </div>
+                      )}
                       <p className="mt-3 text-xs text-[#666]">{pt ? 'Sem ativação, pagamento, reserva de domínio ou emissão de cartão nesta demonstração.' : 'No activation, payment, domain registration or business-card issuance in this demonstration.'}</p>
                     </div>
                   )}
