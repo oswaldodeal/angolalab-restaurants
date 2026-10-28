@@ -28,6 +28,7 @@ export default function RestaurantRegistration({ language }: { language: Languag
   const [form, setForm] = useState<Fields>(empty);
   const [businessType, setBusinessType] = useState<BusinessType>('restaurant');
   const [previewTier, setPreviewTier] = useState<'basic' | 'verified' | 'pro'>('basic');
+  const [cardPublishedPreview, setCardPublishedPreview] = useState(false);
   const [saving, setSaving] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
@@ -40,6 +41,26 @@ export default function RestaurantRegistration({ language }: { language: Languag
   const inputClass = 'w-full rounded-lg border border-[#d9d5c9] bg-white px-4 py-3 text-[#222] focus-visible:outline-2 focus-visible:outline-[#b18a23]';
   const labelClass = 'block text-sm font-medium mb-2';
   const back = pt ? '/pt/restaurantes' : '/en/restaurants';
+
+  function downloadSampleContact() {
+    // Demonstration contact only: no owner or restaurant form details are exported.
+    const vcard = [
+      'BEGIN:VCARD',
+      'VERSION:3.0',
+      'FN:Restaurante Exemplo',
+      'ORG:Restaurante Exemplo',
+      'NOTE:Sample contact for AngolaLab research demonstration - not a real business',
+      'END:VCARD',
+    ].join('\\r\\n');
+    const url = URL.createObjectURL(new Blob([vcard], { type: 'text/vcard;charset=utf-8' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'restaurante-exemplo-demo.vcf';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -146,6 +167,31 @@ export default function RestaurantRegistration({ language }: { language: Languag
                         ))}
                       </div>
                       <p className="mt-3 text-xs text-[#666]">{pt ? 'Os cartões mostram apenas a identidade do negócio, sem marca AngolaLab. Um código QR no cartão poderá abrir o perfil público.' : 'Cards show only the participating business identity, without AngolaLab branding. A QR code on the card could open its public profile.'}</p>
+                      <div className="mt-4 rounded-lg border border-[#d8d1bd] bg-white p-4">
+                        <p className="text-sm font-semibold text-[#76570f]">{pt ? 'Brick 010G · Cartão digital no telemóvel' : 'Brick 010G · Mobile digital business card'}</p>
+                        <p className="mt-1 text-xs text-[#666]">{pt ? 'Exemplo fictício. Os controlos de publicação só alteram esta demonstração no seu navegador.' : 'Fictional example. Publication controls only change this preview in your browser.'}</p>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <button type="button" onClick={() => setCardPublishedPreview((value) => !value)} aria-pressed={cardPublishedPreview} className="rounded-lg border border-[#987515] bg-[#fff0bd] px-4 py-2 text-xs font-semibold text-[#59430a] focus-visible:outline-2 focus-visible:outline-offset-2">
+                            {cardPublishedPreview ? (pt ? 'Simular retirada de publicação' : 'Simulate unpublish') : (pt ? 'Simular publicação' : 'Simulate publish')}
+                          </button>
+                          <span className="self-center text-xs text-[#666]" role="status">{cardPublishedPreview ? (pt ? 'Estado simulado: público' : 'Simulated status: public') : (pt ? 'Estado simulado: privado' : 'Simulated status: private')}</span>
+                        </div>
+                        <div className="mx-auto mt-4 max-w-[310px] rounded-[1.6rem] border-[5px] border-[#353535] bg-white p-4 shadow-sm" aria-label={pt ? 'Exemplo de cartão de visita para telemóvel' : 'Mobile business card example'}>
+                          <div className="rounded-xl bg-[#f4f0e5] p-5 text-center">
+                            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#d7c58f] text-xl font-bold text-[#49390f]" aria-hidden="true">R</div>
+                            <p className="mt-3 text-lg font-bold">Restaurante Exemplo</p>
+                            <p className="mt-1 text-xs text-[#555]">{pt ? 'Restaurante · Luanda (exemplo)' : 'Restaurant · Luanda (example)'}</p>
+                            <p className="mt-3 text-xs font-medium text-[#76570f]">{pt ? 'Dados fictícios · Sem contacto real' : 'Fictional details · No real contact'}</p>
+                          </div>
+                          <div className="mt-3 space-y-2 text-center text-xs text-[#555]">
+                            <p>{pt ? 'Horários e menu: disponíveis após publicação real' : 'Hours and menu: available after real publication'}</p>
+                            <button type="button" onClick={downloadSampleContact} className="w-full rounded-lg bg-[#252a32] px-4 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2">
+                              {pt ? 'Guardar contacto de exemplo (.vcf)' : 'Save sample contact (.vcf)'}
+                            </button>
+                          </div>
+                        </div>
+                        <p className="mt-3 text-xs leading-relaxed text-[#666]">{pt ? 'O ficheiro .vcf contém apenas o nome fictício Restaurante Exemplo. Não são publicados dados, não existe ligação pública para partilhar e nenhum QR é gerado.' : 'The .vcf file contains only the fictional name Restaurante Exemplo. No data is published, no public share link exists and no QR is generated.'}</p>
+                      </div>
                       {businessType === 'restaurant' && (
                         <div className="mt-4 rounded-lg border border-[#d8d1bd] bg-white p-4">
                           <p className="text-sm font-semibold text-[#76570f]">{pt ? 'Encomendas por QR na mesa · Investigação futura' : 'Table QR ordering · Future research'}</p>
