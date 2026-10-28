@@ -64,6 +64,17 @@ export default function Header() {
             <span className="text-[10px] text-[#876613]">{lang === 'pt' ? 'Em breve' : 'Planned'}</span>
           </div>
         ))}
+        <div className="my-2 border-t border-[#e9e5db]" />
+        <Link
+          href={lang === 'pt' ? '/pt/restaurantes/registar' : '/en/restaurants/submit'}
+          onClick={() => { if (exploreRef.current) exploreRef.current.open = false; }}
+          className="block rounded-lg bg-[#fff8e6] px-3 py-3 font-semibold text-[#76570f] hover:bg-[#f9edcb] focus-visible:outline-2 focus-visible:outline-[#b18a23]"
+        >
+          {lang === 'pt' ? '🧱 Demonstração de Perfis Adaptáveis' : '🧱 Adaptive Profile Demo'}
+          <span className="mt-1 block text-xs font-normal text-[#6e675a]">
+            {lang === 'pt' ? 'Pré-visualizar seis tipos de negócio' : 'Preview six business types'}
+          </span>
+        </Link>
       </div>
     </details>
   );
