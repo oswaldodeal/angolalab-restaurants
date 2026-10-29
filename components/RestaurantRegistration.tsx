@@ -29,6 +29,7 @@ export default function RestaurantRegistration({ language }: { language: Languag
   const [businessType, setBusinessType] = useState<BusinessType>('restaurant');
   const [previewTier, setPreviewTier] = useState<'basic' | 'verified' | 'pro'>('basic');
   const [cardPublishedPreview, setCardPublishedPreview] = useState(false);
+  const [sampleCardType, setSampleCardType] = useState<'business' | 'personal'>('business');
   const [saving, setSaving] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
@@ -43,23 +44,22 @@ export default function RestaurantRegistration({ language }: { language: Languag
   const back = pt ? '/pt/restaurantes' : '/en/restaurants';
 
   function downloadSampleContact() {
-    // Fictional demonstration only: never export private owner or form details.
-    // vCard 3.0 uses CRLF line endings; literal backslash-r/backslash-n breaks imports.
+    // Both examples are fictional. Never export registration form or private owner details.
+    const identity = sampleCardType === 'business'
+      ? ['N:;Restaurante Exemplo;;;', 'FN:Restaurante Exemplo', 'ORG:Restaurante Exemplo', 'TEL;TYPE=WORK,VOICE:+1-202-555-0147']
+      : ['N:Exemplo;Ana;;;', 'FN:Ana Exemplo', 'TEL;TYPE=CELL,VOICE:+1-202-555-0147'];
     const vcard = [
       'BEGIN:VCARD',
       'VERSION:3.0',
-      'N:;Restaurante Exemplo;;;',
-      'FN:Restaurante Exemplo',
-      'ORG:Restaurante Exemplo',
-      'TEL;TYPE=WORK,VOICE:+1-202-555-0147',
-      'NOTE:Fictional contact for AngolaLab research demonstration - not a real business',
+      ...identity,
+      'NOTE:Fictional contact for AngolaLab research demonstration - not a real person or business',
       'END:VCARD',
       '',
     ].join('\r\n');
     const url = URL.createObjectURL(new Blob([vcard], { type: 'text/vcard;charset=utf-8' }));
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'restaurante-exemplo-demo.vcf';
+    link.download = sampleCardType === 'business' ? 'restaurante-exemplo-demo.vcf' : 'ana-exemplo-demo.vcf';
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -172,8 +172,16 @@ export default function RestaurantRegistration({ language }: { language: Languag
                       </div>
                       <p className="mt-3 text-xs text-[#666]">{pt ? 'Os cartões mostram apenas a identidade do negócio, sem marca AngolaLab. Um código QR no cartão poderá abrir o perfil público.' : 'Cards show only the participating business identity, without AngolaLab branding. A QR code on the card could open its public profile.'}</p>
                       <div className="mt-4 rounded-lg border border-[#d8d1bd] bg-white p-4">
-                        <p className="text-sm font-semibold text-[#76570f]">{pt ? 'Brick 010G · Cartão digital no telemóvel' : 'Brick 010G · Mobile digital business card'}</p>
+                        <p className="text-sm font-semibold text-[#76570f]">{pt ? 'Brick 010K · Cartões digitais pessoal e empresarial' : 'Brick 010K · Personal and business digital cards'}</p>
                         <p className="mt-1 text-xs text-[#666]">{pt ? 'Exemplo fictício. Os controlos de publicação só alteram esta demonstração no seu navegador.' : 'Fictional example. Publication controls only change this preview in your browser.'}</p>
+                        <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label={pt ? 'Tipo de cartão de exemplo' : 'Sample card type'}>
+                          {(['business', 'personal'] as const).map((type) => (
+                            <button key={type} type="button" aria-pressed={sampleCardType === type} onClick={() => setSampleCardType(type)}
+                              className={`rounded-lg border px-4 py-2 text-xs font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 ${sampleCardType === type ? 'border-[#987515] bg-[#fff0bd] text-[#59430a]' : 'border-[#d9d5c9] bg-white text-[#555]'}`}>
+                              {type === 'business' ? (pt ? 'Negócio' : 'Business') : (pt ? 'Pessoa' : 'Personal')}
+                            </button>
+                          ))}
+                        </div>
                         <div className="mt-3 flex flex-wrap gap-2">
                           <button type="button" onClick={() => setCardPublishedPreview((value) => !value)} aria-pressed={cardPublishedPreview} className="rounded-lg border border-[#987515] bg-[#fff0bd] px-4 py-2 text-xs font-semibold text-[#59430a] focus-visible:outline-2 focus-visible:outline-offset-2">
                             {cardPublishedPreview ? (pt ? 'Simular retirada de publicação' : 'Simulate unpublish') : (pt ? 'Simular publicação' : 'Simulate publish')}
@@ -182,13 +190,13 @@ export default function RestaurantRegistration({ language }: { language: Languag
                         </div>
                         <div className="mx-auto mt-4 max-w-[310px] rounded-[1.6rem] border-[5px] border-[#353535] bg-white p-4 shadow-sm" aria-label={pt ? 'Exemplo de cartão de visita para telemóvel' : 'Mobile business card example'}>
                           <div className="rounded-xl bg-[#f4f0e5] p-5 text-center">
-                            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#d7c58f] text-xl font-bold text-[#49390f]" aria-hidden="true">R</div>
-                            <p className="mt-3 text-lg font-bold">Restaurante Exemplo</p>
-                            <p className="mt-1 text-xs text-[#555]">{pt ? 'Restaurante · Luanda (exemplo)' : 'Restaurant · Luanda (example)'}</p>
+                            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#d7c58f] text-xl font-bold text-[#49390f]" aria-hidden="true">{sampleCardType === 'business' ? 'R' : 'A'}</div>
+                            <p className="mt-3 text-lg font-bold">{sampleCardType === 'business' ? 'Restaurante Exemplo' : 'Ana Exemplo'}</p>
+                            <p className="mt-1 text-xs text-[#555]">{sampleCardType === 'business' ? (pt ? 'Restaurante · Luanda (exemplo)' : 'Restaurant · Luanda (example)') : (pt ? 'Pessoa · Exemplo fictício' : 'Individual · Fictional example')}</p>
                             <p className="mt-3 text-xs font-medium text-[#76570f]">{pt ? 'Dados fictícios · Sem contacto real' : 'Fictional details · No real contact'}</p>
                           </div>
                           <div className="mt-3 space-y-2 text-center text-xs text-[#555]">
-                            <p>{pt ? 'Horários e menu: disponíveis após publicação real' : 'Hours and menu: available after real publication'}</p>
+                            <p>{sampleCardType === 'business' ? (pt ? 'Horários e menu: disponíveis após publicação real' : 'Hours and menu: available after real publication') : (pt ? 'Nome e telemóvel fictícios para testar a importação' : 'Fictional name and mobile number for import testing')}</p>
                             <button type="button" onClick={downloadSampleContact} className="w-full rounded-lg bg-[#252a32] px-4 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2">
                               {pt ? 'Guardar contacto de exemplo (.vcf)' : 'Save sample contact (.vcf)'}
                             </button>
