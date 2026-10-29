@@ -6,6 +6,7 @@ import { useState } from 'react';
 export default function HomeDigitalCards({ language }: { language: 'en' | 'pt' }) {
   const pt = language === 'pt';
   const [type, setType] = useState<'personal' | 'business'>('personal');
+  const [imageAvailable, setImageAvailable] = useState(true);
   const personal = type === 'personal';
   return (
     <section className="bg-[#f3f2ef] px-5 py-14 text-[#252525]" aria-labelledby="home-digital-cards">
@@ -33,6 +34,14 @@ export default function HomeDigitalCards({ language }: { language: 'en' | 'pt' }
           </Link>
           <p className="mt-3 text-xs text-[#666]">{pt ? 'Demonstração com identidades fictícias. Sem publicação ou QR ativo.' : 'Fictional demonstration. No live publishing or QR sharing.'}</p>
         </div>
+        <div className="space-y-5">
+          {imageAvailable && (
+            <div className="overflow-hidden rounded-2xl border border-[#ded6c5] bg-white shadow-[0_20px_50px_rgba(0,0,0,0.09)]">
+              {/* Upload the approved image to public/images/digital-cards-networking.webp before this renders. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/images/digital-cards-networking.webp" alt={pt ? 'Graduada e profissional a partilhar cartões de contacto digitais através de telemóveis, imagem ilustrativa' : 'Graduate and business professional exchanging digital contact cards using their phones, illustrative image'} loading="lazy" className="h-auto w-full object-cover" onError={() => setImageAvailable(false)} />
+            </div>
+          )}
         <div className="relative mx-auto w-full max-w-sm rounded-[1.75rem] border border-[#ded6c5] bg-white p-5 shadow-[0_20px_50px_rgba(0,0,0,0.09)]">
           <div className="absolute -right-2 -top-3 rounded-full bg-[#d9c17e] px-4 py-1.5 text-xs font-bold text-[#45350a] shadow-sm">{pt ? 'PRÉ-VISUALIZAÇÃO' : 'PREVIEW'}</div>
           <div className="rounded-[1.2rem] bg-gradient-to-br from-[#f9f4e7] to-[#ede6d3] p-7 text-center transition-colors duration-300">
@@ -46,6 +55,7 @@ export default function HomeDigitalCards({ language }: { language: 'en' | 'pt' }
             </div>
           </div>
           <p className="mt-4 text-center text-xs text-[#666]">{pt ? 'Escolha um tipo de cartão para experimentar.' : 'Choose a card type to preview it.'}</p>
+        </div>
         </div>
       </div>
     </section>
