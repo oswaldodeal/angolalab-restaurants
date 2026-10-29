@@ -30,6 +30,7 @@ export default function RestaurantRegistration({ language }: { language: Languag
   const [previewTier, setPreviewTier] = useState<'basic' | 'verified' | 'pro'>('basic');
   const [cardPublishedPreview, setCardPublishedPreview] = useState(false);
   const [sampleCardType, setSampleCardType] = useState<'business' | 'personal'>('business');
+  const [businessVerifiedDemo, setBusinessVerifiedDemo] = useState(false);
   const [saving, setSaving] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
@@ -172,18 +173,41 @@ export default function RestaurantRegistration({ language }: { language: Languag
                       </div>
                       <p className="mt-3 text-xs text-[#666]">{pt ? 'Os cartões mostram apenas a identidade do negócio, sem marca AngolaLab. Um código QR no cartão poderá abrir o perfil público.' : 'Cards show only the participating business identity, without AngolaLab branding. A QR code on the card could open its public profile.'}</p>
                       <div className="mt-4 rounded-lg border border-[#d8d1bd] bg-white p-4">
-                        <p className="text-sm font-semibold text-[#76570f]">{pt ? 'Brick 010K · Cartões digitais pessoal e empresarial' : 'Brick 010K · Personal and business digital cards'}</p>
+                        <p className="text-sm font-semibold text-[#76570f]">{pt ? 'Brick 010M · Política de acesso aos cartões' : 'Brick 010M · Digital card access policy'}</p>
                         <p className="mt-1 text-xs text-[#666]">{pt ? 'Exemplo fictício. Os controlos de publicação só alteram esta demonstração no seu navegador.' : 'Fictional example. Publication controls only change this preview in your browser.'}</p>
+                        <div className="mt-3 grid gap-2 sm:grid-cols-2 text-xs">
+                          <div className="rounded-lg border border-[#ded7c5] bg-[#faf8f0] p-3">
+                            <p className="font-semibold">{pt ? 'Pessoal · Grátis para todos' : 'Personal · Free for everyone'}</p>
+                            <p className="mt-1 text-[#555]">{pt ? 'Sem verificação de identidade obrigatória para criar o cartão. Privado por defeito; partilha só com autorização.' : 'No identity verification required to create a card. Private by default; share only with permission.'}</p>
+                          </div>
+                          <div className="rounded-lg border border-[#ded7c5] bg-[#faf8f0] p-3">
+                            <p className="font-semibold">{pt ? 'Negócio · Incluído após verificação' : 'Business · Included after verification'}</p>
+                            <p className="mt-1 text-[#555]">{pt ? 'Verificação do negócio separada de pagamentos. Design e impressão físicos são serviços opcionais futuros.' : 'Business verification is separate from payment. Physical design and printing are optional future services.'}</p>
+                          </div>
+                        </div>
                         <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label={pt ? 'Tipo de cartão de exemplo' : 'Sample card type'}>
                           {(['business', 'personal'] as const).map((type) => (
-                            <button key={type} type="button" aria-pressed={sampleCardType === type} onClick={() => setSampleCardType(type)}
+                            <button key={type} type="button" aria-pressed={sampleCardType === type} onClick={() => { setSampleCardType(type); setCardPublishedPreview(false); }}
                               className={`rounded-lg border px-4 py-2 text-xs font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 ${sampleCardType === type ? 'border-[#987515] bg-[#fff0bd] text-[#59430a]' : 'border-[#d9d5c9] bg-white text-[#555]'}`}>
                               {type === 'business' ? (pt ? 'Negócio' : 'Business') : (pt ? 'Pessoa' : 'Personal')}
                             </button>
                           ))}
                         </div>
+                        {sampleCardType === 'business' && (
+                          <label className="mt-3 flex items-start gap-2 rounded-lg border border-dashed border-[#d8d1bd] bg-[#fbfaf7] p-3 text-xs text-[#444]">
+                            <input type="checkbox" checked={businessVerifiedDemo} onChange={(e) => { setBusinessVerifiedDemo(e.target.checked); setCardPublishedPreview(false); }} className="mt-0.5 accent-[#987515]" />
+                            <span>{pt ? 'Simular negócio verificado (apenas demonstração — não concede verificação real)' : 'Simulate verified business (demo only — does not grant real verification)'}</span>
+                          </label>
+                        )}
+                        <p className="mt-2 text-xs text-[#666]" role="status">
+                          {sampleCardType === 'personal'
+                            ? (pt ? 'Cartão pessoal de exemplo: acesso gratuito, sem verificação necessária.' : 'Sample personal card: free access, no verification needed.')
+                            : businessVerifiedDemo
+                              ? (pt ? 'Negócio fictício: elegibilidade simulada ativada.' : 'Fictional business: simulated eligibility enabled.')
+                              : (pt ? 'Negócio fictício: simule a verificação para testar os controlos.' : 'Fictional business: simulate verification to test the controls.')}
+                        </p>
                         <div className="mt-3 flex flex-wrap gap-2">
-                          <button type="button" onClick={() => setCardPublishedPreview((value) => !value)} aria-pressed={cardPublishedPreview} className="rounded-lg border border-[#987515] bg-[#fff0bd] px-4 py-2 text-xs font-semibold text-[#59430a] focus-visible:outline-2 focus-visible:outline-offset-2">
+                          <button type="button" onClick={() => setCardPublishedPreview((value) => !value)} disabled={sampleCardType === 'business' && !businessVerifiedDemo} aria-pressed={cardPublishedPreview} className="rounded-lg border border-[#987515] bg-[#fff0bd] px-4 py-2 text-xs font-semibold text-[#59430a] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2">
                             {cardPublishedPreview ? (pt ? 'Simular retirada de publicação' : 'Simulate unpublish') : (pt ? 'Simular publicação' : 'Simulate publish')}
                           </button>
                           <span className="self-center text-xs text-[#666]" role="status">{cardPublishedPreview ? (pt ? 'Estado simulado: público' : 'Simulated status: public') : (pt ? 'Estado simulado: privado' : 'Simulated status: private')}</span>
@@ -197,7 +221,7 @@ export default function RestaurantRegistration({ language }: { language: Languag
                           </div>
                           <div className="mt-3 space-y-2 text-center text-xs text-[#555]">
                             <p>{sampleCardType === 'business' ? (pt ? 'Horários e menu: disponíveis após publicação real' : 'Hours and menu: available after real publication') : (pt ? 'Nome e telemóvel fictícios para testar a importação' : 'Fictional name and mobile number for import testing')}</p>
-                            <button type="button" onClick={downloadSampleContact} className="w-full rounded-lg bg-[#252a32] px-4 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2">
+                            <button type="button" onClick={downloadSampleContact} disabled={sampleCardType === 'business' && !businessVerifiedDemo} className="w-full rounded-lg bg-[#252a32] px-4 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2">
                               {pt ? 'Guardar contacto de exemplo (.vcf)' : 'Save sample contact (.vcf)'}
                             </button>
                           </div>
