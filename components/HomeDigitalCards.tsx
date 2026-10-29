@@ -36,7 +36,7 @@ export default function HomeDigitalCards({ language }: { language: 'en' | 'pt' }
         <div className="relative mx-auto w-full max-w-sm rounded-[1.75rem] border border-[#ded6c5] bg-white p-5 shadow-[0_20px_50px_rgba(0,0,0,0.09)]">
           <div className="absolute -right-2 -top-3 rounded-full bg-[#d9c17e] px-4 py-1.5 text-xs font-bold text-[#45350a] shadow-sm">{pt ? 'PRÉ-VISUALIZAÇÃO' : 'PREVIEW'}</div>
           <div className="rounded-[1.2rem] bg-gradient-to-br from-[#f9f4e7] to-[#ede6d3] p-7 text-center transition-colors duration-300">
-            <div key={type} className="motion-safe:animate-[fadeIn_300ms_ease-out]">
+            <div key={type} className="transition-opacity duration-300">
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white text-2xl font-bold text-[#6c5419] shadow-sm">{personal ? 'A' : 'R'}</div>
               <p className="mt-5 text-xl font-bold">{personal ? 'Ana Exemplo' : 'Restaurante Exemplo'}</p>
               <p className="mt-2 text-sm text-[#555]">{personal ? (pt ? 'Cartão pessoal · Gratuito' : 'Personal card · Free') : (pt ? 'Cartão empresarial · Verificação necessária' : 'Business card · Verification required')}</p>
