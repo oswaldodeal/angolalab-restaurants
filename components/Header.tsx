@@ -105,6 +105,7 @@ export default function Header() {
           {lang === 'pt' ? (
             <>
               {exploreMenu}
+              <Link href="/pt/cartoes" className={navLinkClass}>Cartões Digitais</Link>
               <Link href="/pt/sobre" className={navLinkClass}>Sobre Nós</Link>
               <Link href="/pt" className={navLinkClass}>PT</Link>
               <Link href="/en" className={navLinkClass}>EN</Link>
@@ -114,6 +115,7 @@ export default function Header() {
           ) : (
             <>
               {exploreMenu}
+              <Link href="/en/cards" className={navLinkClass}>Digital Cards</Link>
               <Link href="/en/about" className={navLinkClass}>About Us</Link>
               <Link href="/pt" className={navLinkClass}>PT</Link>
               <Link href="/en" className={navLinkClass}>EN</Link>
