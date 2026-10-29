@@ -43,15 +43,18 @@ export default function RestaurantRegistration({ language }: { language: Languag
   const back = pt ? '/pt/restaurantes' : '/en/restaurants';
 
   function downloadSampleContact() {
-    // Demonstration contact only: no owner or restaurant form details are exported.
+    // Fictional demonstration only: never export private owner or form details.
+    // vCard 3.0 uses CRLF line endings; literal backslash-r/backslash-n breaks imports.
     const vcard = [
       'BEGIN:VCARD',
       'VERSION:3.0',
+      'N:;Restaurante Exemplo;;;',
       'FN:Restaurante Exemplo',
       'ORG:Restaurante Exemplo',
-      'NOTE:Sample contact for AngolaLab research demonstration - not a real business',
+      'NOTE:Fictional contact for AngolaLab research demonstration - not a real business',
       'END:VCARD',
-    ].join('\\r\\n');
+      '',
+    ].join('\r\n');
     const url = URL.createObjectURL(new Blob([vcard], { type: 'text/vcard;charset=utf-8' }));
     const link = document.createElement('a');
     link.href = url;
