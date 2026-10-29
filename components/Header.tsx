@@ -9,19 +9,28 @@ export default function Header() {
   const path = usePathname();
   const lang = path.startsWith('/en') ? 'en' : 'pt';
   const exploreRef = useRef<HTMLDetailsElement>(null);
+  const languageRef = useRef<HTMLDetailsElement>(null);
+  const languagePath = (target: 'pt' | 'en') => {
+    const suffix = path.startsWith('/en/cards') || path.startsWith('/pt/cartoes') ? (target === 'pt' ? '/cartoes' : '/cards')
+      : path.startsWith('/en/restaurants/submit') || path.startsWith('/pt/restaurantes/registar') ? (target === 'pt' ? '/restaurantes/registar' : '/restaurants/submit')
+      : path.startsWith('/en/restaurants') || path.startsWith('/pt/restaurantes') ? (target === 'pt' ? '/restaurantes' : '/restaurants')
+      : path.startsWith('/en/about') || path.startsWith('/pt/sobre') ? (target === 'pt' ? '/sobre' : '/about')
+      : '';
+    return `/${target}${suffix}`;
+  };
 
   // Dismiss the menu when the visitor clicks elsewhere or presses Escape.
   useEffect(() => {
     function handleOutsidePointer(event: PointerEvent) {
-      const menu = exploreRef.current;
-      if (menu?.open && event.target instanceof Node && !menu.contains(event.target)) {
-        menu.open = false;
+      for (const menu of [exploreRef.current, languageRef.current]) {
+        if (menu?.open && event.target instanceof Node && !menu.contains(event.target)) menu.open = false;
       }
     }
     function handleEscape(event: KeyboardEvent) {
-      if (event.key === 'Escape' && exploreRef.current?.open) {
-        exploreRef.current.open = false;
-        exploreRef.current.querySelector('summary')?.focus();
+      if (event.key === 'Escape') {
+        for (const menu of [exploreRef.current, languageRef.current]) {
+          if (menu?.open) { menu.open = false; menu.querySelector('summary')?.focus(); }
+        }
       }
     }
     document.addEventListener('pointerdown', handleOutsidePointer);
@@ -35,9 +44,30 @@ export default function Header() {
   // Close Explore after navigating, including browser back/forward.
   useEffect(() => {
     if (exploreRef.current) exploreRef.current.open = false;
+    if (languageRef.current) languageRef.current.open = false;
   }, [path]);
 
   const navLinkClass = 'rounded-md text-[#F2C94C] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C]';
+
+  const languageMenu = (
+    <details ref={languageRef} className="group relative">
+      <summary aria-label={lang === 'pt' ? 'Escolher idioma' : 'Choose language'} className="flex cursor-pointer list-none items-center gap-1 rounded-md px-1 py-2 text-[#F2C94C] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] [&::-webkit-details-marker]:hidden">
+        <span aria-hidden="true">🌐</span> {lang.toUpperCase()} <span aria-hidden="true" className="text-xs group-open:rotate-180">▾</span>
+      </summary>
+      <div className="absolute right-0 top-full z-[70] mt-2 min-w-40 rounded-xl border border-[#e4d5a6] bg-white p-2 text-sm text-[#242424] shadow-xl">
+        <Link href={languagePath('pt')} hrefLang="pt" lang="pt" aria-current={lang === 'pt' ? 'page' : undefined}
+          onClick={() => { if (languageRef.current) languageRef.current.open = false; }}
+          className="block rounded-lg px-3 py-2.5 hover:bg-[#fbf7ed] focus-visible:outline-2 focus-visible:outline-[#b18a23]">
+          🇵🇹 Português {lang === 'pt' ? '✓' : ''}
+        </Link>
+        <Link href={languagePath('en')} hrefLang="en" lang="en" aria-current={lang === 'en' ? 'page' : undefined}
+          onClick={() => { if (languageRef.current) languageRef.current.open = false; }}
+          className="block rounded-lg px-3 py-2.5 hover:bg-[#fbf7ed] focus-visible:outline-2 focus-visible:outline-[#b18a23]">
+          🇬🇧 English {lang === 'en' ? '✓' : ''}
+        </Link>
+      </div>
+    </details>
+  );
 
   const exploreMenu = (
     <details ref={exploreRef} className="group relative">
@@ -107,8 +137,7 @@ export default function Header() {
               {exploreMenu}
               <Link href="/pt/cartoes" className={navLinkClass}>Cartões Digitais</Link>
               <Link href="/pt/sobre" className={navLinkClass}>Sobre Nós</Link>
-              <Link href="/pt" className={navLinkClass}>PT</Link>
-              <Link href="/en" className={navLinkClass}>EN</Link>
+              {languageMenu}
               <Link href="/pt/entrar" className={navLinkClass}>Entrar</Link>
               <Link href="/pt/registar" className="shrink-0 whitespace-nowrap rounded-lg bg-emerald-600 px-2.5 py-2 font-semibold text-white hover:bg-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] sm:px-4">Criar Conta</Link>
             </>
@@ -117,8 +146,7 @@ export default function Header() {
               {exploreMenu}
               <Link href="/en/cards" className={navLinkClass}>Digital Cards</Link>
               <Link href="/en/about" className={navLinkClass}>About Us</Link>
-              <Link href="/pt" className={navLinkClass}>PT</Link>
-              <Link href="/en" className={navLinkClass}>EN</Link>
+              {languageMenu}
               <Link href="/en/signin" className={navLinkClass}>Sign In</Link>
               <Link href="/en/signup" className="shrink-0 whitespace-nowrap rounded-lg bg-emerald-600 px-2.5 py-2 font-semibold text-white hover:bg-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] sm:px-4">Create Account</Link>
             </>
