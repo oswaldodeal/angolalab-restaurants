@@ -51,6 +51,7 @@ export default function RestaurantRegistration({ language }: { language: Languag
       'N:;Restaurante Exemplo;;;',
       'FN:Restaurante Exemplo',
       'ORG:Restaurante Exemplo',
+      'TEL;TYPE=WORK,VOICE:+1-202-555-0147',
       'NOTE:Fictional contact for AngolaLab research demonstration - not a real business',
       'END:VCARD',
       '',
@@ -193,7 +194,7 @@ export default function RestaurantRegistration({ language }: { language: Languag
                             </button>
                           </div>
                         </div>
-                        <p className="mt-3 text-xs leading-relaxed text-[#666]">{pt ? 'O ficheiro .vcf contém apenas o nome fictício Restaurante Exemplo. Não são publicados dados, não existe ligação pública para partilhar e nenhum QR é gerado.' : 'The .vcf file contains only the fictional name Restaurante Exemplo. No data is published, no public share link exists and no QR is generated.'}</p>
+                        <p className="mt-3 text-xs leading-relaxed text-[#666]">{pt ? 'O ficheiro .vcf contém apenas dados fictícios, incluindo um número de telefone reservado para exemplos. Não são publicados dados, não existe ligação pública para partilhar e nenhum QR é gerado.' : 'The .vcf file contains only fictional sample details, including a reserved example telephone number. No data is published, no public share link exists and no QR is generated.'}</p>
                       </div>
                       {businessType === 'restaurant' && (
                         <div className="mt-4 rounded-lg border border-[#d8d1bd] bg-white p-4">
