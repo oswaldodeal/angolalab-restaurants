@@ -10,14 +10,15 @@ export default function HomeDigitalCards({ language }: { language: 'en' | 'pt' }
   const [readMoreOpen, setReadMoreOpen] = useState(false);
   const detailsRef = useRef<HTMLDetailsElement>(null);
 
-  // Restore the explanation when switching between English and Portuguese on the homepage.
+  // URL state survives /en to /pt navigation, even if React reuses the component.
   useEffect(() => {
-    if (window.location.hash === '#home-digital-cards' && sessionStorage.getItem('angolalab-connections-expanded') === 'yes') {
-      if (detailsRef.current) detailsRef.current.open = true;
-      setReadMoreOpen(true);
+    const expanded = new URLSearchParams(window.location.search).get('connections') === 'open';
+    if (detailsRef.current) detailsRef.current.open = expanded;
+    setReadMoreOpen(expanded);
+    if (window.location.hash === '#home-digital-cards') {
+      requestAnimationFrame(() => document.getElementById('home-digital-cards')?.scrollIntoView({ block: 'start' }));
     }
-    sessionStorage.removeItem('angolalab-connections-expanded');
-  }, []);
+  }, [language]);
 
   return (
     <section className="bg-[#f3f2ef] px-5 py-12 text-[#252525] sm:py-16" aria-labelledby="home-digital-cards">
@@ -26,7 +27,7 @@ export default function HomeDigitalCards({ language }: { language: 'en' | 'pt' }
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#927018]">
             {pt ? 'AngolaLab · Conexões digitais' : 'AngolaLab · Digital connections'}
           </p>
-          <h2 id="home-digital-cards" className="mt-3 text-3xl font-bold leading-tight sm:text-4xl">
+          <h2 id="home-digital-cards" className="scroll-mt-28 mt-3 text-3xl font-bold leading-tight sm:text-4xl">
             {pt ? 'Partilhe os seus contactos sem os escrever.' : 'Share contact details without typing.'}
           </h2>
           <p className="mt-4 max-w-lg text-base leading-7 text-[#555]">
