@@ -58,14 +58,6 @@ export default function HomeDigitalCards({ language }: { language: 'en' | 'pt' }
                   ? 'Imagine que está em Luanda a desenvolver um projeto. Pode encontrar um profissional em Manchester com competências relevantes, pedir uma ligação e explorar a possibilidade de trabalhar em conjunto.'
                   : 'Imagine you are developing a project in Luanda. You could discover a professional in Manchester with relevant skills, request a connection and explore working together.'}
               </p>
-              {!pt && (
-                <p>
-                  A student looking for practical experience could connect with a university project,
-                  while a business owner could find someone with the technical or language skills
-                  needed to develop an idea. People in Angola and across the diaspora could share
-                  knowledge, discuss opportunities and decide together whether to collaborate.
-                </p>
-              )}
               <p className="font-medium text-[#252525]">
                 {pt
                   ? 'A AngolaLab facilita a ligação. Cada participante decide se quer colaborar e que informações pretende partilhar.'
