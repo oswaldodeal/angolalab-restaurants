@@ -6,6 +6,7 @@ import { useState } from 'react';
 export default function HomeDigitalCards({ language }: { language: 'en' | 'pt' }) {
   const pt = language === 'pt';
   const [imageAvailable, setImageAvailable] = useState(true);
+  const [collaborationImageAvailable, setCollaborationImageAvailable] = useState(true);
   const [readMoreOpen, setReadMoreOpen] = useState(false);
 
   return (
@@ -72,16 +73,19 @@ export default function HomeDigitalCards({ language }: { language: 'en' | 'pt' }
             aria-label={pt ? 'Abrir AngolaLab · Laboratório digital' : 'Open AngolaLab · Digital laboratory'}
             className={`group block min-w-0 overflow-hidden rounded-2xl border border-[#ded6c5] bg-white shadow-[0_20px_50px_rgba(0,0,0,0.09)] transition-[transform,box-shadow] duration-200 hover:shadow-[0_24px_55px_rgba(0,0,0,0.16)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#987515] ${readMoreOpen ? 'lg:translate-y-0' : ''}`}
           >
-            {/* Approved illustration: public/angolalab-digital.png */}
+            {/* The original image stays in the collapsed view. The collaboration image is shown when the explanation is expanded, once its asset has been uploaded. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/angolalab-digital.png"
-              alt={pt
-                ? 'Graduada e profissional a partilhar cartões de contacto digitais através de telemóveis, imagem ilustrativa'
-                : 'Graduate and business professional exchanging digital contact cards using their phones, illustrative image'}
+              src={readMoreOpen && collaborationImageAvailable ? "/angolalab-collaboration.png" : "/angolalab-digital.png"}
+              alt={readMoreOpen && collaborationImageAvailable
+                ? (pt ? 'Ilustração de colaboração entre estudantes e profissionais de Luanda e Manchester' : 'Illustration of students and professionals collaborating between Luanda and Manchester')
+                : (pt ? 'Graduada e profissional a partilhar cartões de contacto digitais através de telemóveis, imagem ilustrativa' : 'Graduate and business professional exchanging digital contact cards using their phones, illustrative image')}
               loading="lazy"
               className="block h-auto w-full object-contain transition-transform duration-200 group-hover:scale-[1.015]"
-              onError={() => setImageAvailable(false)}
+              onError={() => {
+                if (readMoreOpen && collaborationImageAvailable) setCollaborationImageAvailable(false);
+                else setImageAvailable(false);
+              }}
             />
           </Link>
         )}
