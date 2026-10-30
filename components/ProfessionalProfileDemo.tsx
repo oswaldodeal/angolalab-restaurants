@@ -1,9 +1,37 @@
+'use client';
+
 import Link from 'next/link';
+import { useState, type FormEvent } from 'react';
 
 type Language = 'en' | 'pt';
 
 export default function ProfessionalProfileDemo({ language }: { language: Language }) {
   const pt = language === 'pt';
+  const [editing, setEditing] = useState(false);
+  const [profile, setProfile] = useState({
+    name: 'Waldo',
+    profession: 'Web Developer',
+    skills: 'Web development, Website building',
+    languages: 'English, Portuguese, Dutch',
+    interests: 'Reading, Writing, Technology',
+    publication: 'The Structure Beneath the Noise',
+    collaboration: 'Education projects, technology and international collaboration',
+  });
+  const [draft, setDraft] = useState(profile);
+  const fields = [
+    { key: 'name', label: pt ? 'Nome de apresentação' : 'Display name', required: true },
+    { key: 'profession', label: pt ? 'Profissão' : 'Profession', required: true },
+    { key: 'skills', label: pt ? 'Competências (separadas por vírgulas)' : 'Skills (comma separated)', required: true },
+    { key: 'languages', label: pt ? 'Idiomas (separados por vírgulas)' : 'Languages (comma separated)', required: true },
+    { key: 'interests', label: pt ? 'Interesses' : 'Interests', required: false },
+    { key: 'publication', label: pt ? 'Publicação (opcional)' : 'Publication (optional)', required: false },
+    { key: 'collaboration', label: pt ? 'Projetos e colaboração' : 'Projects and collaboration', required: false },
+  ] as const;
+  function submitProfile(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setProfile(Object.fromEntries(Object.entries(draft).map(([key, value]) => [key, value.trim()])) as typeof profile);
+    setEditing(false);
+  }
   return (
     <main className="min-h-screen bg-[#f4f4f2] px-4 py-10 text-[#252525] sm:py-14">
       <div className="mx-auto max-w-4xl">
@@ -19,20 +47,52 @@ export default function ProfessionalProfileDemo({ language }: { language: Langua
             : 'Discover people through their skills, interests and projects. This is a fictional demonstration: no public profiles or connection requests are active.'}
         </p>
 
+        <section className="mt-7 rounded-2xl border border-[#dedbd3] bg-white p-5 sm:p-7">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-bold">{pt ? 'Crie o seu perfil · Teste' : 'Create your profile · Test'}</h2>
+              <p className="mt-1 text-sm text-[#666]">{pt ? 'Edite os dados fictícios e veja a pré-visualização abaixo.' : 'Edit the sample details and preview your profile below.'}</p>
+            </div>
+            {!editing && <button type="button" onClick={() => { setDraft(profile); setEditing(true); }}
+              className="rounded-lg bg-[#252a32] px-5 py-3 text-sm font-semibold text-white hover:bg-[#424850]">
+              {pt ? 'Criar / editar perfil' : 'Create / edit profile'}
+            </button>}
+          </div>
+          {editing && <form onSubmit={submitProfile} className="mt-6 grid gap-4 sm:grid-cols-2">
+            {fields.map(({ key, label, required }) => <label key={key} className="block text-sm font-semibold text-[#333]">
+              {label}
+              <input type="text" maxLength={160} required={required} value={draft[key]}
+                onChange={event => setDraft(previous => ({ ...previous, [key]: event.target.value }))}
+                className="mt-2 block w-full rounded-lg border border-[#c9c9c4] bg-white px-3 py-3 font-normal text-[#252525] focus-visible:outline-2 focus-visible:outline-[#927018]" />
+            </label>)}
+            <div className="flex flex-wrap gap-3 sm:col-span-2">
+              <button type="submit" className="rounded-lg bg-[#252a32] px-5 py-3 text-sm font-semibold text-white">
+                {pt ? 'Atualizar pré-visualização' : 'Update preview'}
+              </button>
+              <button type="button" onClick={() => setEditing(false)} className="rounded-lg border border-[#ccc] px-5 py-3 text-sm font-semibold">
+                {pt ? 'Cancelar' : 'Cancel'}
+              </button>
+            </div>
+          </form>}
+          <p className="mt-4 text-xs leading-5 text-[#666]">
+            {pt ? 'Apenas teste: os dados ficam na memória desta página, não são guardados nem publicados e desaparecem ao atualizar a página. Não introduza informações privadas.' : 'Test only: entries remain in this page’s memory, are not saved or published, and disappear on refresh. Do not enter private information.'}
+          </p>
+        </section>
+
         <section aria-label={pt ? 'Perfil de demonstração' : 'Demonstration profile'}
           className="mt-8 overflow-hidden rounded-2xl border border-[#dedbd3] bg-white shadow-sm">
           <div className="h-3 bg-[#b6923b]" />
           <div className="p-6 sm:p-9">
             <div className="flex flex-wrap items-start gap-5">
-              <div aria-hidden="true" className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-[#e9ddbc] text-3xl font-bold text-[#5f4a18]">W</div>
+              <div aria-hidden="true" className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-[#e9ddbc] text-3xl font-bold text-[#5f4a18]">{profile.name.trim().charAt(0).toUpperCase() || '?'}</div>
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-semibold uppercase tracking-wide text-[#8a6a20]">
                   {pt ? 'Perfil fictício · Não publicado' : 'Fictional profile · Not published'}
                 </p>
-                <h2 className="mt-1 text-2xl font-bold">Waldo</h2>
-                <p className="mt-1 text-base text-[#555]">{pt ? 'Desenvolvedor Web' : 'Web Developer'}</p>
+                <h2 className="mt-1 break-words text-2xl font-bold">{profile.name}</h2>
+                <p className="mt-1 text-base text-[#555]">{profile.profession}</p>
                 <p className="mt-2 text-sm text-[#666]">
-                  {pt ? 'Interesse em projetos educativos, tecnologia e colaboração internacional.' : 'Interested in education projects, technology and international collaboration.'}
+                  {profile.collaboration}
                 </p>
               </div>
             </div>
@@ -40,19 +100,19 @@ export default function ProfessionalProfileDemo({ language }: { language: Langua
             <div className="mt-8 grid gap-5 sm:grid-cols-2">
               <div className="rounded-xl bg-[#f7f6f2] p-5">
                 <h3 className="font-bold">{pt ? 'Competências' : 'Skills'}</h3>
-                <p className="mt-2 text-sm leading-6 text-[#555]">{pt ? 'Desenvolvimento Web · Criação de sites' : 'Web development · Website building'}</p>
+                <p className="mt-2 text-sm leading-6 text-[#555]">{profile.skills}</p>
               </div>
               <div className="rounded-xl bg-[#f7f6f2] p-5">
                 <h3 className="font-bold">{pt ? 'Idiomas' : 'Languages'}</h3>
-                <p className="mt-2 text-sm leading-6 text-[#555]">{pt ? 'Inglês · Português · Neerlandês' : 'English · Portuguese · Dutch'}</p>
+                <p className="mt-2 text-sm leading-6 text-[#555]">{profile.languages}</p>
               </div>
               <div className="rounded-xl bg-[#f7f6f2] p-5">
                 <h3 className="font-bold">{pt ? 'Interesses' : 'Interests'}</h3>
-                <p className="mt-2 text-sm leading-6 text-[#555]">{pt ? 'Leitura · Escrita · Tecnologia' : 'Reading · Writing · Technology'}</p>
+                <p className="mt-2 text-sm leading-6 text-[#555]">{profile.interests}</p>
               </div>
               <div className="rounded-xl bg-[#f7f6f2] p-5">
                 <h3 className="font-bold">{pt ? 'Publicação de exemplo' : 'Example publication'}</h3>
-                <p className="mt-2 text-sm italic leading-6 text-[#555]">The Structure Beneath the Noise</p>
+                <p className="mt-2 text-sm italic leading-6 text-[#555]">{profile.publication || (pt ? 'Não indicado' : 'Not specified')}</p>
               </div>
             </div>
 
