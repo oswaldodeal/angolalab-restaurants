@@ -37,9 +37,9 @@ export default function HomeDigitalCards({ language }: { language: 'en' | 'pt' }
         <div className="space-y-5">
           {imageAvailable && (
             <div className="overflow-hidden rounded-2xl border border-[#ded6c5] bg-white shadow-[0_20px_50px_rgba(0,0,0,0.09)]">
-              {/* Upload the approved image to public/images/digital-cards-networking.webp before this renders. */}
+              {/* Upload the approved image to public/angolalab-digital.png before this renders. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/images/digital-cards-networking.webp" alt={pt ? 'Graduada e profissional a partilhar cartões de contacto digitais através de telemóveis, imagem ilustrativa' : 'Graduate and business professional exchanging digital contact cards using their phones, illustrative image'} loading="lazy" className="h-auto w-full object-cover" onError={() => setImageAvailable(false)} />
+              <img src="/angolalab-digital.png" alt={pt ? 'Graduada e profissional a partilhar cartões de contacto digitais através de telemóveis, imagem ilustrativa' : 'Graduate and business professional exchanging digital contact cards using their phones, illustrative image'} loading="lazy" className="h-auto w-full object-cover" onError={() => setImageAvailable(false)} />
             </div>
           )}
         <div className="relative mx-auto w-full max-w-sm rounded-[1.75rem] border border-[#ded6c5] bg-white p-5 shadow-[0_20px_50px_rgba(0,0,0,0.09)]">
