@@ -85,6 +85,15 @@ export default function DigitalCardsDemo({ language }: { language: Language }) {
             ? (pt ? 'Ligação de exemplo ativa nesta página. Use o botão no cartão para alternar.' : 'Sample connection active on this page. Use the card button to switch.')
             : (pt ? 'Ligação não apresentada. São necessárias as duas autorizações simuladas.' : 'Connection hidden. Both simulated approvals are required.')}</p>
         </section>
+        <section className="mt-6 rounded-2xl border border-[#dedbd3] bg-white p-5 sm:p-8">
+          <h2 className="text-lg font-bold">{pt ? 'Conheça os Perfis Profissionais' : 'Explore Professional Profiles'}</h2>
+          <p className="mt-2 text-sm leading-6 text-[#555]">
+            {pt ? 'Veja como as pessoas poderão apresentar competências, idiomas e interesses para encontrar colaboradores.' : 'See how people could share skills, languages and interests to find collaborators.'}
+          </p>
+          <Link href={pt ? '/pt/profissionais' : '/en/professionals'} className="mt-4 inline-flex rounded-lg bg-[#252a32] px-5 py-3 text-sm font-semibold text-white hover:bg-[#424850]">
+            {pt ? 'Ver perfil profissional fictício →' : 'View fictional professional profile →'}
+          </Link>
+        </section>
         <p className="mt-6 text-sm text-[#555]">{pt ? 'O serviço pessoal será independente do registo de restaurantes.' : 'The personal service will be independent of restaurant registration.'} <Link className="font-semibold text-[#806016] underline" href={pt ? '/pt/restaurantes' : '/en/restaurants'}>{pt ? 'Explorar restaurantes' : 'Explore restaurants'}</Link></p>
       </div>
     </main>
