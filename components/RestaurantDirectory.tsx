@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { CITIES, COUNTRIES, CUISINES, getGoogleMapsUrl, initialRestaurants } from '@/lib/store';
 import { translations } from '@/lib/translations';
+import { demoRestaurantPhoto } from '@/lib/demo-photos';
 
 type Language = 'pt' | 'en';
 
@@ -132,48 +133,35 @@ export default function RestaurantDirectory({ language }: { language: Language }
                 const cityLabel = CITIES.find((item) => item.id === restaurant.city)?.[language] ?? restaurant.city;
                 const countryLabel = COUNTRIES.find((item) => item.id === restaurant.country)?.[language] ?? restaurant.country;
                 return (
-                  <article key={restaurant.id} className="overflow-hidden rounded-2xl border border-[#ded8c5] bg-white">
-                    <div className="flex h-32 items-center justify-center border-b border-[#e8e1cf] bg-[#fbf8f0] text-4xl" aria-hidden="true">🍽️</div>
-                    <div className="p-6">
-                      <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#987515]">
-                        {cityLabel} · {countryLabel}
-                      </p>
-                      <h3 className="mb-2 text-xl font-semibold leading-snug">{restaurant.name}</h3>
-                      <p className="mb-4 text-sm text-[#535353]">{cuisineLabel} · {restaurant.neighbourhood}</p>
-
-                      <div className="mb-5 border-l-4 border-[#D2AC37] bg-[#fbf7ed] px-4 py-3">
-                        <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[#987515]">
-                          {isPt ? 'Estado do perfil' : 'Profile status'}
-                        </p>
-                        <p className="text-sm font-semibold text-[#292929]">
-                          {restaurant.status === 'verified' ? t.restaurant.statusVerified : restaurant.status === 'basic' ? t.restaurant.statusBasic : t.restaurant.statusPending}
-                        </p>
+                  <article key={restaurant.id} className="group overflow-hidden rounded-2xl border border-[#ded8c5] bg-white shadow-sm transition-shadow hover:shadow-lg">
+                    <Link
+                      href={isPt ? `/pt/restaurantes/${restaurant.id}` : `/en/restaurants/${restaurant.id}`}
+                      className="block focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#D2AC37]"
+                      aria-label={isPt ? `Abrir perfil de ${restaurant.name}` : `Open ${restaurant.name} profile`}
+                    >
+                      <div className="relative h-52 overflow-hidden bg-gradient-to-br from-[#b58d44] via-[#61503b] to-[#242831]">
+                        {demoRestaurantPhoto(restaurant.id) ? (
+                          // Remote demo imagery: no claims of ownership or business identity.
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={demoRestaurantPhoto(restaurant.id)!}
+                            alt={isPt ? 'Fotografia ilustrativa de restaurante' : 'Illustrative restaurant photograph'}
+                            loading="lazy"
+                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          />
+                        ) : null}
+                        <span className="absolute left-4 top-4 rounded-md bg-[#fff0b0] px-3 py-1 text-xs font-bold text-[#57410c]">
+                          AngolaLab Test · {isPt ? 'Demonstração' : 'Demo'}
+                        </span>
                       </div>
-
-                      <div className="flex flex-wrap gap-2 border-t border-[#ece8dc] pt-4">
-                        {restaurant.status === 'verified' && (
-                          <a
-                            href={getGoogleMapsUrl(restaurant)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="rounded-lg border border-[#ded8c5] px-3 py-2 text-sm text-[#5d4a1a] hover:bg-[#fbf7ed]"
-                          >
-                            🗺️ {t.restaurant.viewMap}
-                          </a>
-                        )}
-                        {restaurant.status === 'verified' ? (
-                          <Link
-                            href={isPt ? `/pt/restaurantes/${restaurant.id}` : `/en/restaurants/${restaurant.id}`}
-                            className="rounded-lg bg-[#252a32] px-3 py-2 text-sm font-medium text-white hover:bg-[#414751]"
-                          >
-                            📖 {t.restaurant.viewMenu}
-                          </Link>
-                        ) : (
-                          <span className="rounded-lg bg-[#f7f5ef] px-3 py-2 text-sm text-[#5d5d5d]">
-                            ⏳ {t.restaurant.menuComing}
-                          </span>
-                        )}
+                      <div className="p-5">
+                        <h3 className="text-xl font-semibold leading-snug text-[#222] group-hover:text-[#987515]">{restaurant.name}</h3>
+                        <p className="mt-2 text-sm text-[#555]">{cuisineLabel} · {cityLabel}, {countryLabel}</p>
+                        <p className="mt-3 text-sm font-semibold text-[#987515]">{isPt ? 'Ver perfil do restaurante →' : 'View restaurant profile →'}</p>
                       </div>
+                    </Link>
+                    <div className="border-t border-[#ece8dc] px-5 py-4">
+                      <p className="text-xs text-[#666]">{isPt ? 'Perfil de demonstração — não é um negócio verificado.' : 'Demonstration profile — not a verified business.'}</p>
                     </div>
                   </article>
                 );

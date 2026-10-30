@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { translations } from '@/lib/translations';
 import { initialRestaurants, CUISINES, CITIES, getGoogleMapsUrl } from '@/lib/store';
+import { demoRestaurantPhoto } from '@/lib/demo-photos';
 
 const t = translations.en;
 
@@ -25,14 +26,21 @@ export default async function RestaurantPage({ params }: Props) {
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
-      <header className="bg-white shadow-sm px-6 py-4">
-        <div className="max-w-5xl mx-auto flex justify-between items-center">
-          
-          <Link href="/pt" className="text-sm text-slate-500 hover:text-emerald-600">
-            PT
-          </Link>
+      <section className="relative h-[280px] overflow-hidden bg-gradient-to-br from-[#b58d44] via-[#61503b] to-[#242831] sm:h-[400px] lg:h-[460px]" aria-label="Restaurant image">
+        {demoRestaurantPhoto(restaurant.id) && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={demoRestaurantPhoto(restaurant.id)!} alt="Illustrative restaurant interior photograph" className="h-full w-full object-cover" />
+        )}
+        <div className="absolute bottom-5 left-5 rounded-md bg-[#fff0b0] px-4 py-2 text-sm font-bold text-[#57410c] sm:left-10">
+          AngolaLab Test · Demonstration image
         </div>
-      </header>
+      </section>
+      <div className="mx-auto max-w-5xl px-6 pt-6">
+        <Link href="/en/restaurants" className="font-semibold text-[#987515] hover:underline">← Back to restaurants</Link>
+        <p className="mt-3 text-sm text-[#666]">This fictional profile is for design testing and does not represent a verified restaurant.</p>
+      </div>
+
+
 
       <section className="max-w-3xl mx-auto px-6 py-10">
         <div className="mb-8">
@@ -111,12 +119,7 @@ export default async function RestaurantPage({ params }: Props) {
         </div>
       </section>
 
-      <footer className="bg-slate-900 text-slate-300 py-10 px-6 mt-12">
-        <div className="max-w-5xl mx-auto text-center">
-          <p className="mb-2 text-white font-semibold">AngolaLab</p>
-          <p className="text-sm">© 2026 AngolaLab — {t.footer.allRights}</p>
-        </div>
-      </footer>
+
     </main>
   );
 }

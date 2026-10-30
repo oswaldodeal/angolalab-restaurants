@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { translations } from '@/lib/translations';
 import { initialRestaurants, CUISINES, CITIES, getGoogleMapsUrl } from '@/lib/store';
+import { demoRestaurantPhoto } from '@/lib/demo-photos';
 
 const t = translations.pt;
 
@@ -25,6 +26,20 @@ export default async function RestaurantPage({ params }: Props) {
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
+      <section className="relative h-[280px] overflow-hidden bg-gradient-to-br from-[#b58d44] via-[#61503b] to-[#242831] sm:h-[400px] lg:h-[460px]" aria-label="Imagem do restaurante">
+        {demoRestaurantPhoto(restaurant.id) && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={demoRestaurantPhoto(restaurant.id)!} alt="Fotografia ilustrativa de um restaurante" className="h-full w-full object-cover" />
+        )}
+        <div className="absolute bottom-5 left-5 rounded-md bg-[#fff0b0] px-4 py-2 text-sm font-bold text-[#57410c] sm:left-10">
+          AngolaLab Test · Imagem de demonstração
+        </div>
+      </section>
+      <div className="mx-auto max-w-5xl px-6 pt-6">
+        <Link href="/pt/restaurantes" className="font-semibold text-[#987515] hover:underline">← Voltar aos restaurantes</Link>
+        <p className="mt-3 text-sm text-[#666]">Este é um perfil fictício para testar o design; não representa um restaurante verificado.</p>
+      </div>
+
     
 
       {/* Conteúdo Principal */}
