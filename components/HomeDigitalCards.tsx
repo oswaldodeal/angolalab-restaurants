@@ -31,7 +31,11 @@ export default function HomeDigitalCards({ language }: { language: 'en' | 'pt' }
           </p>
         </div>
         {imageAvailable && (
-          <div className="min-w-0 overflow-hidden rounded-2xl border border-[#ded6c5] bg-white shadow-[0_20px_50px_rgba(0,0,0,0.09)]">
+          <Link
+            href={pt ? '/pt/cartoes' : '/en/cards'}
+            aria-label={pt ? 'Abrir AngolaLab · Laboratório digital' : 'Open AngolaLab · Digital laboratory'}
+            className="group block min-w-0 overflow-hidden rounded-2xl border border-[#ded6c5] bg-white shadow-[0_20px_50px_rgba(0,0,0,0.09)] transition-shadow hover:shadow-[0_24px_55px_rgba(0,0,0,0.16)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#987515]"
+          >
             {/* Approved illustration: public/angolalab-digital.png */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -40,10 +44,10 @@ export default function HomeDigitalCards({ language }: { language: 'en' | 'pt' }
                 ? 'Graduada e profissional a partilhar cartões de contacto digitais através de telemóveis, imagem ilustrativa'
                 : 'Graduate and business professional exchanging digital contact cards using their phones, illustrative image'}
               loading="lazy"
-              className="block h-auto w-full object-contain"
+              className="block h-auto w-full object-contain transition-transform duration-200 group-hover:scale-[1.015]"
               onError={() => setImageAvailable(false)}
             />
-          </div>
+          </Link>
         )}
       </div>
     </section>
