@@ -6,6 +6,7 @@ import { useState } from 'react';
 export default function HomeDigitalCards({ language }: { language: 'en' | 'pt' }) {
   const pt = language === 'pt';
   const [imageAvailable, setImageAvailable] = useState(true);
+  const [readMoreOpen, setReadMoreOpen] = useState(false);
 
   return (
     <section className="bg-[#f3f2ef] px-5 py-12 text-[#252525] sm:py-16" aria-labelledby="home-digital-cards">
@@ -22,7 +23,7 @@ export default function HomeDigitalCards({ language }: { language: 'en' | 'pt' }
               ? 'Crie um cartão digital pessoal gratuito. Partilhe o seu número com amigos, colegas e empresas. Os cartões empresariais estão disponíveis para negócios verificados.'
               : 'Create a free personal digital card. Share your phone number with friends, colleagues and businesses. Business cards are available with verified business profiles.'}
           </p>
-          <details className="group mt-5 max-w-lg rounded-xl border border-[#ded6c5] bg-white/70 px-4 py-3">
+          <details onToggle={(event) => setReadMoreOpen(event.currentTarget.open)} className="group mt-5 max-w-lg rounded-xl border border-[#ded6c5] bg-white/70 px-4 py-3">
             <summary className="cursor-pointer font-semibold text-[#725716] marker:text-[#927018] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#987515]">
               {pt ? 'Ler mais sobre as Conexões Digitais' : 'Read more about Digital Connections'}
             </summary>
@@ -69,7 +70,7 @@ export default function HomeDigitalCards({ language }: { language: 'en' | 'pt' }
           <Link
             href={pt ? '/pt/cartoes' : '/en/cards'}
             aria-label={pt ? 'Abrir AngolaLab · Laboratório digital' : 'Open AngolaLab · Digital laboratory'}
-            className="group block min-w-0 overflow-hidden rounded-2xl border border-[#ded6c5] bg-white shadow-[0_20px_50px_rgba(0,0,0,0.09)] transition-shadow hover:shadow-[0_24px_55px_rgba(0,0,0,0.16)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#987515]"
+            className={`group block min-w-0 overflow-hidden rounded-2xl border border-[#ded6c5] bg-white shadow-[0_20px_50px_rgba(0,0,0,0.09)] transition-[transform,box-shadow] duration-200 hover:shadow-[0_24px_55px_rgba(0,0,0,0.16)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#987515] ${readMoreOpen ? 'lg:translate-y-12' : ''}`}
           >
             {/* Approved illustration: public/angolalab-digital.png */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
