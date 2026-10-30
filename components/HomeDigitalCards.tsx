@@ -33,7 +33,7 @@ export default function HomeDigitalCards({ language }: { language: 'en' | 'pt' }
           <p className="mt-4 max-w-lg text-base leading-7 text-[#555]">
             {pt
               ? 'Crie um cartão digital pessoal gratuito. Partilhe o seu número com amigos, colegas e empresas. Os cartões empresariais estão disponíveis para negócios verificados.'
-              : 'Create a free personal digital card. Share your phone number with friends, colleagues and businesses. Business cards are available with verified business profiles.'}
+              : 'Create a free personal digital card to share contacts without typing. Business cards are available for verified businesses.'}
           </p>
           <details id="home-digital-connections-details" ref={detailsRef} onToggle={(event) => setReadMoreOpen(event.currentTarget.open)} className="group mt-5 max-w-lg rounded-xl border border-[#ded6c5] bg-white/70 px-4 py-3">
             <summary className="cursor-pointer font-semibold text-[#725716] marker:text-[#927018] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#987515]">
@@ -46,27 +46,27 @@ export default function HomeDigitalCards({ language }: { language: 'en' | 'pt' }
               <p>
                 {pt
                   ? 'A AngolaLab criou as Conexões Digitais para ajudar pessoas e organizações a encontrar contactos úteis, partilhar conhecimentos e explorar oportunidades de colaboração.'
-                  : 'AngolaLab developed Digital Connections to help people and organisations find useful contacts, share knowledge and explore opportunities to collaborate.'}
+                  : 'Digital Connections helps people and organisations share knowledge and find collaborators.'}
               </p>
               <p>
                 {pt
                   ? 'O objetivo é aproximar empresas (B2B), empresas e clientes, universidades, estudantes, investigadores e profissionais, bem como qualquer pessoa que queira construir uma rede educativa ou empresarial.'
-                  : 'The goal is to connect businesses with businesses (B2B), businesses with customers, universities, students, researchers and professionals, as well as anyone building an education or business network.'}
+                  : 'Connect businesses (B2B), customers, universities, students, researchers and professionals.'}
               </p>
               <p>
                 {pt
                   ? 'Imagine que está em Luanda a desenvolver um projeto. Pode encontrar um profissional em Manchester com competências relevantes, pedir uma ligação e explorar a possibilidade de trabalhar em conjunto.'
-                  : 'Imagine you are developing a project in Luanda. You could discover a professional in Manchester with relevant skills, request a connection and explore working together.'}
+                  : 'Building a project in Luanda? Find a skilled professional in Manchester and explore working together.'}
               </p>
               <p className="font-medium text-[#252525]">
                 {pt
                   ? 'A AngolaLab facilita a ligação. Cada participante decide se quer colaborar e que informações pretende partilhar.'
-                  : 'AngolaLab helps people connect. Each participant decides whether to collaborate and what information to share.'}
+                  : 'AngolaLab enables connections. You choose whether to collaborate and what to share.'}
               </p>
               <p className="text-xs text-[#666]">
                 {pt
                   ? 'Esta é a visão do serviço. Os perfis profissionais e os pedidos de ligação ainda não estão disponíveis nesta demonstração.'
-                  : 'This describes the service vision. Professional profiles and connection requests are not yet available in this demonstration.'}
+                  : 'Service vision only. Profiles and connection requests are not yet available.'}
               </p>
             </div>
           </details>
