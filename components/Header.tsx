@@ -15,8 +15,14 @@ export default function Header() {
       : path.startsWith('/en/restaurants/submit') || path.startsWith('/pt/restaurantes/registar') ? (target === 'pt' ? '/restaurantes/registar' : '/restaurants/submit')
       : path.startsWith('/en/restaurants') || path.startsWith('/pt/restaurantes') ? (target === 'pt' ? '/restaurantes' : '/restaurants')
       : path.startsWith('/en/about') || path.startsWith('/pt/sobre') ? (target === 'pt' ? '/sobre' : '/about')
+      : path.startsWith('/en/signin') || path.startsWith('/pt/entrar') ? (target === 'pt' ? '/entrar' : '/signin')
+      : path.startsWith('/en/signup') || path.startsWith('/pt/registar') ? (target === 'pt' ? '/registar' : '/signup')
+      : path.startsWith('/en/menu-editor') || path.startsWith('/pt/editor-ementa') ? (target === 'pt' ? '/editor-ementa' : '/menu-editor')
+      : path.startsWith('/en/owner/demo') || path.startsWith('/pt/proprietario/demo') ? (target === 'pt' ? '/proprietario/demo' : '/owner/demo')
       : '';
-    return `/${target}${suffix}`;
+    // Keep the visitor at Digital Connections when translating the homepage.
+    const homeAnchor = suffix === '' && (path === '/en' || path === '/pt') ? '#home-digital-cards' : '';
+    return `/${target}${suffix}${homeAnchor}`;
   };
 
   // Dismiss the menu when the visitor clicks elsewhere or presses Escape.
@@ -47,6 +53,15 @@ export default function Header() {
     if (languageRef.current) languageRef.current.open = false;
   }, [path]);
 
+  const preserveConnectionsState = () => {
+    if (path === '/en' || path === '/pt') {
+      const details = document.getElementById('home-digital-connections-details') as HTMLDetailsElement | null;
+      if (details?.open) sessionStorage.setItem('angolalab-connections-expanded', 'yes');
+      else sessionStorage.removeItem('angolalab-connections-expanded');
+    }
+    if (languageRef.current) languageRef.current.open = false;
+  };
+
   const navLinkClass = 'rounded-md text-[#F2C94C] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C]';
 
   const languageMenu = (
@@ -56,7 +71,7 @@ export default function Header() {
       </summary>
       <div className="absolute right-0 top-full z-[70] mt-2 min-w-40 rounded-xl border border-[#e4d5a6] bg-white p-2 text-sm text-[#242424] shadow-xl">
         <Link href={languagePath('pt')} hrefLang="pt" lang="pt" aria-current={lang === 'pt' ? 'page' : undefined}
-          onClick={() => { if (languageRef.current) languageRef.current.open = false; }}
+          onClick={preserveConnectionsState}
           className="block rounded-lg px-3 py-2.5 hover:bg-[#fbf7ed] focus-visible:outline-2 focus-visible:outline-[#b18a23]">
           🇵🇹 Português {lang === 'pt' ? '✓' : ''}
         </Link>
