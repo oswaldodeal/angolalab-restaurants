@@ -1,13 +1,23 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function HomeDigitalCards({ language }: { language: 'en' | 'pt' }) {
   const pt = language === 'pt';
   const [imageAvailable, setImageAvailable] = useState(true);
   const [collaborationImageAvailable, setCollaborationImageAvailable] = useState(true);
   const [readMoreOpen, setReadMoreOpen] = useState(false);
+  const detailsRef = useRef<HTMLDetailsElement>(null);
+
+  // Restore the explanation when switching between English and Portuguese on the homepage.
+  useEffect(() => {
+    if (window.location.hash === '#home-digital-cards' && sessionStorage.getItem('angolalab-connections-expanded') === 'yes') {
+      if (detailsRef.current) detailsRef.current.open = true;
+      setReadMoreOpen(true);
+    }
+    sessionStorage.removeItem('angolalab-connections-expanded');
+  }, []);
 
   return (
     <section className="bg-[#f3f2ef] px-5 py-12 text-[#252525] sm:py-16" aria-labelledby="home-digital-cards">
@@ -24,7 +34,7 @@ export default function HomeDigitalCards({ language }: { language: 'en' | 'pt' }
               ? 'Crie um cartão digital pessoal gratuito. Partilhe o seu número com amigos, colegas e empresas. Os cartões empresariais estão disponíveis para negócios verificados.'
               : 'Create a free personal digital card. Share your phone number with friends, colleagues and businesses. Business cards are available with verified business profiles.'}
           </p>
-          <details onToggle={(event) => setReadMoreOpen(event.currentTarget.open)} className="group mt-5 max-w-lg rounded-xl border border-[#ded6c5] bg-white/70 px-4 py-3">
+          <details id="home-digital-connections-details" ref={detailsRef} onToggle={(event) => setReadMoreOpen(event.currentTarget.open)} className="group mt-5 max-w-lg rounded-xl border border-[#ded6c5] bg-white/70 px-4 py-3">
             <summary className="cursor-pointer font-semibold text-[#725716] marker:text-[#927018] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#987515]">
               {pt ? 'Ler mais sobre as Conexões Digitais' : 'Read more about Digital Connections'}
             </summary>
@@ -71,7 +81,7 @@ export default function HomeDigitalCards({ language }: { language: 'en' | 'pt' }
           <Link
             href={pt ? '/pt/cartoes' : '/en/cards'}
             aria-label={pt ? 'Abrir AngolaLab · Laboratório digital' : 'Open AngolaLab · Digital laboratory'}
-            className={`group block min-w-0 overflow-hidden rounded-2xl border border-[#ded6c5] bg-white shadow-[0_20px_50px_rgba(0,0,0,0.09)] transition-[transform,box-shadow] duration-200 hover:shadow-[0_24px_55px_rgba(0,0,0,0.16)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#987515] ${readMoreOpen ? 'lg:translate-y-0' : ''}`}
+            className={`group block min-w-0 overflow-hidden rounded-2xl border border-[#ded6c5] bg-white shadow-[0_20px_50px_rgba(0,0,0,0.09)] transition-[transform,box-shadow] duration-200 hover:shadow-[0_24px_55px_rgba(0,0,0,0.16)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#987515] ${readMoreOpen ? 'lg:translate-y-24' : ''}`}
           >
             {/* The original image stays in the collapsed view. The collaboration image is shown when the explanation is expanded, once its asset has been uploaded. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
