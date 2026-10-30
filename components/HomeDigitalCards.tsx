@@ -70,7 +70,7 @@ export default function HomeDigitalCards({ language }: { language: 'en' | 'pt' }
           <Link
             href={pt ? '/pt/cartoes' : '/en/cards'}
             aria-label={pt ? 'Abrir AngolaLab · Laboratório digital' : 'Open AngolaLab · Digital laboratory'}
-            className={`group block min-w-0 overflow-hidden rounded-2xl border border-[#ded6c5] bg-white shadow-[0_20px_50px_rgba(0,0,0,0.09)] transition-[transform,box-shadow] duration-200 hover:shadow-[0_24px_55px_rgba(0,0,0,0.16)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#987515] ${readMoreOpen ? 'lg:translate-y-12' : ''}`}
+            className={`group block min-w-0 overflow-hidden rounded-2xl border border-[#ded6c5] bg-white shadow-[0_20px_50px_rgba(0,0,0,0.09)] transition-[transform,box-shadow] duration-200 hover:shadow-[0_24px_55px_rgba(0,0,0,0.16)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#987515] ${readMoreOpen ? 'lg:translate-y-0' : ''}`}
           >
             {/* Approved illustration: public/angolalab-digital.png */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
