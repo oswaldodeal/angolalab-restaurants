@@ -1,12 +1,13 @@
 'use client';
 import Image from "next/image";
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import { BUSINESS_TYPES } from '@/lib/business-types';
 
 export default function Header() {
   const path = usePathname();
+  const router = useRouter();
   const lang = path.startsWith('/en') ? 'en' : 'pt';
   const exploreRef = useRef<HTMLDetailsElement>(null);
   const languageRef = useRef<HTMLDetailsElement>(null);
@@ -20,9 +21,7 @@ export default function Header() {
       : path.startsWith('/en/menu-editor') || path.startsWith('/pt/editor-ementa') ? (target === 'pt' ? '/editor-ementa' : '/menu-editor')
       : path.startsWith('/en/owner/demo') || path.startsWith('/pt/proprietario/demo') ? (target === 'pt' ? '/proprietario/demo' : '/owner/demo')
       : '';
-    // Keep the visitor at Digital Connections when translating the homepage.
-    const homeAnchor = suffix === '' && (path === '/en' || path === '/pt') ? '#home-digital-cards' : '';
-    return `/${target}${suffix}${homeAnchor}`;
+    return `/${target}${suffix}`;
   };
 
   // Dismiss the menu when the visitor clicks elsewhere or presses Escape.
@@ -53,13 +52,15 @@ export default function Header() {
     if (languageRef.current) languageRef.current.open = false;
   }, [path]);
 
-  const preserveConnectionsState = () => {
-    if (path === '/en' || path === '/pt') {
-      const details = document.getElementById('home-digital-connections-details') as HTMLDetailsElement | null;
-      if (details?.open) sessionStorage.setItem('angolalab-connections-expanded', 'yes');
-      else sessionStorage.removeItem('angolalab-connections-expanded');
-    }
+  const switchLanguage = (event: React.MouseEvent<HTMLAnchorElement>, target: 'pt' | 'en') => {
     if (languageRef.current) languageRef.current.open = false;
+    if (path !== '/en' && path !== '/pt') return;
+    const details = document.getElementById('home-digital-connections-details') as HTMLDetailsElement | null;
+    const rect = document.getElementById('home-digital-cards')?.getBoundingClientRect();
+    const viewingConnections = !!rect && rect.top < window.innerHeight && rect.bottom > 0;
+    if (!viewingConnections && !details?.open) return;
+    event.preventDefault();
+    router.push(`/${target}${details?.open ? '?connections=open' : ''}#home-digital-cards`);
   };
 
   const navLinkClass = 'rounded-md text-[#F2C94C] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C]';
@@ -71,12 +72,12 @@ export default function Header() {
       </summary>
       <div className="absolute right-0 top-full z-[70] mt-2 min-w-40 rounded-xl border border-[#e4d5a6] bg-white p-2 text-sm text-[#242424] shadow-xl">
         <Link href={languagePath('pt')} hrefLang="pt" lang="pt" aria-current={lang === 'pt' ? 'page' : undefined}
-          onClick={preserveConnectionsState}
+          onClick={(event) => switchLanguage(event, 'pt')}
           className="block rounded-lg px-3 py-2.5 hover:bg-[#fbf7ed] focus-visible:outline-2 focus-visible:outline-[#b18a23]">
           🇵🇹 Português {lang === 'pt' ? '✓' : ''}
         </Link>
         <Link href={languagePath('en')} hrefLang="en" lang="en" aria-current={lang === 'en' ? 'page' : undefined}
-          onClick={() => { if (languageRef.current) languageRef.current.open = false; }}
+          onClick={(event) => switchLanguage(event, 'en')}
           className="block rounded-lg px-3 py-2.5 hover:bg-[#fbf7ed] focus-visible:outline-2 focus-visible:outline-[#b18a23]">
           🇬🇧 English {lang === 'en' ? '✓' : ''}
         </Link>
