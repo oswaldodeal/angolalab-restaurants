@@ -12,7 +12,8 @@ export default function Header() {
   const exploreRef = useRef<HTMLDetailsElement>(null);
   const languageRef = useRef<HTMLDetailsElement>(null);
   const languagePath = (target: 'pt' | 'en') => {
-    const suffix = path.startsWith('/en/cards') || path.startsWith('/pt/cartoes') ? (target === 'pt' ? '/cartoes' : '/cards')
+    const suffix = path.startsWith('/en/professionals') || path.startsWith('/pt/profissionais') ? (target === 'pt' ? '/profissionais' : '/professionals')
+      : path.startsWith('/en/cards') || path.startsWith('/pt/cartoes') ? (target === 'pt' ? '/cartoes' : '/cards')
       : path.startsWith('/en/restaurants/submit') || path.startsWith('/pt/restaurantes/registar') ? (target === 'pt' ? '/restaurantes/registar' : '/restaurants/submit')
       : path.startsWith('/en/restaurants') || path.startsWith('/pt/restaurantes') ? (target === 'pt' ? '/restaurantes' : '/restaurants')
       : path.startsWith('/en/about') || path.startsWith('/pt/sobre') ? (target === 'pt' ? '/sobre' : '/about')
