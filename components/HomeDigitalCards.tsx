@@ -22,6 +22,41 @@ export default function HomeDigitalCards({ language }: { language: 'en' | 'pt' }
               ? 'Crie um cartão digital pessoal gratuito. Partilhe o seu número com amigos, colegas e empresas. Os cartões empresariais estão disponíveis para negócios verificados.'
               : 'Create a free personal digital card. Share your phone number with friends, colleagues and businesses. Business cards are available with verified business profiles.'}
           </p>
+          <details className="group mt-5 max-w-lg rounded-xl border border-[#ded6c5] bg-white/70 px-4 py-3">
+            <summary className="cursor-pointer font-semibold text-[#725716] marker:text-[#927018] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#987515]">
+              {pt ? 'Ler mais sobre as Conexões Digitais' : 'Read more about Digital Connections'}
+            </summary>
+            <div className="mt-4 space-y-3 text-sm leading-6 text-[#4b4b4b]">
+              <p className="font-semibold text-[#252525]">
+                {pt ? 'Não precisa de desenvolver as suas ideias sozinho.' : "You don't have to develop your ideas alone."}
+              </p>
+              <p>
+                {pt
+                  ? 'A AngolaLab criou as Conexões Digitais para ajudar pessoas e organizações a encontrar contactos úteis, partilhar conhecimentos e explorar oportunidades de colaboração.'
+                  : 'AngolaLab developed Digital Connections to help people and organisations find useful contacts, share knowledge and explore opportunities to collaborate.'}
+              </p>
+              <p>
+                {pt
+                  ? 'O objetivo é aproximar empresas (B2B), empresas e clientes, universidades, estudantes, investigadores e profissionais, bem como qualquer pessoa que queira construir uma rede educativa ou empresarial.'
+                  : 'The goal is to connect businesses with businesses (B2B), businesses with customers, universities, students, researchers and professionals, as well as anyone building an education or business network.'}
+              </p>
+              <p>
+                {pt
+                  ? 'Imagine que está em Luanda a desenvolver um projeto. Pode encontrar um profissional em Manchester com competências relevantes, pedir uma ligação e explorar a possibilidade de trabalhar em conjunto.'
+                  : 'Imagine you are developing a project in Luanda. You could discover a professional in Manchester with relevant skills, request a connection and explore working together.'}
+              </p>
+              <p className="font-medium text-[#252525]">
+                {pt
+                  ? 'A AngolaLab facilita a ligação. Cada participante decide se quer colaborar e que informações pretende partilhar.'
+                  : 'AngolaLab helps people connect. Each participant decides whether to collaborate and what information to share.'}
+              </p>
+              <p className="text-xs text-[#666]">
+                {pt
+                  ? 'Esta é a visão do serviço. Os perfis profissionais e os pedidos de ligação ainda não estão disponíveis nesta demonstração.'
+                  : 'This describes the service vision. Professional profiles and connection requests are not yet available in this demonstration.'}
+              </p>
+            </div>
+          </details>
           <Link href={pt ? '/pt/cartoes' : '/en/cards'}
             className="mt-7 inline-flex items-center justify-center rounded-lg bg-[#252a32] px-6 py-3 font-semibold text-white transition-colors hover:bg-[#424850] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#987515]">
             {pt ? 'Explorar Cartões Digitais →' : 'Explore Digital Cards →'}
