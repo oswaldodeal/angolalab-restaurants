@@ -5,6 +5,34 @@ import { useState, type FormEvent, type ChangeEvent } from 'react';
 
 type Language = 'en' | 'pt';
 
+// Only channel URLs are supported; video links and unrelated websites are rejected.
+function youtubeChannelUrl(value: string): string | null {
+  if (!value.trim()) return null;
+  try {
+    const url = new URL(value.trim());
+    const host = url.hostname.toLowerCase();
+    if (url.protocol !== 'https:' || !['youtube.com', 'www.youtube.com', 'm.youtube.com'].includes(host)) return null;
+    if (url.username || url.password || url.port) return null;
+    const parts = url.pathname.split('/').filter(Boolean);
+    if (parts.length !== 2) return null;
+    const [kind, identifier] = parts;
+    if (!['channel', 'user', 'c'].includes(kind) && !kind.startsWith('@')) return null;
+    if (kind.startsWith('@')) return null;
+    if (!/^[a-zA-Z0-9_-]+$/.test(identifier)) return null;
+    return 'https://www.youtube.com/' + kind + '/' + identifier;
+  } catch { return null; }
+}
+function validYoutubeChannel(value: string): string | null {
+  if (!value.trim()) return null;
+  try {
+    const url = new URL(value.trim());
+    if (url.protocol !== 'https:' || !['youtube.com', 'www.youtube.com', 'm.youtube.com'].includes(url.hostname.toLowerCase()) || url.username || url.password || url.port) return null;
+    const segments = url.pathname.split('/').filter(Boolean);
+    if (segments.length === 1 && /^@[a-zA-Z0-9._-]+$/.test(segments[0])) return 'https://www.youtube.com/' + segments[0];
+    return youtubeChannelUrl(value);
+  } catch { return null; }
+}
+
 export default function ProfessionalProfileDemo({ language }: { language: Language }) {
   const pt = language === 'pt';
   const [editing, setEditing] = useState(false);
@@ -16,11 +44,13 @@ export default function ProfessionalProfileDemo({ language }: { language: Langua
     interests: 'Reading, Writing, Technology',
     publication: 'The Structure Beneath the Noise',
     collaboration: 'Education projects, technology and international collaboration',
+    youtubeChannel: '',
   });
   const [draft, setDraft] = useState(profile);
   const [photo, setPhoto] = useState<string | null>(null);
   const [draftPhoto, setDraftPhoto] = useState<string | null>(null);
   const [photoError, setPhotoError] = useState('');
+  const [youtubeError, setYoutubeError] = useState('');
   function selectPhoto(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -46,7 +76,13 @@ export default function ProfessionalProfileDemo({ language }: { language: Langua
   ] as const;
   function submitProfile(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setProfile(Object.fromEntries(Object.entries(draft).map(([key, value]) => [key, value.trim()])) as typeof profile);
+    const youtube = draft.youtubeChannel.trim();
+    if (youtube && !validYoutubeChannel(youtube)) {
+      setYoutubeError(pt ? 'Introduza um endereço HTTPS de canal YouTube válido (por exemplo, youtube.com/@canal).' : 'Enter a valid HTTPS YouTube channel URL (for example, youtube.com/@channel).');
+      return;
+    }
+    setYoutubeError('');
+    setProfile({ ...Object.fromEntries(Object.entries(draft).map(([key, value]) => [key, value.trim()])) as typeof profile, youtubeChannel: youtube ? validYoutubeChannel(youtube)! : '' });
     setPhoto(draftPhoto);
     setEditing(false);
   }
@@ -71,7 +107,7 @@ export default function ProfessionalProfileDemo({ language }: { language: Langua
               <h2 className="text-xl font-bold">{pt ? 'Crie o seu perfil · Teste' : 'Create your profile · Test'}</h2>
               <p className="mt-1 text-sm text-[#666]">{pt ? 'Edite os dados fictícios e veja a pré-visualização abaixo.' : 'Edit the sample details and preview your profile below.'}</p>
             </div>
-            {!editing && <button type="button" onClick={() => { setDraft(profile); setDraftPhoto(photo); setPhotoError(''); setEditing(true); }}
+            {!editing && <button type="button" onClick={() => { setDraft(profile); setDraftPhoto(photo); setPhotoError(''); setYoutubeError(''); setEditing(true); }}
               className="rounded-lg bg-[#252a32] px-5 py-3 text-sm font-semibold text-white hover:bg-[#424850]">
               {pt ? 'Criar / editar perfil' : 'Create / edit profile'}
             </button>}
@@ -83,6 +119,16 @@ export default function ProfessionalProfileDemo({ language }: { language: Langua
                 onChange={event => setDraft(previous => ({ ...previous, [key]: event.target.value }))}
                 className="mt-2 block min-w-0 w-full max-w-full rounded-lg border border-[#c9c9c4] bg-white px-3 py-3 font-normal text-[#252525] focus-visible:outline-2 focus-visible:outline-[#927018]" />
             </label>)}
+            <div className="min-w-0 rounded-xl border border-[#dedbd3] bg-[#faf9f6] p-4 sm:col-span-2">
+              <label htmlFor="fpp-youtube" className="block text-sm font-semibold">{pt ? 'Canal YouTube (opcional)' : 'YouTube channel (optional)'}</label>
+              <p className="mt-1 text-xs leading-5 text-[#666]">{pt ? 'Adicione apenas um canal que lhe pertence ou que está autorizado a representar, com vídeos relacionados com o seu perfil e conteúdos profissionais. O conteúdo deve respeitar as regras da AngolaLab.' : 'Only add a channel you own or are authorised to represent, featuring videos relevant to your profile and professional content. Content must follow AngolaLab rules.'}</p>
+              <input id="fpp-youtube" type="url" inputMode="url" placeholder="https://www.youtube.com/@yourchannel" maxLength={300} value={draft.youtubeChannel}
+                onChange={event => { setDraft(previous => ({ ...previous, youtubeChannel: event.target.value })); setYoutubeError(''); }}
+                aria-invalid={!!youtubeError} aria-describedby={youtubeError ? 'fpp-youtube-error' : undefined}
+                className="mt-3 block w-full min-w-0 max-w-full rounded-lg border border-[#c9c9c4] bg-white px-3 py-3 text-sm text-[#252525]" />
+              {youtubeError && <p id="fpp-youtube-error" role="alert" className="mt-2 text-sm text-red-700">{youtubeError}</p>}
+              <p className="mt-2 text-xs text-[#666]">{pt ? 'O canal é externo. A AngolaLab não verifica nem aprova automaticamente os vídeos apresentados.' : 'This is an external channel. AngolaLab does not automatically verify or endorse its videos.'}</p>
+            </div>
             <div className="min-w-0 max-w-full rounded-xl border border-[#dedbd3] p-4 sm:col-span-2">
               <label htmlFor="fpp-photo" className="block text-sm font-semibold">{pt ? 'Fotografia de perfil (opcional)' : 'Profile photo (optional)'}</label>
               <p className="mt-1 text-xs text-[#666]">{pt ? 'JPG, PNG ou WebP, até 3 MB. Apenas neste dispositivo; sem envio para o servidor.' : 'JPG, PNG or WebP, up to 3 MB. On-device preview only; no server upload.'}</p>
@@ -142,6 +188,16 @@ export default function ProfessionalProfileDemo({ language }: { language: Langua
               </div>
             </div>
 
+            {profile.youtubeChannel && validYoutubeChannel(profile.youtubeChannel) && (
+              <div className="mt-6 min-w-0 rounded-xl border border-[#dedbd3] bg-[#f7f6f2] p-5">
+                <h3 className="font-bold">{pt ? 'Conteúdos · YouTube' : 'Content · YouTube'}</h3>
+                <p className="mt-2 text-sm text-[#555]">{pt ? 'Canal externo indicado pelo titular do perfil.' : 'External channel provided by the profile owner.'}</p>
+                <a href={validYoutubeChannel(profile.youtubeChannel)!} target="_blank" rel="noopener noreferrer"
+                  className="mt-3 inline-flex max-w-full break-all rounded-lg border border-[#d6caa8] bg-white px-4 py-3 text-sm font-semibold text-[#6b5319] hover:bg-[#fff9e9]">
+                  {pt ? 'Ver canal no YouTube ↗' : 'View YouTube channel ↗'}
+                </a>
+              </div>
+            )}
             <div className="mt-7 rounded-xl border border-[#e4d5a6] bg-[#fff9e9] p-5">
               <h3 className="font-bold">{pt ? 'Colaboração' : 'Collaboration'}</h3>
               <p className="mt-2 text-sm leading-6 text-[#555]">
