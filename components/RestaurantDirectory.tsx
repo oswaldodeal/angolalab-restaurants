@@ -45,6 +45,37 @@ export default function RestaurantDirectory({ language }: { language: Language }
           </p>
         </div>
 
+        {/* Research-only bridge: no live Tourism Intelligence integration or shared data. */}
+        <aside className="mb-9 rounded-2xl border border-[#ded8c5] bg-[#faf9f6] p-5 sm:p-7" aria-label={isPt ? 'Ligação à Inteligência de Turismo' : 'Tourism Intelligence connection'}>
+          <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#987515]">
+            {isPt ? '🧱 Brick 009C · Ligação em investigação' : '🧱 Brick 009C · Research connection'}
+          </p>
+          <h2 className="mt-3 text-xl font-semibold">
+            {isPt ? 'Restaurantes e Inteligência de Turismo' : 'Restaurants and Tourism Intelligence'}
+          </h2>
+          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-[#555]">
+            {isPt
+              ? 'Modelo futuro: visitantes poderão descobrir restaurantes e outros negócios de restauração perto de alojamentos e atrações, após revisão da identidade e localização de cada negócio.'
+              : 'Future model: visitors could discover restaurants and other hospitality businesses near accommodation and attractions after each business identity and location have been reviewed.'}
+          </p>
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            {[
+              { en: 'Accommodation research', pt: 'Investigação de alojamento' },
+              { en: 'Transport and car rental', pt: 'Transporte e aluguer de carros' },
+              { en: 'Events and attractions', pt: 'Eventos e atrações' },
+            ].map((item) => (
+              <div key={item.en} className="rounded-lg border border-[#e9e5db] bg-white px-4 py-3 text-sm font-medium">
+                {item[language]}
+              </div>
+            ))}
+          </div>
+          <p className="mt-4 text-xs leading-relaxed text-[#766c57]">
+            {isPt
+              ? 'Apenas demonstração conceptual. Não existem ligações automáticas, dados partilhados ou recomendações de proximidade ativas neste protótipo.'
+              : 'Concept demonstration only. This prototype has no active automatic connections, shared data or nearby recommendations.'}
+          </p>
+        </aside>
+
         <section aria-label={isPt ? 'Filtros de pesquisa' : 'Search filters'} className="mb-10 rounded-2xl border border-[#ded8c5] bg-white p-5 sm:p-7">
           <h2 className="mb-5 text-lg font-semibold text-[#987515]">
             {isPt ? '01 · Descobrir restaurantes' : '01 · Discover restaurants'}

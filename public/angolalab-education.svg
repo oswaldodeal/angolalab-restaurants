@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 680" role="img" aria-labelledby="title desc">
+<title id="title">AngolaLab practical education</title><desc id="desc">Illustration of a student coding an AngolaLab project on a laptop, with study books and a research notebook.</desc>
+<defs><linearGradient id="sky" x2="1" y2="1"><stop stop-color="#e9dfc6"/><stop offset="1" stop-color="#d4e2df"/></linearGradient><linearGradient id="desk" x2="0" y2="1"><stop stop-color="#bd9664"/><stop offset="1" stop-color="#8e6948"/></linearGradient></defs>
+<rect width="800" height="680" rx="32" fill="url(#sky)"/>
+<circle cx="630" cy="120" r="83" fill="#f9e6b0" opacity=".8"/>
+<path d="M0 302 96 274 160 298 236 236 313 271 389 211 474 280 550 240 630 281 707 239 800 273V445H0Z" fill="#a2b6ad" opacity=".52"/>
+<path d="M0 366 100 346 178 363 262 327 349 357 435 313 524 352 620 326 709 358 800 326V477H0Z" fill="#698f87" opacity=".43"/>
+<rect x="0" y="473" width="800" height="207" fill="url(#desk)"/>
+<path d="M0 504H800" stroke="#735338" stroke-width="8" opacity=".4"/>
+<rect x="225" y="170" width="482" height="318" rx="20" fill="#222b33" stroke="#4b565c" stroke-width="12"/>
+<rect x="246" y="191" width="441" height="274" rx="6" fill="#121b25"/>
+<rect x="247" y="191" width="441" height="37" rx="6" fill="#283643"/>
+<circle cx="265" cy="209" r="5" fill="#e49c85"/><circle cx="284" cy="209" r="5" fill="#dfc77a"/><circle cx="303" cy="209" r="5" fill="#8cb6a2"/>
+<text x="332" y="215" font-family="Arial,sans-serif" font-size="16" font-weight="bold" fill="#f4d17a">AngolaLab</text>
+<text x="270" y="269" font-family="monospace" font-size="16" fill="#79b8cf">&lt;main&gt;</text>
+<text x="296" y="302" font-family="monospace" font-size="16" fill="#b8dca3">const project = {</text>
+<text x="315" y="336" font-family="monospace" font-size="16" fill="#f2d28b">research: "Angola",</text>
+<text x="315" y="370" font-family="monospace" font-size="16" fill="#f2d28b">build: "website"</text>
+<text x="296" y="404" font-family="monospace" font-size="16" fill="#b8dca3">};</text>
+<text x="270" y="438" font-family="monospace" font-size="16" fill="#79b8cf">&lt;/main&gt;</text>
+<path d="M208 487H726L752 514Q755 523 742 523H195Q181 523 187 514Z" fill="#48545b"/>
+<path d="M385 491H550L570 506H368Z" fill="#6d797d"/>
+<rect x="44" y="406" width="142" height="42" rx="6" fill="#4c7771"/><rect x="34" y="449" width="157" height="38" rx="5" fill="#d3b276"/><rect x="48" y="489" width="143" height="35" rx="5" fill="#293b47"/>
+<text x="64" y="433" font-family="Arial,sans-serif" font-size="20" font-weight="bold" fill="#fff">English</text>
+<text x="51" y="475" font-family="Arial,sans-serif" font-size="19" font-weight="bold" fill="#28313a">Web Design</text>
+<text x="66" y="513" font-family="Arial,sans-serif" font-size="19" font-weight="bold" fill="#fff">Trading</text>
+<g transform="translate(60 552) rotate(-6)"><rect width="220" height="96" rx="8" fill="#f8f5ea" stroke="#c5aa83" stroke-width="4"/><text x="20" y="29" font-family="Arial,sans-serif" font-size="18" font-weight="bold" fill="#27323b">Research → Build</text><path d="M20 47H192M20 65H167M20 82H140" stroke="#a8a298" stroke-width="4" stroke-linecap="round"/></g>
+<g transform="translate(570 545)"><rect width="145" height="68" rx="10" fill="#faf5e6" stroke="#e0cfaa" stroke-width="3"/><text x="16" y="28" font-family="Arial,sans-serif" font-size="17" font-weight="bold" fill="#946d1f">LIVE</text><text x="16" y="50" font-family="Arial,sans-serif" font-size="17" font-weight="bold" fill="#293b47">PROJECT</text></g>
+</svg>

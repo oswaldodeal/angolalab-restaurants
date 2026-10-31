@@ -1,3 +1,5 @@
+import HomeEducationCard from '@/components/HomeEducationCard';
+import HomeDigitalCards from '@/components/HomeDigitalCards';
 import Link from "next/link";
 
 export default function EnglishHomePage() {
@@ -32,6 +34,9 @@ export default function EnglishHomePage() {
           </div>
         </div>
       </section>
+
+      <HomeDigitalCards language="en" />
+      <HomeEducationCard language="en" />
 
       {/* INFORMATION CARDS */}
       <section className="lab-dark-section px-6 py-16">
