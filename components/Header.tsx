@@ -173,7 +173,7 @@ export default function Header() {
         </nav>
         <details ref={mobileRef} className="group relative ml-auto lg:hidden">
           <summary aria-label={lang === 'pt' ? 'Abrir menu de navegação' : 'Open navigation menu'}
-            className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-lg border border-[#b28b29] px-3 py-2 text-sm font-semibold text-[#F2C94C] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] [&::-webkit-details-marker]:hidden">
+            className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-md px-2 py-2 text-sm font-semibold text-[#F2C94C] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] [&::-webkit-details-marker]:hidden">
             <span aria-hidden="true" className="text-lg">☰</span>
             {lang === 'pt' ? 'Menu' : 'Menu'}
             <span aria-hidden="true" className="text-xs group-open:rotate-180">▾</span>
