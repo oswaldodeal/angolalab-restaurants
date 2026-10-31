@@ -11,6 +11,7 @@ export default function Header() {
   const lang = path.startsWith('/en') ? 'en' : 'pt';
   const exploreRef = useRef<HTMLDetailsElement>(null);
   const languageRef = useRef<HTMLDetailsElement>(null);
+  const mobileRef = useRef<HTMLDetailsElement>(null);
   const languagePath = (target: 'pt' | 'en') => {
     const suffix = path.startsWith('/en/professionals') || path.startsWith('/pt/profissionais') ? (target === 'pt' ? '/profissionais' : '/professionals')
       : path.startsWith('/en/cards') || path.startsWith('/pt/cartoes') ? (target === 'pt' ? '/cartoes' : '/cards')
@@ -28,7 +29,7 @@ export default function Header() {
   // Dismiss the menu when the visitor clicks elsewhere or presses Escape.
   useEffect(() => {
     function handleOutsidePointer(event: PointerEvent) {
-      for (const menu of [exploreRef.current, languageRef.current]) {
+      for (const menu of [exploreRef.current, languageRef.current, mobileRef.current]) {
         if (menu?.open && event.target instanceof Node && !menu.contains(event.target)) menu.open = false;
       }
     }
@@ -51,6 +52,7 @@ export default function Header() {
   useEffect(() => {
     if (exploreRef.current) exploreRef.current.open = false;
     if (languageRef.current) languageRef.current.open = false;
+    if (mobileRef.current) mobileRef.current.open = false;
   }, [path]);
 
   const switchLanguage = (event: React.MouseEvent<HTMLAnchorElement>, target: 'pt' | 'en') => {
@@ -127,11 +129,11 @@ export default function Header() {
   );
 
   return (
-<header className="sticky top-0 z-50 w-full bg-[#22262D] shadow-sm">   
-      <div className="w-full flex flex-col items-start gap-y-4 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-x-6 sm:px-8 lg:px-12">
+<header className="sticky top-0 z-50 w-full max-w-full bg-[#22262D] shadow-sm">   
+      <div className="mx-auto flex w-full max-w-7xl min-w-0 items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
        <Link
   href={`/${lang}`}
-  className="inline-flex shrink-0 items-center gap-3 rounded-md text-xl font-bold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C]"
+  className="inline-flex min-w-0 shrink-0 items-center gap-2 rounded-md text-lg font-bold sm:gap-3 sm:text-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C]"
   aria-label="AngolaLab home"
 >
   <Image
@@ -148,7 +150,7 @@ export default function Header() {
     <span className="text-[#F2C94C]">Lab</span>
   </span>
 </Link>
-        <nav aria-label="Main navigation" className="flex w-full flex-wrap items-center justify-between gap-x-2 gap-y-2 text-[clamp(0.68rem,2.9vw,0.875rem)] sm:ml-auto sm:w-auto sm:flex-nowrap sm:justify-end sm:gap-x-6 sm:text-sm">
+        <nav aria-label="Main navigation" className="hidden min-w-0 items-center justify-end gap-x-4 text-sm lg:ml-auto lg:flex xl:gap-x-6">
           {lang === 'pt' ? (
             <>
               {exploreMenu}
@@ -169,6 +171,34 @@ export default function Header() {
             </>
           )}
         </nav>
+        <details ref={mobileRef} className="group relative ml-auto lg:hidden">
+          <summary aria-label={lang === 'pt' ? 'Abrir menu de navegação' : 'Open navigation menu'}
+            className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-lg border border-[#b28b29] px-3 py-2 text-sm font-semibold text-[#F2C94C] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] [&::-webkit-details-marker]:hidden">
+            <span aria-hidden="true" className="text-lg">☰</span>
+            {lang === 'pt' ? 'Menu' : 'Menu'}
+            <span aria-hidden="true" className="text-xs group-open:rotate-180">▾</span>
+          </summary>
+          <nav aria-label={lang === 'pt' ? 'Navegação móvel' : 'Mobile navigation'}
+            className="absolute right-0 top-full z-[80] mt-3 w-[min(20rem,calc(100vw-2rem))] max-w-[calc(100vw-2rem)] rounded-xl border border-[#b28b29] bg-[#22262D] p-3 text-sm shadow-2xl">
+            <div className="flex flex-col gap-1">
+              <Link href={`/${lang}`} className="rounded-lg px-3 py-3 text-[#F2C94C] hover:bg-white/10">{lang === 'pt' ? 'Início' : 'Home'}</Link>
+              <Link href={lang === 'pt' ? '/pt/restaurantes' : '/en/restaurants'} className="rounded-lg px-3 py-3 text-[#F2C94C] hover:bg-white/10">{lang === 'pt' ? 'Restaurantes' : 'Restaurants'}</Link>
+              <Link href={lang === 'pt' ? '/pt/cartoes' : '/en/cards'} className="rounded-lg px-3 py-3 text-[#F2C94C] hover:bg-white/10">{lang === 'pt' ? 'Cartões Digitais' : 'Digital Cards'}</Link>
+              <Link href={lang === 'pt' ? '/pt/sobre' : '/en/about'} className="rounded-lg px-3 py-3 text-[#F2C94C] hover:bg-white/10">{lang === 'pt' ? 'Sobre Nós' : 'About Us'}</Link>
+              <div className="my-1 border-t border-[#585047]" />
+              <p className="px-3 pt-2 text-xs font-semibold text-[#d8c68d]">{lang === 'pt' ? 'Idioma' : 'Language'}</p>
+              <div className="flex flex-wrap gap-2 px-3 py-2">
+                <Link href={languagePath('pt')} hrefLang="pt" lang="pt" onClick={event => switchLanguage(event, 'pt')}
+                  aria-current={lang === 'pt' ? 'page' : undefined} className="rounded-lg border border-[#73633a] px-3 py-2 text-[#F2C94C]">PT {lang === 'pt' ? '✓' : ''}</Link>
+                <Link href={languagePath('en')} hrefLang="en" lang="en" onClick={event => switchLanguage(event, 'en')}
+                  aria-current={lang === 'en' ? 'page' : undefined} className="rounded-lg border border-[#73633a] px-3 py-2 text-[#F2C94C]">EN {lang === 'en' ? '✓' : ''}</Link>
+              </div>
+              <div className="my-1 border-t border-[#585047]" />
+              <Link href={lang === 'pt' ? '/pt/entrar' : '/en/signin'} className="rounded-lg px-3 py-3 text-[#F2C94C] hover:bg-white/10">{lang === 'pt' ? 'Entrar' : 'Sign In'}</Link>
+              <Link href={lang === 'pt' ? '/pt/registar' : '/en/signup'} className="rounded-lg bg-emerald-600 px-3 py-3 text-center font-semibold text-white hover:bg-emerald-700">{lang === 'pt' ? 'Criar Conta' : 'Create Account'}</Link>
+            </div>
+          </nav>
+        </details>
       </div>
       <div className="w-full h-0.5 bg-[#F2C94C]" />
     </header>
