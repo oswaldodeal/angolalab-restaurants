@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, type ChangeEvent } from 'react';
 
 type Language = 'en' | 'pt';
 
@@ -18,6 +18,23 @@ export default function ProfessionalProfileDemo({ language }: { language: Langua
     collaboration: 'Education projects, technology and international collaboration',
   });
   const [draft, setDraft] = useState(profile);
+  const [photo, setPhoto] = useState<string | null>(null);
+  const [draftPhoto, setDraftPhoto] = useState<string | null>(null);
+  const [photoError, setPhotoError] = useState('');
+  function selectPhoto(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 3 * 1024 * 1024) {
+      setPhotoError(pt ? 'Use JPG, PNG ou WebP até 3 MB.' : 'Use JPG, PNG or WebP up to 3 MB.');
+      event.target.value = '';
+      return;
+    }
+    setPhotoError('');
+    const reader = new FileReader();
+    reader.onload = () => { if (typeof reader.result === 'string') setDraftPhoto(reader.result); };
+    reader.readAsDataURL(file);
+    event.target.value = '';
+  }
   const fields = [
     { key: 'name', label: pt ? 'Nome de apresentação' : 'Display name', required: true },
     { key: 'profession', label: pt ? 'Profissão' : 'Profession', required: true },
@@ -30,6 +47,7 @@ export default function ProfessionalProfileDemo({ language }: { language: Langua
   function submitProfile(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setProfile(Object.fromEntries(Object.entries(draft).map(([key, value]) => [key, value.trim()])) as typeof profile);
+    setPhoto(draftPhoto);
     setEditing(false);
   }
   return (
@@ -53,7 +71,7 @@ export default function ProfessionalProfileDemo({ language }: { language: Langua
               <h2 className="text-xl font-bold">{pt ? 'Crie o seu perfil · Teste' : 'Create your profile · Test'}</h2>
               <p className="mt-1 text-sm text-[#666]">{pt ? 'Edite os dados fictícios e veja a pré-visualização abaixo.' : 'Edit the sample details and preview your profile below.'}</p>
             </div>
-            {!editing && <button type="button" onClick={() => { setDraft(profile); setEditing(true); }}
+            {!editing && <button type="button" onClick={() => { setDraft(profile); setDraftPhoto(photo); setPhotoError(''); setEditing(true); }}
               className="rounded-lg bg-[#252a32] px-5 py-3 text-sm font-semibold text-white hover:bg-[#424850]">
               {pt ? 'Criar / editar perfil' : 'Create / edit profile'}
             </button>}
@@ -65,6 +83,14 @@ export default function ProfessionalProfileDemo({ language }: { language: Langua
                 onChange={event => setDraft(previous => ({ ...previous, [key]: event.target.value }))}
                 className="mt-2 block w-full rounded-lg border border-[#c9c9c4] bg-white px-3 py-3 font-normal text-[#252525] focus-visible:outline-2 focus-visible:outline-[#927018]" />
             </label>)}
+            <div className="sm:col-span-2 rounded-xl border border-[#dedbd3] p-4">
+              <label htmlFor="fpp-photo" className="block text-sm font-semibold">{pt ? 'Fotografia de perfil (opcional)' : 'Profile photo (optional)'}</label>
+              <p className="mt-1 text-xs text-[#666]">{pt ? 'JPG, PNG ou WebP, até 3 MB. Apenas neste dispositivo; sem envio para o servidor.' : 'JPG, PNG or WebP, up to 3 MB. On-device preview only; no server upload.'}</p>
+              {draftPhoto && <img src={draftPhoto} alt={pt ? 'Pré-visualização' : 'Photo preview'} className="mt-3 h-24 w-24 rounded-full object-cover" />}
+              <input id="fpp-photo" type="file" accept="image/jpeg,image/png,image/webp" onChange={selectPhoto} className="mt-3 block max-w-full text-sm" />
+              {draftPhoto && <button type="button" onClick={() => setDraftPhoto(null)} className="mt-2 rounded-lg border px-3 py-2 text-sm">{pt ? 'Remover fotografia' : 'Remove photo'}</button>}
+              {photoError && <p role="alert" className="mt-2 text-sm text-red-700">{photoError}</p>}
+            </div>
             <div className="flex flex-wrap gap-3 sm:col-span-2">
               <button type="submit" className="rounded-lg bg-[#252a32] px-5 py-3 text-sm font-semibold text-white">
                 {pt ? 'Atualizar pré-visualização' : 'Update preview'}
@@ -84,7 +110,7 @@ export default function ProfessionalProfileDemo({ language }: { language: Langua
           <div className="h-3 bg-[#b6923b]" />
           <div className="p-6 sm:p-9">
             <div className="flex flex-wrap items-start gap-5">
-              <div aria-hidden="true" className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-[#e9ddbc] text-3xl font-bold text-[#5f4a18]">{profile.name.trim().charAt(0).toUpperCase() || '?'}</div>
+              {photo ? <img src={photo} alt={pt ? 'Fotografia do perfil' : 'Profile photograph'} className="h-20 w-20 shrink-0 rounded-full object-cover" /> : <div aria-hidden="true" className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-[#e9ddbc] text-3xl font-bold text-[#5f4a18]">{profile.name.trim().charAt(0).toUpperCase() || '?'}</div>}
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-semibold uppercase tracking-wide text-[#8a6a20]">
                   {pt ? 'Perfil fictício · Não publicado' : 'Fictional profile · Not published'}
