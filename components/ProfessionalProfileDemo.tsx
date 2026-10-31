@@ -153,7 +153,7 @@ export default function ProfessionalProfileDemo({ language }: { language: Langua
         </section>
 
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-white p-4">
-          <span className="text-sm font-semibold">{pt ? 'Pré-visualização da privacidade' : 'Privacy preview'}</span>
+          <div className="min-w-0"><p className="text-sm font-semibold">{pt ? 'Pré-visualização da privacidade' : 'Privacy preview'}</p><p className="mt-1 text-xs text-[#666]">{visitor ? (pt ? 'A mostrar apenas campos autorizados.' : 'Showing allowed fields only.') : (pt ? 'Vista do titular: todos os campos.' : 'Owner view: all fields.')}</p></div>
           <button type="button" onClick={() => setVisitor(p => !p)} className="rounded-lg bg-[#252a32] px-4 py-3 text-sm font-semibold text-white">
             {visitor ? (pt ? 'Vista do titular' : 'Owner view') : (pt ? 'Vista do visitante' : 'Visitor view')}
           </button>
@@ -193,7 +193,7 @@ export default function ProfessionalProfileDemo({ language }: { language: Langua
               </div>}
             </div>
 
-            {(safeSocial(profile.instagram, 'instagram') || safeSocial(profile.facebook, 'facebook')) && (
+            {((!visitor || visibility.instagram) && safeSocial(profile.instagram, 'instagram') || (!visitor || visibility.facebook) && safeSocial(profile.facebook, 'facebook')) && (
               <div className="mt-6 rounded-xl bg-[#f7f6f2] p-5">
                 <h3 className="font-bold">{pt ? 'Redes sociais' : 'Social media'}</h3>
                 <div className="mt-3 flex flex-wrap gap-3">
@@ -202,7 +202,7 @@ export default function ProfessionalProfileDemo({ language }: { language: Langua
                 </div>
               </div>
             )}
-            <div className="mt-7 rounded-xl border border-[#e4d5a6] bg-[#fff9e9] p-5">
+            {(!visitor || visibility.collaboration) && <div className="mt-7 rounded-xl border border-[#e4d5a6] bg-[#fff9e9] p-5">
               <h3 className="font-bold">{pt ? 'Colaboração' : 'Collaboration'}</h3>
               <p className="mt-2 text-sm leading-6 text-[#555]">
                 {pt
@@ -213,7 +213,7 @@ export default function ProfessionalProfileDemo({ language }: { language: Langua
                 className="mt-4 cursor-not-allowed rounded-lg bg-[#dedbd3] px-5 py-3 text-sm font-semibold text-[#666]">
                 {pt ? 'Pedir ligação · Em desenvolvimento' : 'Request connection · Planned'}
               </button>
-            </div>
+            </div>}
             <p className="mt-5 text-xs leading-5 text-[#666]">
               {pt
                 ? 'Privacidade primeiro: os futuros titulares escolherão o que partilhar. Nenhuma mensagem é enviada nesta demonstração.'
