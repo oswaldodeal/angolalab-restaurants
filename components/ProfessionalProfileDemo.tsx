@@ -52,7 +52,7 @@ export default function ProfessionalProfileDemo({ language }: { language: Langua
   }
   return (
     <main className="min-h-screen bg-[#f4f4f2] px-4 py-10 text-[#252525] sm:py-14">
-      <div className="mx-auto max-w-4xl">
+      <div className="mx-auto w-full min-w-0 max-w-4xl">
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#927018]">
           {pt ? 'AngolaLab · Conexões digitais' : 'AngolaLab · Digital Connections'}
         </p>
@@ -65,7 +65,7 @@ export default function ProfessionalProfileDemo({ language }: { language: Langua
             : 'Discover people through their skills, interests and projects. This is a fictional demonstration: no public profiles or connection requests are active.'}
         </p>
 
-        <section className="mt-7 rounded-2xl border border-[#dedbd3] bg-white p-5 sm:p-7">
+        <section className="mt-7 min-w-0 rounded-2xl border border-[#dedbd3] bg-white p-5 sm:p-7">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h2 className="text-xl font-bold">{pt ? 'Crie o seu perfil · Teste' : 'Create your profile · Test'}</h2>
@@ -76,18 +76,18 @@ export default function ProfessionalProfileDemo({ language }: { language: Langua
               {pt ? 'Criar / editar perfil' : 'Create / edit profile'}
             </button>}
           </div>
-          {editing && <form onSubmit={submitProfile} className="mt-6 grid gap-4 sm:grid-cols-2">
-            {fields.map(({ key, label, required }) => <label key={key} className="block text-sm font-semibold text-[#333]">
+          {editing && <form onSubmit={submitProfile} className="mt-6 grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">
+            {fields.map(({ key, label, required }) => <label key={key} className="block min-w-0 text-sm font-semibold text-[#333]">
               {label}
               <input type="text" maxLength={160} required={required} value={draft[key]}
                 onChange={event => setDraft(previous => ({ ...previous, [key]: event.target.value }))}
-                className="mt-2 block w-full rounded-lg border border-[#c9c9c4] bg-white px-3 py-3 font-normal text-[#252525] focus-visible:outline-2 focus-visible:outline-[#927018]" />
+                className="mt-2 block min-w-0 w-full max-w-full rounded-lg border border-[#c9c9c4] bg-white px-3 py-3 font-normal text-[#252525] focus-visible:outline-2 focus-visible:outline-[#927018]" />
             </label>)}
-            <div className="sm:col-span-2 rounded-xl border border-[#dedbd3] p-4">
+            <div className="min-w-0 max-w-full rounded-xl border border-[#dedbd3] p-4 sm:col-span-2">
               <label htmlFor="fpp-photo" className="block text-sm font-semibold">{pt ? 'Fotografia de perfil (opcional)' : 'Profile photo (optional)'}</label>
               <p className="mt-1 text-xs text-[#666]">{pt ? 'JPG, PNG ou WebP, até 3 MB. Apenas neste dispositivo; sem envio para o servidor.' : 'JPG, PNG or WebP, up to 3 MB. On-device preview only; no server upload.'}</p>
               {draftPhoto && <img src={draftPhoto} alt={pt ? 'Pré-visualização' : 'Photo preview'} className="mt-3 h-24 w-24 rounded-full object-cover" />}
-              <input id="fpp-photo" type="file" accept="image/jpeg,image/png,image/webp" onChange={selectPhoto} className="mt-3 block max-w-full text-sm" />
+              <input id="fpp-photo" type="file" accept="image/jpeg,image/png,image/webp" onChange={selectPhoto} className="mt-3 block w-full min-w-0 max-w-full text-sm" />
               {draftPhoto && <button type="button" onClick={() => setDraftPhoto(null)} className="mt-2 rounded-lg border px-3 py-2 text-sm">{pt ? 'Remover fotografia' : 'Remove photo'}</button>}
               {photoError && <p role="alert" className="mt-2 text-sm text-red-700">{photoError}</p>}
             </div>
