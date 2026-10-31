@@ -1,3 +1,4 @@
+import HomeEducationCard from '@/components/HomeEducationCard';
 import HomeDigitalCards from '@/components/HomeDigitalCards';
 import Link from 'next/link';
 
@@ -31,6 +32,7 @@ export default function PortugueseHomePage() {
         </div>
       </section>
       <HomeDigitalCards language="pt" />
+      <HomeEducationCard language="pt" />
       <section className="lab-dark-section px-6 py-16">
         <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
           <div className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
