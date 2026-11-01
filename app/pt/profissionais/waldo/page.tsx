@@ -1,5 +1,5 @@
-import ProfessionalVisitorDemo from '@/components/ProfessionalVisitorDemo';
+import FppVisitorWaldoDemo from '@/components/FppVisitorWaldoDemo';
 
-export default function WaldoVisitorPage() {
-  return <ProfessionalVisitorDemo language="pt" />;
+export default function PortugueseWaldoVisitorPage() {
+  return <FppVisitorWaldoDemo language="pt" />;
 }
