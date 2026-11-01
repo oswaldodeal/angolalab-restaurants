@@ -23,7 +23,7 @@
 <rect x="44" y="406" width="142" height="42" rx="6" fill="#4c7771"/><rect x="34" y="449" width="157" height="38" rx="5" fill="#d3b276"/><rect x="48" y="489" width="143" height="35" rx="5" fill="#293b47"/>
 <text x="64" y="433" font-family="Arial,sans-serif" font-size="20" font-weight="bold" fill="#fff">English</text>
 <text x="51" y="475" font-family="Arial,sans-serif" font-size="19" font-weight="bold" fill="#28313a">Web Design</text>
-<text x="66" y="513" font-family="Arial,sans-serif" font-size="19" font-weight="bold" fill="#fff">Trading</text>
+<text x="66" y="513" font-family="Arial,sans-serif" font-size="15" font-weight="bold" fill="#fff">Live Research</text>
 <g transform="translate(60 552) rotate(-6)"><rect width="220" height="96" rx="8" fill="#f8f5ea" stroke="#c5aa83" stroke-width="4"/><text x="20" y="29" font-family="Arial,sans-serif" font-size="18" font-weight="bold" fill="#27323b">Research → Build</text><path d="M20 47H192M20 65H167M20 82H140" stroke="#a8a298" stroke-width="4" stroke-linecap="round"/></g>
 <g transform="translate(570 545)"><rect width="145" height="68" rx="10" fill="#faf5e6" stroke="#e0cfaa" stroke-width="3"/><text x="16" y="28" font-family="Arial,sans-serif" font-size="17" font-weight="bold" fill="#946d1f">LIVE</text><text x="16" y="50" font-family="Arial,sans-serif" font-size="17" font-weight="bold" fill="#293b47">PROJECT</text></g>
 </svg>
