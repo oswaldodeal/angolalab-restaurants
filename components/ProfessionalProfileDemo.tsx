@@ -237,6 +237,11 @@ export default function ProfessionalProfileDemo({ language }: { language: Langua
             </p>
           </div>
         </section>
+        <div className="mt-7 rounded-xl border border-[#dedbd3] bg-white p-4">
+          <p className="text-sm font-bold">{pt ? 'Página de visitante · Exemplo Waldo' : 'Visitor page · Waldo example'}</p>
+          <p className="mt-1 text-xs leading-5 text-[#666]">{pt ? 'Veja uma página de visitante independente, com as permissões predefinidas do exemplo. As alterações feitas neste editor não são guardadas nem transferidas para essa página.' : 'Open a standalone visitor example using default sample permissions. Edits made here are not saved or transferred to that page.'}</p>
+          <Link href={pt ? '/pt/profissionais/waldo' : '/en/professionals/waldo'} className="mt-3 inline-flex rounded-lg bg-[#252a32] px-5 py-3 text-sm font-semibold text-white">{pt ? 'Abrir página do visitante →' : 'Open visitor page →'}</Link>
+        </div>
         <Link href={pt ? '/pt/cartoes' : '/en/cards'} className="mt-7 inline-flex rounded-lg border border-[#d6caa8] bg-white px-5 py-3 text-sm font-semibold text-[#6b5319] hover:bg-[#fff9e9]">
           {pt ? '← Voltar aos Cartões Digitais' : '← Back to Digital Cards'}
         </Link>
