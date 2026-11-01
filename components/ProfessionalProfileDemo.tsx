@@ -4,8 +4,8 @@ import Link from 'next/link';
 import { useState, type FormEvent, type ChangeEvent } from 'react';
 
 type Language = 'en' | 'pt';
-type Field = 'photo' | 'profession' | 'skills' | 'languages' | 'interests' | 'publication' | 'collaboration' | 'instagram' | 'facebook';
-const defaults: Record<Field, boolean> = {photo:false, profession:true, skills:true, languages:true, interests:true, publication:true, collaboration:true, instagram:false, facebook:false};
+type Field = 'photo' | 'profession' | 'skills' | 'languages' | 'interests' | 'publication' | 'founder' | 'collaboration' | 'instagram' | 'facebook';
+const defaults: Record<Field, boolean> = {photo:false, profession:true, skills:true, languages:true, interests:true, publication:true, founder:false, collaboration:true, instagram:false, facebook:false};
 function safeSocial(input: string, network: 'instagram' | 'facebook') {
   try {
     const url = new URL(input);
@@ -25,6 +25,7 @@ export default function ProfessionalProfileDemo({ language }: { language: Langua
     languages: 'English, Portuguese, Dutch',
     interests: 'Reading, Writing, Technology',
     publication: 'The Structure Beneath the Noise',
+    founder: 'AngolaLab',
     collaboration: 'Education projects, technology and international collaboration',
     instagram: '', facebook: '',
   });
@@ -36,6 +37,7 @@ export default function ProfessionalProfileDemo({ language }: { language: Langua
   const [draftVisibility, setDraftVisibility] = useState(defaults);
   const [visitor, setVisitor] = useState(false);
   const [socialError, setSocialError] = useState('');
+  const [adultConfirmed, setAdultConfirmed] = useState(false);
   function selectPhoto(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -57,10 +59,12 @@ export default function ProfessionalProfileDemo({ language }: { language: Langua
     { key: 'languages', label: pt ? 'Idiomas (separados por vírgulas)' : 'Languages (comma separated)', required: true },
     { key: 'interests', label: pt ? 'Interesses' : 'Interests', required: false },
     { key: 'publication', label: pt ? 'Publicação (opcional)' : 'Publication (optional)', required: false },
+    { key: 'founder', label: pt ? 'Fundador(a) de (opcional)' : 'Founder of (optional)', required: false },
     { key: 'collaboration', label: pt ? 'Projetos e colaboração' : 'Projects and collaboration', required: false },
   ] as const;
   function submitProfile(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!adultConfirmed) return;
     if ((draft.instagram.trim() && !safeSocial(draft.instagram, 'instagram')) || (draft.facebook.trim() && !safeSocial(draft.facebook, 'facebook'))) {
       setSocialError(pt ? 'Use links HTTPS válidos de Instagram ou Facebook.' : 'Use valid HTTPS Instagram or Facebook links.');
       return;
@@ -86,13 +90,15 @@ export default function ProfessionalProfileDemo({ language }: { language: Langua
             : 'Discover people through their skills, interests and projects. This is a fictional demonstration: no public profiles or connection requests are active.'}
         </p>
 
+        <p className="mt-3 max-w-2xl text-sm font-semibold text-[#73591b]">{pt ? 'Para adultos com 18 anos ou mais. Não recolhemos a data de nascimento nesta demonstração.' : 'Designed for adults aged 18 and over. No date of birth is collected in this demonstration.'}</p>
+
         <section className="mt-7 min-w-0 rounded-2xl border border-[#dedbd3] bg-white p-5 sm:p-7">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h2 className="text-xl font-bold">{pt ? 'Crie o seu perfil · Teste' : 'Create your profile · Test'}</h2>
               <p className="mt-1 text-sm text-[#666]">{pt ? 'Edite os dados fictícios e veja a pré-visualização abaixo.' : 'Edit the sample details and preview your profile below.'}</p>
             </div>
-            {!editing && <button type="button" onClick={() => { setDraft(profile); setDraftPhoto(photo); setDraftVisibility(visibility); setPhotoError(''); setSocialError(''); setEditing(true); }}
+            {!editing && <button type="button" onClick={() => { setDraft(profile); setDraftPhoto(photo); setDraftVisibility(visibility); setPhotoError(''); setSocialError(''); setAdultConfirmed(false); setEditing(true); }}
               className="rounded-lg bg-[#252a32] px-5 py-3 text-sm font-semibold text-white hover:bg-[#424850]">
               {pt ? 'Criar / editar perfil' : 'Create / edit profile'}
             </button>}
@@ -124,6 +130,7 @@ export default function ProfessionalProfileDemo({ language }: { language: Langua
                   ['photo', pt ? 'Fotografia' : 'Photo'], ['profession', pt ? 'Profissão' : 'Profession'],
                   ['skills', pt ? 'Competências' : 'Skills'], ['languages', pt ? 'Idiomas' : 'Languages'],
                   ['interests', pt ? 'Interesses' : 'Interests'], ['publication', pt ? 'Publicação' : 'Publication'],
+                  ['founder', pt ? 'Fundador(a)' : 'Founder'],
                   ['collaboration', pt ? 'Colaboração' : 'Collaboration'], ['instagram', 'Instagram'], ['facebook', 'Facebook']
                 ] as [Field,string][]).map(([key,label]) => <label key={key} className="flex items-center gap-3 text-sm">
                   <input type="checkbox" checked={draftVisibility[key]} onChange={event => setDraftVisibility(p => ({...p,[key]:event.target.checked}))} className="h-4 w-4 accent-[#927018]" />{label}
@@ -138,6 +145,10 @@ export default function ProfessionalProfileDemo({ language }: { language: Langua
               {draftPhoto && <button type="button" onClick={() => setDraftPhoto(null)} className="mt-2 rounded-lg border px-3 py-2 text-sm">{pt ? 'Remover fotografia' : 'Remove photo'}</button>}
               {photoError && <p role="alert" className="mt-2 text-sm text-red-700">{photoError}</p>}
             </div>
+            <label className="flex min-w-0 items-start gap-3 text-sm leading-6 text-[#333] sm:col-span-2">
+              <input type="checkbox" required checked={adultConfirmed} onChange={event => setAdultConfirmed(event.target.checked)} className="mt-1 h-4 w-4 shrink-0 accent-[#927018]" />
+              <span>{pt ? 'Confirmo que tenho 18 anos ou mais. Esta confirmação é apenas uma demonstração e não constitui verificação de idade.' : 'I confirm that I am 18 or older. This is a demonstration declaration, not verified age assurance.'}</span>
+            </label>
             <div className="flex flex-wrap gap-3 sm:col-span-2">
               <button type="submit" className="rounded-lg bg-[#252a32] px-5 py-3 text-sm font-semibold text-white">
                 {pt ? 'Atualizar pré-visualização' : 'Update preview'}
@@ -190,6 +201,11 @@ export default function ProfessionalProfileDemo({ language }: { language: Langua
               {(!visitor || visibility.publication) && <div className="min-w-0 rounded-xl bg-[#f7f6f2] p-5">
                 <h3 className="font-bold">{pt ? 'Publicação de exemplo' : 'Example publication'}</h3>
                 <p className="mt-2 text-sm italic leading-6 text-[#555]">{profile.publication || (pt ? 'Não indicado' : 'Not specified')}</p>
+              </div>}
+              {profile.founder && (!visitor || visibility.founder) && <div className="min-w-0 rounded-xl bg-[#f7f6f2] p-5">
+                <h3 className="font-bold">{pt ? 'Fundador(a) de' : 'Founder of'}</h3>
+                <p className="mt-2 break-words text-sm leading-6 text-[#555]">{profile.founder}</p>
+                <p className="mt-2 text-xs text-[#777]">{pt ? 'Informação declarada pelo titular; não verificada.' : 'Self-reported information; not verified.'}</p>
               </div>}
             </div>
 
