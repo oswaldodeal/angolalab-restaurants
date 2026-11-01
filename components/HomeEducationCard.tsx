@@ -12,13 +12,13 @@ export default function HomeEducationCard({ language }: { language: 'en' | 'pt' 
               {pt ? 'APRENDER · INVESTIGAR NA PRÁTICA · CRIAR PROJECTOS REAIS' : 'LEARN · LIVE RESEARCH · CREATE REAL PROJECTS'}
             </h2>
             <p className="mt-4 text-lg font-semibold leading-7 text-[#303945]">
-              {pt ? 'Beneficie do nosso plano de educação e comece a desenvolver aplicações como a AngolaLab.' : 'Benefit from our education plan and start building applications like AngolaLab.'}
+              {pt ? 'Comece a desenvolver aplicações como a AngolaLab.' : 'Start building applications like AngolaLab.'}
             </p>
             <p className="mt-3 text-sm leading-7 text-[#5b5b5b] sm:text-base">
               {pt ? 'Aprenda conceitos, investigue problemas reais e transforme os seus conhecimentos em projectos práticos. Desenvolva competências e apresente os seus trabalhos no seu Perfil Profissional Gratuito.' : 'Understand the concepts, research real problems and turn knowledge into working projects. Build skills and showcase your work through your Free Professional Profile.'}
             </p>
             <div className="mt-5 flex flex-wrap gap-2 text-sm font-semibold">
-              {['English', pt ? 'Desenvolvimento Web' : 'Web Design', pt ? 'Trading (bases)' : 'Trading (basics)'].map(item => (
+              {[pt ? 'Inglês' : 'English', pt ? 'Desenvolvimento Web' : 'Web Design', pt ? 'Investigação Prática' : 'Live Research'].map(item => (
                 <span key={item} className="rounded-full border border-[#e7dcc4] bg-[#fbf6e9] px-3 py-2 text-[#6d531b]">{item}</span>
               ))}
             </div>
@@ -27,7 +27,7 @@ export default function HomeEducationCard({ language }: { language: 'en' | 'pt' 
                 {pt ? 'Conhecer o plano de aprendizagem' : 'Explore the learning plan'}
               </summary>
               <p className="mt-3 text-sm leading-6 text-[#555]">
-                {pt ? 'Inglês: comunicação prática. Desenvolvimento Web: compreender e alterar pequenos blocos de código, usar GitHub e publicar um projecto. Trading: fundamentos, análise e consciência dos riscos. Os cursos estão em planeamento; esta secção apresenta a proposta educativa.' : 'English: practical communication. Web Design: understand and change small pieces of code, use GitHub and publish a project. Trading: fundamentals, analysis and risk awareness. Courses are being planned; this section introduces the education concept.'}
+                {pt ? 'Inglês: comunicação prática. Desenvolvimento Web: compreender e alterar pequenos blocos de código, utilizar ferramentas avançadas e testadas e publicar um projecto. Investigação Prática: estudar problemas reais, avaliar evidências e transformar a investigação em projectos úteis. Esta secção apresenta os cursos da AngolaLab; as inscrições ainda não estão abertas nesta demonstração.' : 'English: practical communication. Web Design: understand and change small pieces of code, use advanced tested tools and publish a project. Live Research: investigate real problems, assess evidence and turn findings into practical projects. This section introduces AngolaLab's courses; enrolment is not yet open in this demo.'}
               </p>
             </details>
             <Link href={pt ? '/pt/profissionais' : '/en/professionals'}
