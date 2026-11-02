@@ -16,7 +16,7 @@ export default function RootLayout({
   return (
     <html lang="pt">
       {/* Body = clean white → Hero controls its own grey background ✅ */}
-      <body className="min-h-screen bg-white text-slate-900 flex flex-col">
+      <body id="top" className="min-h-screen bg-white text-slate-900 flex flex-col">
         <Header />
         
         
