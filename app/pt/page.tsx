@@ -18,7 +18,7 @@ export default function EcosystemHomePage() {
   <section id="business-directory" aria-labelledby="business-directory-title" className="scroll-mt-24 bg-[#f3f2ef] px-5 py-14 text-[#252525] sm:py-16">
    <div className="mx-auto max-w-6xl">
     <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#927018]">AngolaLab · Conexões Empresariais</p>
-    <h2 id="business-directory-title" className="mt-3 text-3xl font-bold leading-tight sm:text-4xl">Descubra Negócios Locais</h2>
+    <h2 id="business-directory-title" className="mt-3 text-3xl font-bold leading-tight sm:text-4xl">Inteligência Económica</h2>
     <p className="mt-4 max-w-3xl leading-7 text-[#555]">Explore categorias empresariais e descubra serviços locais. Começamos pelos restaurantes e desenvolvemos as restantes categorias gradualmente, com critérios claros de verificação.</p>
     <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
      <Link href="/pt/restaurantes" className="group flex min-h-28 flex-col justify-between rounded-xl border border-[#c9ae72] bg-white p-5 transition-colors hover:border-[#927018] hover:bg-[#fffcf4]"><span className="text-lg font-bold">Restaurantes</span><span className="mt-3 text-sm font-semibold text-emerald-700">Explorar registos →</span></Link>
