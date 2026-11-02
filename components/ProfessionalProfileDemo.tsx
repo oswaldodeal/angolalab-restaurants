@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import FppLocationDemo from './FppLocationDemo';
 import { useState, type FormEvent, type ChangeEvent } from 'react';
 
 type Language = 'en' | 'pt';
@@ -162,6 +163,8 @@ export default function ProfessionalProfileDemo({ language }: { language: Langua
             {pt ? 'Apenas teste: os dados ficam na memória desta página, não são guardados nem publicados e desaparecem ao atualizar a página. Não introduza informações privadas.' : 'Test only: entries remain in this page’s memory, are not saved or published, and disappear on refresh. Do not enter private information.'}
           </p>
         </section>
+
+        <FppLocationDemo language={language} />
 
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-white p-4">
           <div className="min-w-0"><p className="text-sm font-semibold">{pt ? 'Pré-visualização da privacidade' : 'Privacy preview'}</p><p className="mt-1 text-xs text-[#666]">{visitor ? (pt ? 'A mostrar apenas campos autorizados.' : 'Showing allowed fields only.') : (pt ? 'Vista do titular: todos os campos.' : 'Owner view: all fields.')}</p></div>
