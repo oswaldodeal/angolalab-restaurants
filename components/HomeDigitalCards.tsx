@@ -45,8 +45,8 @@ export default function HomeDigitalCards({ language }: { language: 'en' | 'pt' }
               </p>
               <p>
                 {pt
-                  ? 'A AngolaLab criou as Conexões Digitais para ajudar pessoas e organizações a encontrar contactos úteis, partilhar conhecimentos e explorar oportunidades de colaboração.'
-                  : 'Digital Connections helps people and organisations share knowledge and find collaborators.'}
+                  ? 'As Conexões Digitais dão-lhe acesso ao Perfil Profissional Gratuito e ajudam pessoas e organizações a partilhar conhecimentos e encontrar colaboradores.'
+                  : 'Digital Connections gives you access to a Free Professional Profile and helps people and organisations share knowledge and find collaborators.'}
               </p>
               <p>
                 {pt
