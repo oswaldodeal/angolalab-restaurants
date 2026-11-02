@@ -10,7 +10,7 @@ export default function EcosystemHomePage() {
     <h1 className="max-w-4xl text-4xl font-bold leading-tight text-white sm:text-5xl">Discover businesses. Connect people.</h1>
     <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">AngolaLab helps businesses become visible, professionals share skills and people build digital projects. Research and education support this mission.</p>
     <div className="mt-8 flex flex-wrap gap-3">
-     <a href="#aeis" className="inline-flex min-h-12 items-center rounded-lg bg-[#d4af37] px-6 py-3 font-semibold text-[#171717] hover:bg-[#f2c94c]">Discover Local Businesses</a>
+     <a href="#aeis" className="inline-flex min-h-12 items-center rounded-lg bg-[#d4af37] px-6 py-3 font-semibold text-[#171717] hover:bg-[#f2c94c]">Economic Intelligence</a>
      <a href="#connections" className="inline-flex min-h-12 items-center rounded-lg border border-[#d4af37] px-6 py-3 font-semibold text-[#f2c94c] hover:bg-white/10">Digital Connections</a>
     </div>
    </div>
@@ -18,7 +18,7 @@ export default function EcosystemHomePage() {
   <section id="business-directory" aria-labelledby="business-directory-title" className="scroll-mt-24 bg-[#f3f2ef] px-5 py-14 text-[#252525] sm:py-16">
    <div className="mx-auto max-w-6xl">
     <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#927018]">AngolaLab · Business Connections</p>
-    <h2 id="business-directory-title" className="mt-3 text-3xl font-bold leading-tight sm:text-4xl">Discover Local Businesses</h2>
+    <h2 id="business-directory-title" className="mt-3 text-3xl font-bold leading-tight sm:text-4xl">Economic Intelligence</h2>
     <p className="mt-4 max-w-3xl leading-7 text-[#555]">Explore business categories and discover local services. We are starting with restaurants and developing the other categories step by step, with clear verification standards.</p>
     <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
      <Link href="/en/restaurants" className="group flex min-h-28 flex-col justify-between rounded-xl border border-[#c9ae72] bg-white p-5 transition-colors hover:border-[#927018] hover:bg-[#fffcf4]"><span className="text-lg font-bold">Restaurants</span><span className="mt-3 text-sm font-semibold text-emerald-700">Explore listings →</span></Link>
