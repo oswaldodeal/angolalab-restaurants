@@ -13,7 +13,7 @@ export default function Footer() {
         <div className="grid md:grid-cols-3 gap-8">
           {/* Brand */}
           <div>
-<Link href={`${homeHref}#top`} className="mb-3 inline-block text-xl font-bold hover:opacity-80 focus-visible:rounded focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#F2C94C]" aria-label="AngolaLab — Home">
+<Link href={`${homeHref}#top`} onClick={(event) => { if (pathname === homeHref) { event.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); } }} className="mb-3 inline-block text-xl font-bold hover:opacity-80 focus-visible:rounded focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#F2C94C]" aria-label="AngolaLab — Home">
   <span className="text-emerald-400">Angola</span>
   <span className="text-[#F2C94C]">Lab</span>
 </Link>
