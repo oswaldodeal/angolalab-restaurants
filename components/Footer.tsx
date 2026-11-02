@@ -38,6 +38,12 @@ export default function Footer() {
           </div>
         </div>
 
+        <div className="mt-8 flex justify-center">
+          <a href="#top" className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-[#F2C94C] px-5 py-3 text-sm font-semibold text-[#F2C94C] hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C]" aria-label="Voltar ao topo / Back to top">
+            ↑ Voltar ao topo / Back to top
+          </a>
+        </div>
+
         <div className="border-t border-[#F2C94C] mt-8 pt-6 text-center text-slate-500 text-sm">
           © {new Date().getFullYear()} AngolaLab — Todos os direitos reservados
         </div>
