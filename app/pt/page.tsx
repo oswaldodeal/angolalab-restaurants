@@ -29,8 +29,9 @@ export default function EcosystemHomePage() {
      <div className="flex min-h-28 flex-col justify-between rounded-xl border border-[#e4d8bc] bg-white p-5"><span className="text-lg font-bold">Universidades</span><span className="mt-3 text-sm text-[#70695b]">Categoria prevista · Ainda não disponível</span></div>
      <div className="flex min-h-28 flex-col justify-between rounded-xl border border-[#e4d8bc] bg-white p-5"><span className="text-lg font-bold">Bancos</span><span className="mt-3 text-sm text-[#70695b]">Categoria prevista · Ainda não disponível</span></div>
      <div className="flex min-h-28 flex-col justify-between rounded-xl border border-[#e4d8bc] bg-white p-5"><span className="text-lg font-bold">Concessionários Automóveis</span><span className="mt-3 text-sm text-[#70695b]">Categoria prevista · Ainda não disponível</span></div>
+     <a href="https://angolalab-63iw-gvl1bif07-oswaldodeal-s-projects.vercel.app/home" className="group flex min-h-28 flex-col justify-between rounded-xl border border-[#c9ae72] bg-white p-5 transition-colors hover:border-[#927018] hover:bg-[#fffcf4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#927018]"><span className="text-lg font-bold">Educação</span><span className="mt-3 text-sm font-semibold text-emerald-700">Explorar AEIS ↗</span></a>
     </div>
-    <p className="mt-5 text-sm leading-6 text-[#70695b]">Actualmente, apenas Restaurantes tem ligação para um directório existente. As restantes categorias estão previstas e ainda não aceitam registos.</p>
+    <p className="mt-5 text-sm leading-6 text-[#70695b]">Restaurantes abre o directório de negócios; Educação liga à plataforma AEIS. As restantes categorias empresariais estão previstas e ainda não aceitam registos.</p>
    </div>
   </section>
   <div id="connections" className="scroll-mt-24"><HomeDigitalCards language="pt" /></div>
