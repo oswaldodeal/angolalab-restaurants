@@ -44,40 +44,28 @@ export default function RestaurantDirectory({ language }: { language: Language }
               ? 'Explore restaurantes por país, cidade e tipo de cozinha.'
               : 'Explore restaurants by country, city and cuisine.'}
           </p>
-          <nav aria-label={isPt ? 'Tipos de negócio' : 'Business types'} className="mt-7">
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-              {BUSINESS_TYPES.map((type) => {
-                const isRestaurant = type.id === 'restaurant';
-                const cardContent = (
-                  <>
-                    <span className="text-base font-semibold text-[#242424]">{type[language]}</span>
-                    <span className="mt-1 text-xs leading-relaxed text-[#666666]">{isPt ? type.focusPt : type.focusEn}</span>
-                    <span className={`mt-auto pt-3 text-[11px] font-semibold ${isRestaurant ? 'text-[#82620f]' : 'text-[#777777]'}`}>
-                      {isRestaurant ? (isPt ? 'Explorar restaurantes →' : 'Browse restaurants →') : (isPt ? 'Em breve' : 'Planned')}
-                    </span>
-                  </>
-                );
-                const cardClass = `flex min-h-36 flex-col rounded-xl border p-4 text-left transition-colors sm:p-5 ${
-                  isRestaurant
-                    ? 'border-[#b18a23] bg-[#fff8e6] hover:bg-[#f9edcb] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b18a23]'
-                    : 'border-[#e5e1d7] bg-[#fafafa]'
-                }`;
-                return isRestaurant ? (
-                  <a key={type.id} href="#restaurant-filters" className={cardClass} aria-current="page">
-                    {cardContent}
-                  </a>
-                ) : (
-                  <div key={type.id} className={cardClass} aria-disabled="true">
-                    {cardContent}
-                  </div>
-                );
-              })}
+          <nav aria-label={isPt ? 'Tipos de negócio' : 'Business types'} className="mt-6">
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-3 text-sm font-medium sm:gap-x-7">
+              {BUSINESS_TYPES.map((type) => type.id === 'restaurant' ? (
+                <a
+                  key={type.id}
+                  href="#restaurant-filters"
+                  aria-current="page"
+                  className="whitespace-nowrap font-semibold text-[#987515] underline decoration-[#D2AC37] decoration-2 underline-offset-8 hover:text-[#6d5210] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#b18a23]"
+                >
+                  {type[language]}
+                </a>
+              ) : (
+                <span key={type.id} title={isPt ? 'Em breve' : 'Planned'} className="whitespace-nowrap text-[#777777]">
+                  {type[language]}
+                </span>
+              ))}
             </div>
             <Link
               href={isPt ? '/pt/restaurantes/registar' : '/en/restaurants/submit'}
-              className="mt-4 inline-flex text-sm font-semibold text-[#82620f] underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-[#b18a23]"
+              className="mt-4 inline-flex text-xs font-medium text-[#82620f] underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-[#b18a23]"
             >
-              {isPt ? '🧱 Demonstração de Perfis Adaptáveis' : '🧱 Adaptive Profile Demo'}
+              {isPt ? 'Demonstração de Perfis Adaptáveis' : 'Adaptive Profile Demo'}
             </Link>
           </nav>
         </div>
