@@ -10,7 +10,7 @@ export default function EcosystemHomePage() {
     <h1 className="max-w-4xl text-4xl font-bold leading-tight text-white sm:text-5xl">Negócios visíveis. Profissionais conectados.</h1>
     <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">A AngolaLab ajuda negócios a ganhar visibilidade, profissionais a apresentar competências e pessoas a desenvolver projectos digitais. A investigação e a educação sustentam esta missão.</p>
     <div className="mt-8 flex flex-wrap gap-3">
-     <a href="#aeis" className="inline-flex min-h-12 items-center rounded-lg bg-[#d4af37] px-6 py-3 font-semibold text-[#171717] hover:bg-[#f2c94c]">Descobrir Negócios Locais</a>
+     <a href="#business-directory" className="inline-flex min-h-12 items-center rounded-lg bg-[#d4af37] px-6 py-3 font-semibold text-[#171717] hover:bg-[#f2c94c]">Inteligência Económica</a>
      <a href="#connections" className="inline-flex min-h-12 items-center rounded-lg border border-[#d4af37] px-6 py-3 font-semibold text-[#f2c94c] hover:bg-white/10">Conexões Digitais</a>
     </div>
    </div>
@@ -23,6 +23,7 @@ export default function EcosystemHomePage() {
     <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
      <Link href="/pt/restaurantes" className="group flex min-h-28 flex-col justify-between rounded-xl border border-[#c9ae72] bg-white p-5 transition-colors hover:border-[#927018] hover:bg-[#fffcf4]"><span className="text-lg font-bold">Restaurantes</span><span className="mt-3 text-sm font-semibold text-emerald-700">Explorar registos →</span></Link>
      <div className="flex min-h-28 flex-col justify-between rounded-xl border border-[#e4d8bc] bg-white p-5"><span className="text-lg font-bold">Hotéis</span><span className="mt-3 text-sm text-[#70695b]">Categoria prevista · Ainda não disponível</span></div>
+     <div className="flex min-h-28 flex-col justify-between rounded-xl border border-[#e4d8bc] bg-white p-5"><span className="text-lg font-bold">Imóveis</span><span className="mt-3 text-sm text-[#70695b]">Categoria prevista · Ainda não disponível</span></div>
      <div className="flex min-h-28 flex-col justify-between rounded-xl border border-[#e4d8bc] bg-white p-5"><span className="text-lg font-bold">Aluguer de Viaturas</span><span className="mt-3 text-sm text-[#70695b]">Categoria prevista · Ainda não disponível</span></div>
      <div className="flex min-h-28 flex-col justify-between rounded-xl border border-[#e4d8bc] bg-white p-5"><span className="text-lg font-bold">Comércio Grossista</span><span className="mt-3 text-sm text-[#70695b]">Categoria prevista · Ainda não disponível</span></div>
      <div className="flex min-h-28 flex-col justify-between rounded-xl border border-[#e4d8bc] bg-white p-5"><span className="text-lg font-bold">Universidades</span><span className="mt-3 text-sm text-[#70695b]">Categoria prevista · Ainda não disponível</span></div>
