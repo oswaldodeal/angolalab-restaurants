@@ -9,9 +9,9 @@ export default function EcosystemHomePage() {
     <p className="mb-4 hidden text-xs font-bold uppercase tracking-[0.18em] text-[#f2c94c] sm:block">AngolaLab · Investigação · Tecnologia · Educação</p>
     <h1 className="max-w-4xl text-3xl font-bold leading-tight text-white sm:text-5xl">Descubra negócios. Conecte pessoas.</h1>
     <p className="mt-6 hidden max-w-3xl text-lg leading-8 text-slate-300 sm:block">A AngolaLab ajuda negócios a ganhar visibilidade, profissionais a apresentar competências e pessoas a desenvolver projectos digitais. A investigação e a educação sustentam esta missão.</p>
-    <div className="mt-6 flex flex-wrap gap-3 sm:mt-8">
-     <a href="#aeis" className="inline-flex min-h-12 items-center rounded-lg bg-[#d4af37] px-6 py-3 font-semibold text-[#171717] hover:bg-[#f2c94c]">Inteligência Económica</a>
-     <a href="#connections" className="inline-flex min-h-12 items-center rounded-lg border border-[#d4af37] px-6 py-3 font-semibold text-[#f2c94c] hover:bg-white/10">Conexões Digitais</a>
+    <div className="mt-6 grid grid-cols-2 gap-2 sm:mt-8 sm:flex sm:flex-wrap sm:gap-3">
+     <a href="#aeis" className="inline-flex min-h-12 items-center justify-center rounded-lg bg-[#d4af37] px-2 py-3 text-center text-sm font-semibold text-[#171717] hover:bg-[#f2c94c] sm:px-6 sm:text-base"><span className="sm:hidden">Investigação AEIS</span><span className="hidden sm:inline">Inteligência Económica</span></a>
+     <a href="#connections" className="inline-flex min-h-12 items-center justify-center rounded-lg border border-[#d4af37] px-2 py-3 text-center text-sm font-semibold text-[#f2c94c] hover:bg-white/10 sm:px-6 sm:text-base"><span className="sm:hidden">Conexões</span><span className="hidden sm:inline">Conexões Digitais</span></a>
     </div>
    </div>
   </section>
