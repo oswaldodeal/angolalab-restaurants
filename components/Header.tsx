@@ -62,6 +62,7 @@ export default function Header() {
 
   const navLinkClass = 'rounded-md text-[#F2C94C] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C]';
   const isHome = path === '/pt' || path === '/en';
+  const isRestaurantDirectory = path === '/pt/restaurantes' || path === '/en/restaurants';
 
   const languageMenu = (
     <details ref={languageRef} className="group relative">
@@ -158,7 +159,7 @@ export default function Header() {
         <nav aria-label="Main navigation" className="hidden min-w-0 items-center justify-end gap-x-4 text-sm lg:ml-auto lg:flex xl:gap-x-6">
           {lang === 'pt' ? (
             <>
-              {exploreMenu}
+              {!isRestaurantDirectory && exploreMenu}
               <Link href="/pt/cartoes" className={navLinkClass}>Cartões Digitais</Link>
               <Link href="/pt/sobre" className={navLinkClass}>Sobre Nós</Link>
               {languageMenu}
@@ -167,7 +168,7 @@ export default function Header() {
             </>
           ) : (
             <>
-              {exploreMenu}
+              {!isRestaurantDirectory && exploreMenu}
               <Link href="/en/cards" className={navLinkClass}>Digital Cards</Link>
               <Link href="/en/about" className={navLinkClass}>About Us</Link>
               {languageMenu}
