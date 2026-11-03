@@ -1,13 +1,12 @@
 'use client';
 import Image from "next/image";
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import { BUSINESS_TYPES } from '@/lib/business-types';
 
 export default function Header() {
   const path = usePathname();
-  const router = useRouter();
   const lang = path.startsWith('/en') ? 'en' : 'pt';
   const exploreRef = useRef<HTMLDetailsElement>(null);
   const languageRef = useRef<HTMLDetailsElement>(null);
@@ -55,15 +54,10 @@ export default function Header() {
     if (mobileRef.current) mobileRef.current.open = false;
   }, [path]);
 
-  const switchLanguage = (event: React.MouseEvent<HTMLAnchorElement>, target: 'pt' | 'en') => {
+  const switchLanguage = () => {
+    // Language links navigate normally; do not force a jump to Digital Connections.
     if (languageRef.current) languageRef.current.open = false;
-    if (path !== '/en' && path !== '/pt') return;
-    const details = document.getElementById('home-digital-connections-details') as HTMLDetailsElement | null;
-    const rect = document.getElementById('home-digital-cards')?.getBoundingClientRect();
-    const viewingConnections = !!rect && rect.top < window.innerHeight && rect.bottom > 0;
-    if (!viewingConnections && !details?.open) return;
-    event.preventDefault();
-    router.push(`/${target}${details?.open ? '?connections=open' : ''}#home-digital-cards`);
+    if (mobileRef.current) mobileRef.current.open = false;
   };
 
   const navLinkClass = 'rounded-md text-[#F2C94C] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C]';
@@ -72,7 +66,7 @@ export default function Header() {
   const languageMenu = (
     <details ref={languageRef} className="group relative">
       <summary aria-label={lang === 'pt' ? 'Escolher idioma' : 'Choose language'}
-        className={`flex min-h-10 cursor-pointer list-none items-center gap-2 rounded-lg text-[#F2C94C] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] [&::-webkit-details-marker]:hidden ${isHome ? 'border border-[#b28b29] px-3 py-2 group-open:bg-white/10' : 'px-1 py-2'}`}>
+        className={`flex min-h-10 cursor-pointer list-none items-center gap-2 rounded-lg text-[#F2C94C] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] [&::-webkit-details-marker]:hidden ${isHome ? 'px-2 py-2 group-open:bg-white/10' : 'px-1 py-2'}`}>
         <span aria-hidden="true">🌐</span><span>{lang.toUpperCase()}</span><span aria-hidden="true" className="text-xs transition-transform group-open:rotate-180">▾</span>
       </summary>
       <div className={isHome
@@ -81,14 +75,14 @@ export default function Header() {
         {isHome && <p className="mb-2 text-xs font-semibold text-[#d8c68d]">{lang === 'pt' ? 'Idioma' : 'Language'}</p>}
         <div className={isHome ? 'grid grid-cols-2 gap-2' : ''}>
           <Link href={languagePath('pt')} hrefLang="pt" lang="pt" aria-current={lang === 'pt' ? 'page' : undefined}
-            onClick={(event) => switchLanguage(event, 'pt')}
+            onClick={switchLanguage}
             className={isHome
               ? `flex min-h-11 items-center justify-center rounded-lg border px-2 py-2 font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] ${lang === 'pt' ? 'border-[#d4af37] bg-[#d4af37] text-[#171717]' : 'border-[#b28b29] text-[#F2C94C] hover:bg-white/10'}`
               : 'block rounded-lg px-3 py-2.5 hover:bg-[#fbf7ed] focus-visible:outline-2 focus-visible:outline-[#b18a23]'}>
             {isHome ? `PT ${lang === 'pt' ? '✓' : ''}` : `🇵🇹 Português ${lang === 'pt' ? '✓' : ''}`}
           </Link>
           <Link href={languagePath('en')} hrefLang="en" lang="en" aria-current={lang === 'en' ? 'page' : undefined}
-            onClick={(event) => switchLanguage(event, 'en')}
+            onClick={switchLanguage}
             className={isHome
               ? `flex min-h-11 items-center justify-center rounded-lg border px-2 py-2 font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] ${lang === 'en' ? 'border-[#d4af37] bg-[#d4af37] text-[#171717]' : 'border-[#b28b29] text-[#F2C94C] hover:bg-white/10'}`
               : 'block rounded-lg px-3 py-2.5 hover:bg-[#fbf7ed] focus-visible:outline-2 focus-visible:outline-[#b18a23]'}>
@@ -199,9 +193,9 @@ export default function Header() {
               <div className="my-1 border-t border-[#585047]" />
               <p className="px-3 pt-2 text-xs font-semibold text-[#d8c68d]">{lang === 'pt' ? 'Idioma' : 'Language'}</p>
               <div className="flex flex-wrap gap-2 px-3 py-2">
-                <Link href={languagePath('pt')} hrefLang="pt" lang="pt" onClick={event => switchLanguage(event, 'pt')}
+                <Link href={languagePath('pt')} hrefLang="pt" lang="pt" onClick={switchLanguage}
                   aria-current={lang === 'pt' ? 'page' : undefined} className="rounded-lg border border-[#73633a] px-3 py-2 text-[#F2C94C]">PT {lang === 'pt' ? '✓' : ''}</Link>
-                <Link href={languagePath('en')} hrefLang="en" lang="en" onClick={event => switchLanguage(event, 'en')}
+                <Link href={languagePath('en')} hrefLang="en" lang="en" onClick={switchLanguage}
                   aria-current={lang === 'en' ? 'page' : undefined} className="rounded-lg border border-[#73633a] px-3 py-2 text-[#F2C94C]">EN {lang === 'en' ? '✓' : ''}</Link>
               </div>
               <div className="my-1 border-t border-[#585047]" />
