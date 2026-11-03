@@ -67,23 +67,34 @@ export default function Header() {
   };
 
   const navLinkClass = 'rounded-md text-[#F2C94C] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C]';
+  const isHome = path === '/pt' || path === '/en';
 
   const languageMenu = (
     <details ref={languageRef} className="group relative">
-      <summary aria-label={lang === 'pt' ? 'Escolher idioma' : 'Choose language'} className="flex cursor-pointer list-none items-center gap-1 rounded-md px-1 py-2 text-[#F2C94C] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] [&::-webkit-details-marker]:hidden">
-        <span aria-hidden="true">🌐</span> {lang.toUpperCase()} <span aria-hidden="true" className="text-xs group-open:rotate-180">▾</span>
+      <summary aria-label={lang === 'pt' ? 'Escolher idioma' : 'Choose language'}
+        className={`flex min-h-10 cursor-pointer list-none items-center gap-2 rounded-lg text-[#F2C94C] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] [&::-webkit-details-marker]:hidden ${isHome ? 'border border-[#b28b29] px-3 py-2 group-open:bg-white/10' : 'px-1 py-2'}`}>
+        <span aria-hidden="true">🌐</span><span>{lang.toUpperCase()}</span><span aria-hidden="true" className="text-xs transition-transform group-open:rotate-180">▾</span>
       </summary>
-      <div className="absolute right-0 top-full z-[70] mt-2 min-w-40 rounded-xl border border-[#e4d5a6] bg-white p-2 text-sm text-[#242424] shadow-xl">
-        <Link href={languagePath('pt')} hrefLang="pt" lang="pt" aria-current={lang === 'pt' ? 'page' : undefined}
-          onClick={(event) => switchLanguage(event, 'pt')}
-          className="block rounded-lg px-3 py-2.5 hover:bg-[#fbf7ed] focus-visible:outline-2 focus-visible:outline-[#b18a23]">
-          🇵🇹 Português {lang === 'pt' ? '✓' : ''}
-        </Link>
-        <Link href={languagePath('en')} hrefLang="en" lang="en" aria-current={lang === 'en' ? 'page' : undefined}
-          onClick={(event) => switchLanguage(event, 'en')}
-          className="block rounded-lg px-3 py-2.5 hover:bg-[#fbf7ed] focus-visible:outline-2 focus-visible:outline-[#b18a23]">
-          🇬🇧 English {lang === 'en' ? '✓' : ''}
-        </Link>
+      <div className={isHome
+        ? 'absolute right-0 top-full z-[70] mt-2 w-48 rounded-xl border border-[#b28b29] bg-[#22262D] p-3 text-sm shadow-2xl'
+        : 'absolute right-0 top-full z-[70] mt-2 min-w-40 rounded-xl border border-[#e4d5a6] bg-white p-2 text-sm text-[#242424] shadow-xl'}>
+        {isHome && <p className="mb-2 text-xs font-semibold text-[#d8c68d]">{lang === 'pt' ? 'Idioma' : 'Language'}</p>}
+        <div className={isHome ? 'grid grid-cols-2 gap-2' : ''}>
+          <Link href={languagePath('pt')} hrefLang="pt" lang="pt" aria-current={lang === 'pt' ? 'page' : undefined}
+            onClick={(event) => switchLanguage(event, 'pt')}
+            className={isHome
+              ? `flex min-h-11 items-center justify-center rounded-lg border px-2 py-2 font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] ${lang === 'pt' ? 'border-[#d4af37] bg-[#d4af37] text-[#171717]' : 'border-[#b28b29] text-[#F2C94C] hover:bg-white/10'}`
+              : 'block rounded-lg px-3 py-2.5 hover:bg-[#fbf7ed] focus-visible:outline-2 focus-visible:outline-[#b18a23]'}>
+            {isHome ? `PT ${lang === 'pt' ? '✓' : ''}` : `🇵🇹 Português ${lang === 'pt' ? '✓' : ''}`}
+          </Link>
+          <Link href={languagePath('en')} hrefLang="en" lang="en" aria-current={lang === 'en' ? 'page' : undefined}
+            onClick={(event) => switchLanguage(event, 'en')}
+            className={isHome
+              ? `flex min-h-11 items-center justify-center rounded-lg border px-2 py-2 font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] ${lang === 'en' ? 'border-[#d4af37] bg-[#d4af37] text-[#171717]' : 'border-[#b28b29] text-[#F2C94C] hover:bg-white/10'}`
+              : 'block rounded-lg px-3 py-2.5 hover:bg-[#fbf7ed] focus-visible:outline-2 focus-visible:outline-[#b18a23]'}>
+            {isHome ? `EN ${lang === 'en' ? '✓' : ''}` : `🇬🇧 English ${lang === 'en' ? '✓' : ''}`}
+          </Link>
+        </div>
       </div>
     </details>
   );
