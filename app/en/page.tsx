@@ -29,8 +29,9 @@ export default function EcosystemHomePage() {
      <div className="flex min-h-28 flex-col justify-between rounded-xl border border-[#e4d8bc] bg-white p-5"><span className="text-lg font-bold">Universities</span><span className="mt-3 text-sm text-[#70695b]">Planned category · Not yet available</span></div>
      <div className="flex min-h-28 flex-col justify-between rounded-xl border border-[#e4d8bc] bg-white p-5"><span className="text-lg font-bold">Banks</span><span className="mt-3 text-sm text-[#70695b]">Planned category · Not yet available</span></div>
      <div className="flex min-h-28 flex-col justify-between rounded-xl border border-[#e4d8bc] bg-white p-5"><span className="text-lg font-bold">Car Dealers</span><span className="mt-3 text-sm text-[#70695b]">Planned category · Not yet available</span></div>
+     <a href="https://angolalab-63iw-gvl1bif07-oswaldodeal-s-projects.vercel.app/home" className="group flex min-h-28 flex-col justify-between rounded-xl border border-[#c9ae72] bg-white p-5 transition-colors hover:border-[#927018] hover:bg-[#fffcf4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#927018]"><span className="text-lg font-bold">Education</span><span className="mt-3 text-sm font-semibold text-emerald-700">Explore AEIS ↗</span></a>
     </div>
-    <p className="mt-5 text-sm leading-6 text-[#70695b]">Only Restaurants currently links to an existing directory. Other categories are planned and are not open for registration or listing.</p>
+    <p className="mt-5 text-sm leading-6 text-[#70695b]">Restaurants opens the business directory; Education links to the AEIS platform. Other business categories are planned and are not yet open for registration or listing.</p>
    </div>
   </section>
   <div id="connections" className="scroll-mt-24"><HomeDigitalCards language="en" /></div>
