@@ -10,7 +10,7 @@ export default function EcosystemHomePage() {
     <h1 className="max-w-4xl text-4xl font-bold leading-tight text-white sm:text-5xl">Discover businesses. Connect people.</h1>
     <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">AngolaLab helps businesses become visible, professionals share skills and people build digital projects. Research and education support this mission.</p>
     <div className="mt-8 flex flex-wrap gap-3">
-     <a href="#aeis" className="inline-flex min-h-12 items-center rounded-lg bg-[#d4af37] px-6 py-3 font-semibold text-[#171717] hover:bg-[#f2c94c]">Economic Intelligence</a>
+     <a href="#business-directory" className="inline-flex min-h-12 items-center rounded-lg bg-[#d4af37] px-6 py-3 font-semibold text-[#171717] hover:bg-[#f2c94c]">Economic Intelligence</a>
      <a href="#connections" className="inline-flex min-h-12 items-center rounded-lg border border-[#d4af37] px-6 py-3 font-semibold text-[#f2c94c] hover:bg-white/10">Digital Connections</a>
     </div>
    </div>
@@ -23,6 +23,7 @@ export default function EcosystemHomePage() {
     <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
      <Link href="/en/restaurants" className="group flex min-h-28 flex-col justify-between rounded-xl border border-[#c9ae72] bg-white p-5 transition-colors hover:border-[#927018] hover:bg-[#fffcf4]"><span className="text-lg font-bold">Restaurants</span><span className="mt-3 text-sm font-semibold text-emerald-700">Explore listings →</span></Link>
      <div className="flex min-h-28 flex-col justify-between rounded-xl border border-[#e4d8bc] bg-white p-5"><span className="text-lg font-bold">Hotels</span><span className="mt-3 text-sm text-[#70695b]">Planned category · Not yet available</span></div>
+     <div className="flex min-h-28 flex-col justify-between rounded-xl border border-[#e4d8bc] bg-white p-5"><span className="text-lg font-bold">Property</span><span className="mt-3 text-sm text-[#70695b]">Planned category · Not yet available</span></div>
      <div className="flex min-h-28 flex-col justify-between rounded-xl border border-[#e4d8bc] bg-white p-5"><span className="text-lg font-bold">Car Rental</span><span className="mt-3 text-sm text-[#70695b]">Planned category · Not yet available</span></div>
      <div className="flex min-h-28 flex-col justify-between rounded-xl border border-[#e4d8bc] bg-white p-5"><span className="text-lg font-bold">Wholesale</span><span className="mt-3 text-sm text-[#70695b]">Planned category · Not yet available</span></div>
      <div className="flex min-h-28 flex-col justify-between rounded-xl border border-[#e4d8bc] bg-white p-5"><span className="text-lg font-bold">Universities</span><span className="mt-3 text-sm text-[#70695b]">Planned category · Not yet available</span></div>
