@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { CITIES, COUNTRIES, CUISINES, getGoogleMapsUrl, initialRestaurants } from '@/lib/store';
 import { translations } from '@/lib/translations';
 import { demoRestaurantPhoto } from '@/lib/demo-photos';
+import { BUSINESS_TYPES } from '@/lib/business-types';
 
 type Language = 'pt' | 'en';
 
@@ -43,6 +44,37 @@ export default function RestaurantDirectory({ language }: { language: Language }
               ? 'Explore restaurantes por país, cidade e tipo de cozinha.'
               : 'Explore restaurants by country, city and cuisine.'}
           </p>
+          <details className="group relative mt-5 inline-block text-sm">
+            <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-lg border border-[#b18a23] bg-[#fffaf0] px-4 py-2.5 font-semibold text-[#75570d] hover:bg-[#f9edcb] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b18a23] [&::-webkit-details-marker]:hidden">
+              {isPt ? 'Explorar tipos de negócio' : 'Explore business types'}
+              <span aria-hidden="true" className="text-xs transition-transform group-open:rotate-180">▾</span>
+            </summary>
+            <div className="absolute left-0 top-full z-30 mt-2 w-[min(19rem,calc(100vw-3rem))] rounded-xl border border-[#e4d5a6] bg-white p-2 text-sm text-[#242424] shadow-xl">
+              <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-[#987515]">
+                {isPt ? 'Tipos de negócio' : 'Business types'}
+              </p>
+              {BUSINESS_TYPES.map((type) => type.id === 'restaurant' ? (
+                <Link key={type.id} href={isPt ? '/pt/restaurantes' : '/en/restaurants'}
+                  aria-current="page"
+                  className="block rounded-lg bg-[#fff8e6] px-3 py-2.5 font-semibold text-[#76570f] hover:bg-[#f9edcb] focus-visible:outline-2 focus-visible:outline-[#b18a23]">
+                  {type[language]} ✓
+                </Link>
+              ) : (
+                <div key={type.id} className="flex items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-[#666]">
+                  <span>{type[language]}</span>
+                  <span className="text-[10px] text-[#876613]">{isPt ? 'Em breve' : 'Planned'}</span>
+                </div>
+              ))}
+              <div className="my-2 border-t border-[#e9e5db]" />
+              <Link href={isPt ? '/pt/restaurantes/registar' : '/en/restaurants/submit'}
+                className="block rounded-lg bg-[#fff8e6] px-3 py-3 font-semibold text-[#76570f] hover:bg-[#f9edcb] focus-visible:outline-2 focus-visible:outline-[#b18a23]">
+                {isPt ? '🧱 Demonstração de Perfis Adaptáveis' : '🧱 Adaptive Profile Demo'}
+                <span className="mt-1 block text-xs font-normal text-[#6e675a]">
+                  {isPt ? 'Pré-visualizar seis tipos de negócio' : 'Preview six business types'}
+                </span>
+              </Link>
+            </div>
+          </details>
         </div>
 
         {/* Research-only bridge: no live Tourism Intelligence integration or shared data. */}
