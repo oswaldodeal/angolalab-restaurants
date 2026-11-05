@@ -23,7 +23,7 @@ const empty: Fields = {
   country: '', city: '', cuisine: '', address: '', openingHours: '', website: '',
 };
 
-export default function RestaurantRegistration({ language }: { language: Language }) {
+export default function RestaurantRegistration({ language, available }: { language: Language; available: boolean }) {
   const pt = language === 'pt';
   const [form, setForm] = useState<Fields>(empty);
   const [businessType, setBusinessType] = useState<BusinessType>('restaurant');
@@ -297,6 +297,11 @@ export default function RestaurantRegistration({ language }: { language: Languag
             <button type="button" onClick={() => setBusinessType('restaurant')} className="mt-5 rounded-lg border border-[#b18a23] bg-white px-5 py-3 text-sm font-semibold text-[#75570d]">
               {pt ? 'Voltar ao registo de restaurante' : 'Return to restaurant registration'}
             </button>
+          </section>
+        ) : !available ? (
+          <section role="status" className="rounded-xl border border-[#ded8c5] bg-[#fffaf0] p-7">
+            <h2 className="text-xl font-semibold">{pt ? 'Registo temporariamente indisponível' : 'Registration temporarily unavailable'}</h2>
+            <p className="mt-3 leading-7">{pt ? 'Estamos a preparar a recepção e análise de registos. Ainda pode explorar as demonstrações acima. Não são recolhidos dados de contacto nesta página enquanto o serviço não estiver pronto.' : 'We are preparing registration and staff review. You can explore the demonstrations above. This page does not collect contact details until the service is ready.'}</p>
           </section>
         ) : (
           <form onSubmit={submit} className="space-y-7">

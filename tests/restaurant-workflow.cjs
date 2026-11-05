@@ -60,6 +60,10 @@ async function action(id, decision, consent = true) {
   const api = load('app/api/restaurant-submissions/route');
   const auth = load('lib/staff-auth'); session = auth.makeSession();
   assert.equal(auth.validPassword('💪'.repeat(31)), false, 'Unicode passwords fail without throwing');
+  const staffSecret = process.env.STAFF_REVIEW_PASSWORD;
+  delete process.env.STAFF_REVIEW_PASSWORD;
+  assert.equal((await api.POST(request(payload))).status, 503, 'Intake stays closed without a staff review password');
+  process.env.STAFF_REVIEW_PASSWORD = staffSecret;
   const before = writes.length;
   assert.equal(await action('anything', 'approved'), '/staff/review/login');
   assert.equal(writes.length, before, 'Unauthorized review cannot write to DB');

@@ -25,7 +25,7 @@ function field(value: unknown, max: number): string | null {
 
 export async function POST(request: NextRequest) {
   // The database must exist before submissions can be accepted.
-  if (!process.env.TURSO_DATABASE_URL || !process.env.TURSO_AUTH_TOKEN) {
+  if (!process.env.TURSO_DATABASE_URL || !process.env.TURSO_AUTH_TOKEN || (process.env.STAFF_REVIEW_PASSWORD?.length ?? 0) < 16) {
     return NextResponse.json(
       { error: 'Registration is not available yet.' },
       { status: 503 }
