@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS restaurant_submissions (
   owner_email TEXT NOT NULL,
   owner_phone TEXT NOT NULL,
   restaurant_name TEXT NOT NULL,
-  country TEXT NOT NULL CHECK (country IN ('AO', 'PT')),
+  country TEXT NOT NULL CHECK (country IN ('AO', 'PT', 'GB')),
   city TEXT NOT NULL,
   cuisine TEXT NOT NULL,
   address TEXT NOT NULL,

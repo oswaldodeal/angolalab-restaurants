@@ -1,3 +1,5 @@
+import StaffReviewForm from '@/components/StaffReviewForm';
+import { signOutStaff } from './actions';
 import { redirect } from 'next/navigation';
 import { staffAuthorized } from '@/lib/staff-auth';
 import { getStaffSubmissions } from '@/lib/staff-submissions';
@@ -5,7 +7,8 @@ import { getStaffSubmissions } from '@/lib/staff-submissions';
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Private staff review | AngolaLab', robots: { index: false, follow: false } };
 
-export default async function StaffReview() {
+export default async function StaffReview({ searchParams }: { searchParams: Promise<{ result?: string }> }) {
+  const { result } = await searchParams;
   if (!(await staffAuthorized())) redirect('/staff/review/login');
   let submissions;
   try {
@@ -25,9 +28,12 @@ export default async function StaffReview() {
       <p className="text-xs font-bold uppercase tracking-widest text-[#987515]">AngolaLab · Private Research</p>
       <h1 className="mt-3 text-3xl font-semibold">Restaurant submissions</h1>
       <p className="mt-3 border-b-[3px] border-[#D2AC37] pb-6 text-[#555]">
-        Staff-only review · {submissions.length} latest submissions · Read-only pilot.
-        Approval and publication are not enabled.
+        Staff-only review · {submissions.length} latest submissions.
+        Approval publishes a Basic listing only. Verification is a separate evidence review.
+        Pilot reviews use one shared staff identity; review notes and timestamps are recorded.
       </p>
+      <form action={signOutStaff}><button className="mt-5 rounded-lg border border-[#ded8c5] px-4 py-2">Sign out / Sair</button></form>
+      {result && <p role="status" className="mt-5 rounded-lg bg-[#fffaf0] p-4">{result === 'saved' ? 'Decision saved. Directory updated / Decisão guardada.' : result === 'stale' ? 'This record has already been reviewed. No change was made.' : result === 'invalid' ? 'Add a review note of 20–2000 characters. Publication also requires the identity and permission check.' : 'Unable to save. No publication decision was confirmed. Try again later.'}</p>}
       {submissions.length === 0 ? <p className="mt-8">No submissions yet.</p> :
         <div className="mt-8 space-y-5">{submissions.map((item, index) =>
           <article key={item.id} className="rounded-xl border border-[#ded8c5] p-6">
@@ -43,6 +49,9 @@ export default async function StaffReview() {
               <p>{item.owner_phone}</p>
               <p className="mt-2 text-xs text-[#777]">Received: {item.created_at}</p>
             </div>
+            {item.review_note && <p className="mt-4 rounded-lg bg-[#fffaf0] p-4 text-sm">Latest review: {item.review_note} · {item.reviewed_by} · {item.reviewed_at}</p>}
+            {(item.status === 'pending' || item.status === 'approved') && <StaffReviewForm id={item.id} published={item.status === 'approved'} />}
+            {item.status === 'approved' && <a className="mt-4 inline-block font-semibold text-[#876613]" href={'/en/restaurants/' + item.id}>Open Basic profile →</a>}
           </article>)}</div>}
     </div>
   </main>;

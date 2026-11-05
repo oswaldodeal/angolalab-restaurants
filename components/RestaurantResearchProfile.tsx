@@ -10,7 +10,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
   const city = CITIES.find((c) => c.id === restaurant.city)?.[language] ?? restaurant.city;
   const country = COUNTRIES.find((c) => c.id === restaurant.country)?.[language] ?? restaurant.country;
   const cuisine = CUISINES.find((c) => c.id === restaurant.cuisine)?.[language] ?? restaurant.cuisine;
-  const photo = demoRestaurantPhoto(restaurant.id);
+  const photo = restaurant.ownerId === 'demo' ? demoRestaurantPhoto(restaurant.id) : null;
   const verified = restaurant.status === 'verified';
   const isDemo = restaurant.ownerId === 'demo';
   // Illustrative Basic-profile offers only; replace with reviewed owner-submitted data later.
@@ -38,6 +38,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
         {/* Mobile: photograph immediately below header, full width as in the approved reference. */}
         <section className="sm:hidden" aria-label={pt ? 'Fotografia do restaurante' : 'Restaurant photograph'}>
           <div className="relative h-[290px] w-full overflow-hidden bg-gradient-to-br from-[#ad8b50] to-[#252a32]">
+            {!photo && !isDemo && <div className="flex h-full items-center justify-center px-6 text-center text-sm font-semibold text-white">{pt ? 'Fotografia ainda não adicionada' : 'Photograph not yet added'}</div>}
             {photo && (
               // Temporary illustrative imagery; not a photo of a verified business.
               // eslint-disable-next-line @next/next/no-img-element
@@ -60,6 +61,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
         </div>
         <section className="hidden px-5 pt-7 sm:block sm:px-10 lg:px-14" aria-label={pt ? 'Fotografia do restaurante' : 'Restaurant photograph'}>
           <div className="relative h-[390px] overflow-hidden rounded-xl border border-[#e9e5db] bg-gradient-to-br from-[#ad8b50] to-[#252a32] lg:h-[510px]">
+            {!photo && !isDemo && <div className="flex h-full items-center justify-center px-6 text-center text-sm font-semibold text-white">{pt ? 'Fotografia ainda não adicionada' : 'Photograph not yet added'}</div>}
             {photo && (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={photo} alt={pt ? 'Fotografia ilustrativa de restaurante' : 'Illustrative restaurant interior photograph'} className="h-full w-full object-cover" />
@@ -71,6 +73,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
         </section>
 
         <div className="px-5 pb-12 pt-7 sm:px-10 sm:pt-8 lg:px-14">
+          {!isDemo && <p className="mb-7 border-l-4 border-[#D2AC37] bg-[#fbf7ed] p-4 text-sm">{pt ? 'Registo Básico analisado pela equipa. A verificação do negócio ainda não foi concluída. Contactos, morada completa e mapa permanecem privados.' : 'Staff-reviewed Basic listing. Business verification is not complete. Contacts, full address and map remain private.'}</p>}
           {isDemo && (
             <p className="mb-7 border-l-4 border-[#D2AC37] bg-[#fbf7ed] px-4 py-4 text-sm leading-relaxed text-[#514321] sm:mb-8 sm:px-5">
               {pt
@@ -149,6 +152,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
             <aside className="space-y-6">
               <section className="rounded-xl border border-[#e9e5db] bg-[#fffdf8] p-6">
                 <h2 className="text-lg font-semibold">{pt ? 'Informação do perfil' : 'Profile information'}</h2>
+                {!isDemo && restaurant.hours && <p className="mt-4 text-sm text-[#555]">{pt ? 'Horário' : 'Hours'}: {restaurant.hours}</p>}
                 <p className="mt-4 text-sm text-[#555]">{pt ? 'Cidade' : 'City'}: {city}</p>
                 <p className="mt-2 text-sm text-[#555]">{pt ? 'Cozinha' : 'Cuisine'}: {cuisine}</p>
                 <p className="mt-4 border-t border-[#e9e5db] pt-4 text-sm font-medium text-[#866415]">

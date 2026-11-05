@@ -2,14 +2,14 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { CITIES, COUNTRIES, CUISINES, getGoogleMapsUrl, initialRestaurants } from '@/lib/store';
+import { CITIES, COUNTRIES, CUISINES, type Restaurant } from '@/lib/store';
 import { translations } from '@/lib/translations';
 import { demoRestaurantPhoto } from '@/lib/demo-photos';
 import { BUSINESS_TYPES } from '@/lib/business-types';
 
 type Language = 'pt' | 'en';
 
-export default function RestaurantDirectory({ language }: { language: Language }) {
+export default function RestaurantDirectory({ language, records, unavailable }: { language: Language; records: Restaurant[]; unavailable: boolean }) {
   const [country, setCountry] = useState('');
   const [city, setCity] = useState('');
   const [cuisine, setCuisine] = useState('');
@@ -21,12 +21,12 @@ export default function RestaurantDirectory({ language }: { language: Language }
     [country]
   );
   const restaurants = useMemo(
-    () => initialRestaurants.filter((item) =>
+    () => records.filter((item) =>
       (!country || item.country === country) &&
       (!city || item.city === city) &&
       (!cuisine || item.cuisine === cuisine)
     ),
-    [country, city, cuisine]
+    [records, country, city, cuisine]
   );
 
   return (
@@ -130,6 +130,7 @@ export default function RestaurantDirectory({ language }: { language: Language }
           </div>
         </section>
 
+        {unavailable && <p role="status" className="mb-6 rounded-lg border border-[#ded8c5] bg-[#fffaf0] p-4 text-sm">{isPt ? 'Registos de negócios temporariamente indisponíveis. Apenas demonstrações são apresentadas.' : 'Business listings are temporarily unavailable. Only demonstrations are shown.'}</p>}
         <section aria-label={isPt ? 'Resultados de restaurantes' : 'Restaurant results'}>
           <h2 className="mb-6 text-xl font-semibold text-[#987515]">
             {isPt ? '02 · Perfis de restaurantes' : '02 · Restaurant profiles'}
@@ -165,7 +166,7 @@ export default function RestaurantDirectory({ language }: { language: Language }
                       aria-label={isPt ? `Abrir perfil de ${restaurant.name}` : `Open ${restaurant.name} profile`}
                     >
                       <div className="relative h-52 overflow-hidden bg-gradient-to-br from-[#b58d44] via-[#61503b] to-[#242831]">
-                        {demoRestaurantPhoto(restaurant.id) ? (
+                        {restaurant.ownerId === 'demo' && demoRestaurantPhoto(restaurant.id) ? (
                           // Remote demo imagery: no claims of ownership or business identity.
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
@@ -174,9 +175,9 @@ export default function RestaurantDirectory({ language }: { language: Language }
                             loading="lazy"
                             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                           />
-                        ) : null}
+                        ) : restaurant.ownerId !== 'demo' ? <div className="flex h-full items-center justify-center px-5 text-center text-sm font-semibold text-white">{isPt ? 'Fotografia ainda não adicionada' : 'Photograph not yet added'}</div> : null}
                         <span className="absolute left-4 top-4 rounded-md bg-[#fff0b0] px-3 py-1 text-xs font-bold text-[#57410c]">
-                          AngolaLab Test · {isPt ? 'Demonstração' : 'Demo'}
+                          {restaurant.ownerId === 'demo' ? (isPt ? 'AngolaLab Test · Demonstração' : 'AngolaLab Test · Demo') : (isPt ? 'Básico · Sem verificação' : 'Basic · Not verified')}
                         </span>
                       </div>
                       <div className="p-5">
@@ -186,7 +187,7 @@ export default function RestaurantDirectory({ language }: { language: Language }
                       </div>
                     </Link>
                     <div className="border-t border-[#ece8dc] px-5 py-4">
-                      <p className="text-xs text-[#666]">{isPt ? 'Perfil de demonstração — não é um negócio verificado.' : 'Demonstration profile — not a verified business.'}</p>
+                      <p className="text-xs text-[#666]">{restaurant.ownerId === 'demo' ? (isPt ? 'Perfil de demonstração — não é um negócio verificado.' : 'Demonstration profile — not a verified business.') : (isPt ? 'Registo Básico analisado pela equipa. Verificação do negócio ainda não concluída.' : 'Staff-reviewed Basic listing. Business verification is not complete.')}</p>
                     </div>
                   </article>
                 );

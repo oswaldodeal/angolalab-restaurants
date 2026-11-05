@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { CITIES, COUNTRIES, CUISINES } from '@/lib/store';
 import { executePrivateSql } from '@/lib/turso';
+import { prepareRestaurantDatabase } from '@/lib/restaurant-data';
 
 export const runtime = 'nodejs';
 
@@ -31,6 +32,8 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const origin = request.headers.get('origin');
+  if (origin && origin !== request.nextUrl.origin) return NextResponse.json({ error: 'Forbidden.' }, { status: 403 });
   const contentType = request.headers.get('content-type') ?? '';
   if (!contentType.startsWith('application/json')) {
     return NextResponse.json({ error: 'JSON required.' }, { status: 415 });
@@ -41,7 +44,9 @@ export async function POST(request: NextRequest) {
 
   let raw: Record<string, unknown>;
   try {
-    raw = await request.json();
+    const body = await request.text();
+    if (new TextEncoder().encode(body).length > 8192) return NextResponse.json({ error: 'Request too large.' }, { status: 413 });
+    raw = JSON.parse(body);
     if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('Invalid payload');
   } catch {
     return NextResponse.json({ error: 'Invalid JSON.' }, { status: 400 });
@@ -75,9 +80,10 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    await prepareRestaurantDatabase();
     const id = crypto.randomUUID();
     await executePrivateSql(
-      `INSERT INTO restaurant_submissions
+      `INSERT INTO restaurant_intake
         (id, owner_name, owner_email, owner_phone, restaurant_name, country, city, cuisine, address, opening_hours, status)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')`,
       [

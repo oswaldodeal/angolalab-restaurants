@@ -300,6 +300,9 @@ export default function RestaurantRegistration({ language }: { language: Languag
           </section>
         ) : (
           <form onSubmit={submit} className="space-y-7">
+            <p className="rounded-lg border border-[#ded8c5] bg-[#fffaf0] p-4 text-sm leading-6">
+              {pt ? 'O nome, a cidade, o tipo de cozinha e o horário poderão aparecer num registo Básico após análise e confirmação de autorização. O contacto do responsável e a morada completa ficam privados. A publicação não concede verificação do negócio.' : 'The restaurant name, city, cuisine and hours may appear in a Basic listing after staff review and confirmation of permission. Owner contact details and the full address stay private. Publication does not grant business verification.'}
+            </p>
             <section className="rounded-xl border border-[#ded8c5] p-6">
               <h2 className="mb-5 text-lg font-semibold text-[#987515]">
                 {pt ? '01 · Contacto do responsável' : '01 · Owner contact'}
