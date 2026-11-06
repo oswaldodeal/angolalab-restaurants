@@ -13,7 +13,7 @@ export default function HospitalityVenueNavigation({
         {BUSINESS_TYPES.map((type) => type.id === 'restaurant' ? (
           <Link key={type.id} href={directory ? '#restaurant-filters' : restaurantHref}
             aria-current={directory ? 'page' : undefined}
-            className="inline-flex min-h-11 items-center whitespace-nowrap font-semibold text-[#987515] underline decoration-[#D2AC37] decoration-2 underline-offset-8 hover:text-[#6d5210] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#b18a23]">
+            className={`inline-flex min-h-11 items-center whitespace-nowrap hover:text-[#6d5210] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#b18a23] ${directory ? 'font-semibold text-[#987515] underline decoration-[#D2AC37] decoration-2 underline-offset-8' : 'text-[#777777]'}`}>
             {type[language]}
           </Link>
         ) : (
