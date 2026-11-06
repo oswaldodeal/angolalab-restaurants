@@ -61,34 +61,24 @@ export default function Header() {
   };
 
   const navLinkClass = 'rounded-md text-[#F2C94C] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C]';
-  const isHome = path === '/pt' || path === '/en';
   const isRestaurantDirectory = path === '/pt/restaurantes' || path === '/en/restaurants';
 
   const languageMenu = (
-    <details ref={languageRef} className="group relative">
+    <details ref={languageRef} className="group relative shrink-0">
       <summary aria-label={lang === 'pt' ? 'Escolher idioma' : 'Choose language'}
-        className={`flex min-h-10 cursor-pointer list-none items-center gap-2 rounded-lg text-[#F2C94C] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] [&::-webkit-details-marker]:hidden ${isHome ? 'px-2 py-2 group-open:bg-white/10' : 'px-1 py-2'}`}>
+        className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-lg px-2 py-2 text-sm text-[#F2C94C] hover:text-white group-open:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] [&::-webkit-details-marker]:hidden">
         <span aria-hidden="true">🌐</span><span>{lang.toUpperCase()}</span><span aria-hidden="true" className="text-xs transition-transform group-open:rotate-180">▾</span>
       </summary>
-      <div className={isHome
-        ? 'absolute right-0 top-full z-[70] mt-2 w-48 rounded-xl border border-[#b28b29] bg-[#22262D] p-3 text-sm shadow-2xl'
-        : 'absolute right-0 top-full z-[70] mt-2 min-w-40 rounded-xl border border-[#e4d5a6] bg-white p-2 text-sm text-[#242424] shadow-xl'}>
-        {isHome && <p className="mb-2 text-xs font-semibold text-[#d8c68d]">{lang === 'pt' ? 'Idioma' : 'Language'}</p>}
-        <div className={isHome ? 'grid grid-cols-2 gap-2' : ''}>
-          <Link href={languagePath('pt')} hrefLang="pt" lang="pt" aria-current={lang === 'pt' ? 'page' : undefined}
-            onClick={switchLanguage}
-            className={isHome
-              ? `flex min-h-11 items-center justify-center rounded-lg border px-2 py-2 font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] ${lang === 'pt' ? 'border-[#d4af37] bg-[#d4af37] text-[#171717]' : 'border-[#b28b29] text-[#F2C94C] hover:bg-white/10'}`
-              : 'block rounded-lg px-3 py-2.5 hover:bg-[#fbf7ed] focus-visible:outline-2 focus-visible:outline-[#b18a23]'}>
-            {isHome ? `PT ${lang === 'pt' ? '✓' : ''}` : `🇵🇹 Português ${lang === 'pt' ? '✓' : ''}`}
-          </Link>
-          <Link href={languagePath('en')} hrefLang="en" lang="en" aria-current={lang === 'en' ? 'page' : undefined}
-            onClick={switchLanguage}
-            className={isHome
-              ? `flex min-h-11 items-center justify-center rounded-lg border px-2 py-2 font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] ${lang === 'en' ? 'border-[#d4af37] bg-[#d4af37] text-[#171717]' : 'border-[#b28b29] text-[#F2C94C] hover:bg-white/10'}`
-              : 'block rounded-lg px-3 py-2.5 hover:bg-[#fbf7ed] focus-visible:outline-2 focus-visible:outline-[#b18a23]'}>
-            {isHome ? `EN ${lang === 'en' ? '✓' : ''}` : `🇬🇧 English ${lang === 'en' ? '✓' : ''}`}
-          </Link>
+      <div className="absolute right-0 top-full z-[90] mt-2 w-48 rounded-xl border border-[#b28b29] bg-[#22262D] p-3 text-sm shadow-2xl">
+        <p className="mb-2 text-xs font-semibold text-[#d8c68d]">{lang === 'pt' ? 'Idioma' : 'Language'}</p>
+        <div className="grid grid-cols-2 gap-2">
+          {(['pt', 'en'] as const).map((target) => (
+            <Link key={target} href={languagePath(target)} hrefLang={target} lang={target}
+              aria-current={lang === target ? 'page' : undefined} onClick={switchLanguage}
+              className={`flex min-h-11 items-center justify-center rounded-lg border px-2 py-2 font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] ${lang === target ? 'border-[#d4af37] bg-[#d4af37] text-[#171717]' : 'border-[#b28b29] text-[#F2C94C] hover:bg-white/10'}`}>
+              {target.toUpperCase()} {lang === target ? '✓' : ''}
+            </Link>
+          ))}
         </div>
       </div>
     </details>
@@ -136,7 +126,7 @@ export default function Header() {
 
   return (
 <header className="sticky top-0 z-50 w-full max-w-full bg-[#22262D] shadow-sm">   
-      <div className="mx-auto flex w-full max-w-7xl min-w-0 items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
+      <div className="mx-auto flex w-full max-w-7xl min-w-0 items-center justify-between gap-1 px-4 py-3 sm:gap-3 sm:px-6 lg:px-8">
        <Link
   href={`/${lang}`}
   className="inline-flex min-w-0 shrink-0 items-center gap-2 rounded-md text-lg font-bold sm:gap-3 sm:text-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C]"
@@ -162,7 +152,6 @@ export default function Header() {
               {!isRestaurantDirectory && exploreMenu}
               <Link href="/pt/cartoes" className={navLinkClass}>Cartões Digitais</Link>
               <Link href="/pt/sobre" className={navLinkClass}>Sobre Nós</Link>
-              {languageMenu}
               <Link href="/pt/entrar" className={navLinkClass}>Entrar</Link>
               <Link href="/pt/registar" className="shrink-0 whitespace-nowrap rounded-lg bg-emerald-600 px-2.5 py-2 font-semibold text-white hover:bg-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] sm:px-4">Criar Conta</Link>
             </>
@@ -171,17 +160,17 @@ export default function Header() {
               {!isRestaurantDirectory && exploreMenu}
               <Link href="/en/cards" className={navLinkClass}>Digital Cards</Link>
               <Link href="/en/about" className={navLinkClass}>About Us</Link>
-              {languageMenu}
               <Link href="/en/signin" className={navLinkClass}>Sign In</Link>
               <Link href="/en/signup" className="shrink-0 whitespace-nowrap rounded-lg bg-emerald-600 px-2.5 py-2 font-semibold text-white hover:bg-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] sm:px-4">Create Account</Link>
             </>
           )}
         </nav>
-        <details ref={mobileRef} className="group relative ml-auto lg:hidden">
+        {languageMenu}
+        <details ref={mobileRef} className="group relative lg:hidden">
           <summary aria-label={lang === 'pt' ? 'Abrir menu de navegação' : 'Open navigation menu'}
             className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-md px-2 py-2 text-sm font-semibold text-[#F2C94C] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] [&::-webkit-details-marker]:hidden">
             <span aria-hidden="true" className="text-lg">☰</span>
-            {lang === 'pt' ? 'Menu' : 'Menu'}
+            <span className="hidden sm:inline">Menu</span>
             <span aria-hidden="true" className="text-xs group-open:rotate-180">▾</span>
           </summary>
           <nav aria-label={lang === 'pt' ? 'Navegação móvel' : 'Mobile navigation'}
@@ -191,14 +180,6 @@ export default function Header() {
               <Link href={lang === 'pt' ? '/pt/restaurantes' : '/en/restaurants'} className="rounded-lg px-3 py-3 text-[#F2C94C] hover:bg-white/10">{lang === 'pt' ? 'Restaurantes' : 'Restaurants'}</Link>
               <Link href={lang === 'pt' ? '/pt/cartoes' : '/en/cards'} className="rounded-lg px-3 py-3 text-[#F2C94C] hover:bg-white/10">{lang === 'pt' ? 'Cartões Digitais' : 'Digital Cards'}</Link>
               <Link href={lang === 'pt' ? '/pt/sobre' : '/en/about'} className="rounded-lg px-3 py-3 text-[#F2C94C] hover:bg-white/10">{lang === 'pt' ? 'Sobre Nós' : 'About Us'}</Link>
-              <div className="my-1 border-t border-[#585047]" />
-              <p className="px-3 pt-2 text-xs font-semibold text-[#d8c68d]">{lang === 'pt' ? 'Idioma' : 'Language'}</p>
-              <div className="flex flex-wrap gap-2 px-3 py-2">
-                <Link href={languagePath('pt')} hrefLang="pt" lang="pt" onClick={switchLanguage}
-                  aria-current={lang === 'pt' ? 'page' : undefined} className="rounded-lg border border-[#73633a] px-3 py-2 text-[#F2C94C]">PT {lang === 'pt' ? '✓' : ''}</Link>
-                <Link href={languagePath('en')} hrefLang="en" lang="en" onClick={switchLanguage}
-                  aria-current={lang === 'en' ? 'page' : undefined} className="rounded-lg border border-[#73633a] px-3 py-2 text-[#F2C94C]">EN {lang === 'en' ? '✓' : ''}</Link>
-              </div>
               <div className="my-1 border-t border-[#585047]" />
               <Link href={lang === 'pt' ? '/pt/entrar' : '/en/signin'} className="rounded-lg px-3 py-3 text-[#F2C94C] hover:bg-white/10">{lang === 'pt' ? 'Entrar' : 'Sign In'}</Link>
               <Link href={lang === 'pt' ? '/pt/registar' : '/en/signup'} className="rounded-lg bg-emerald-600 px-3 py-3 text-center font-semibold text-white hover:bg-emerald-700">{lang === 'pt' ? 'Criar Conta' : 'Create Account'}</Link>
