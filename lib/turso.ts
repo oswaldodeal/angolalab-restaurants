@@ -8,7 +8,8 @@ export async function executePrivateSql(sql: string, values: Array<string | null
   const token = process.env.TURSO_AUTH_TOKEN;
   if (!url || !token) throw new Error('TURSO_NOT_CONFIGURED');
   const endpoint = url.replace(/^libsql:\/\//, 'https://').replace(/\/$/, '');
-  const parsed = new URL(endpoint);
+  let parsed: URL;
+  try { parsed = new URL(endpoint); } catch { throw new Error('TURSO_INVALID_URL'); }
   if (parsed.protocol !== 'https:' || !parsed.hostname.endsWith('.turso.io')) throw new Error('TURSO_INVALID_URL');
   const args = values.map(value => value === null ? { type: 'null' } : { type: 'text', value });
   const response = await fetch(`${endpoint}/v2/pipeline`, {
@@ -17,10 +18,15 @@ export async function executePrivateSql(sql: string, values: Array<string | null
     body: JSON.stringify({ requests: [{ type: 'execute', stmt: { sql, args, want_rows: true } }, { type: 'close' }] }),
     cache: 'no-store', signal: AbortSignal.timeout(10000),
   });
-  if (!response.ok) throw new Error('TURSO_REQUEST_FAILED');
-  const data: { results?: Array<{ type?: string; response?: { result?: SqlResult } }> } = await response.json();
+  if (!response.ok) throw new Error(response.status === 401 || response.status === 403 ? 'TURSO_TOKEN_REJECTED' : 'TURSO_REQUEST_FAILED');
+  const data: { results?: Array<{ type?: string; error?: { message?: string; code?: string }; response?: { result?: SqlResult } }> } = await response.json();
   const first = data.results?.[0];
-  if (first?.type !== 'ok' || !first.response?.result) throw new Error('TURSO_QUERY_FAILED');
+  if (first?.type !== 'ok' || !first.response?.result) {
+    const detail = first?.error?.message ?? '';
+    if (/readonly|read.only|not authorized|SQLITE_AUTH/i.test(detail)) throw new Error('TURSO_WRITE_DENIED');
+    if (/no such column|has no column/i.test(detail)) throw new Error('TURSO_SCHEMA_MISMATCH');
+    throw new Error('TURSO_QUERY_FAILED');
+  }
   return first.response.result;
 }
 

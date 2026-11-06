@@ -13,12 +13,20 @@ export default async function StaffReview({ searchParams }: { searchParams: Prom
   let submissions;
   try {
     submissions = await getStaffSubmissions();
-  } catch {
+  } catch (error) {
+    const code = error instanceof Error ? error.message : '';
+    const diagnosis = ({
+      TURSO_INVALID_URL: 'The saved TURSO_DATABASE_URL is not a valid Turso URL. Its Value must be the libsql:// database URL, not the token.',
+      TURSO_TOKEN_REJECTED: 'Turso rejected the saved token. Use a valid token for the same Restaurants database as TURSO_DATABASE_URL.',
+      TURSO_WRITE_DENIED: 'The database token cannot prepare the pilot tables. This workflow needs read/write database access.',
+      TURSO_SCHEMA_MISMATCH: 'The existing submissions table has a different structure. The migration needs an adjustment; keep existing records unchanged.',
+      TURSO_NOT_CONFIGURED: 'The database URL or token is missing from this Preview deployment.',
+    } as Record<string, string>)[code] ?? 'The database request or table setup failed. The saved credentials and schema need checking.';
     return <main className="min-h-[65vh] bg-white px-5 py-12 text-[#222]">
       <div className="mx-auto max-w-4xl">
         <h1 className="text-3xl font-semibold">Staff review</h1>
         <p role="alert" className="mt-6 rounded-lg border border-red-200 bg-red-50 p-5">
-          Unable to load registrations. Check the preview database connection.
+          Unable to load registrations. {diagnosis}
         </p>
       </div>
     </main>;
