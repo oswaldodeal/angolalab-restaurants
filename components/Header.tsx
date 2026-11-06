@@ -3,12 +3,10 @@ import Image from "next/image";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef } from 'react';
-import { BUSINESS_TYPES } from '@/lib/business-types';
 
 export default function Header() {
   const path = usePathname();
   const lang = path.startsWith('/en') ? 'en' : 'pt';
-  const exploreRef = useRef<HTMLDetailsElement>(null);
   const languageRef = useRef<HTMLDetailsElement>(null);
   const mobileRef = useRef<HTMLDetailsElement>(null);
   const languagePath = (target: 'pt' | 'en') => {
@@ -37,13 +35,13 @@ export default function Header() {
   // Dismiss the menu when the visitor clicks elsewhere or presses Escape.
   useEffect(() => {
     function handleOutsidePointer(event: PointerEvent) {
-      for (const menu of [exploreRef.current, languageRef.current, mobileRef.current]) {
+      for (const menu of [languageRef.current, mobileRef.current]) {
         if (menu?.open && event.target instanceof Node && !menu.contains(event.target)) menu.open = false;
       }
     }
     function handleEscape(event: KeyboardEvent) {
       if (event.key === 'Escape') {
-        for (const menu of [exploreRef.current, languageRef.current]) {
+        for (const menu of [languageRef.current]) {
           if (menu?.open) { menu.open = false; menu.querySelector('summary')?.focus(); }
         }
       }
@@ -56,9 +54,8 @@ export default function Header() {
     };
   }, []);
 
-  // Close Explore after navigating, including browser back/forward.
+  // Close menus after navigating, including browser back/forward.
   useEffect(() => {
-    if (exploreRef.current) exploreRef.current.open = false;
     if (languageRef.current) languageRef.current.open = false;
     if (mobileRef.current) mobileRef.current.open = false;
   }, [path]);
@@ -71,7 +68,6 @@ export default function Header() {
 
   const navLinkClass = 'rounded-md text-[#F2C94C] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C]';
   const isHome = path === '/pt' || path === '/en';
-  const isRestaurantDirectory = path === '/pt/restaurantes' || path === '/en/restaurants';
 
   const languageMenu = (
     <details ref={languageRef} className="group relative">
@@ -103,45 +99,6 @@ export default function Header() {
     </details>
   );
 
-  const exploreMenu = (
-    <details ref={exploreRef} className="group relative">
-      <summary className="flex cursor-pointer list-none items-center gap-1 rounded-md px-1 py-2 text-[#F2C94C] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#F2C94C] [&::-webkit-details-marker]:hidden">
-        {lang === 'pt' ? 'Explorar' : 'Explore'}
-        <span aria-hidden="true" className="text-xs transition-transform group-open:rotate-180">▾</span>
-      </summary>
-      <div className="absolute left-0 top-full z-[60] mt-2 w-60 rounded-xl border border-[#e4d5a6] bg-white p-2 text-sm text-[#242424] shadow-xl sm:left-auto sm:right-0">
-        <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-[#987515]">
-          {lang === 'pt' ? 'Tipos de negócio' : 'Business types'}
-        </p>
-        {BUSINESS_TYPES.map((type) => type.id === 'restaurant' ? (
-          <Link
-            key={type.id}
-            href={lang === 'pt' ? '/pt/restaurantes' : '/en/restaurants'}
-            onClick={() => { if (exploreRef.current) exploreRef.current.open = false; }}
-            className="block rounded-lg px-3 py-2.5 font-medium hover:bg-[#fbf7ed] focus-visible:outline-2 focus-visible:outline-[#b18a23]"
-          >
-            {type[lang]}
-          </Link>
-        ) : (
-          <div key={type.id} className="flex items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-[#666]">
-            <span>{type[lang]}</span>
-            <span className="text-[10px] text-[#876613]">{lang === 'pt' ? 'Em breve' : 'Planned'}</span>
-          </div>
-        ))}
-        <div className="my-2 border-t border-[#e9e5db]" />
-        <Link
-          href={lang === 'pt' ? '/pt/restaurantes/registar' : '/en/restaurants/submit'}
-          onClick={() => { if (exploreRef.current) exploreRef.current.open = false; }}
-          className="block rounded-lg bg-[#fff8e6] px-3 py-3 font-semibold text-[#76570f] hover:bg-[#f9edcb] focus-visible:outline-2 focus-visible:outline-[#b18a23]"
-        >
-          {lang === 'pt' ? '🧱 Demonstração de Perfis Adaptáveis' : '🧱 Adaptive Profile Demo'}
-          <span className="mt-1 block text-xs font-normal text-[#6e675a]">
-            {lang === 'pt' ? 'Pré-visualizar seis tipos de negócio' : 'Preview six business types'}
-          </span>
-        </Link>
-      </div>
-    </details>
-  );
 
   return (
 <header className={`sticky top-0 z-50 w-full max-w-full bg-[#22262D] shadow-sm ${isHome ? 'px-5' : ''}`}>   
@@ -168,7 +125,6 @@ export default function Header() {
         <nav aria-label="Main navigation" className="hidden min-w-0 items-center justify-end gap-x-4 text-sm lg:ml-auto lg:flex xl:gap-x-6">
           {lang === 'pt' ? (
             <>
-              {!isRestaurantDirectory && exploreMenu}
               <Link href="/pt/cartoes" className={navLinkClass}>Cartões Digitais</Link>
               <Link href="/pt/sobre" className={navLinkClass}>Sobre Nós</Link>
               {languageMenu}
@@ -177,7 +133,6 @@ export default function Header() {
             </>
           ) : (
             <>
-              {!isRestaurantDirectory && exploreMenu}
               <Link href="/en/cards" className={navLinkClass}>Digital Cards</Link>
               <Link href="/en/about" className={navLinkClass}>About Us</Link>
               {languageMenu}
