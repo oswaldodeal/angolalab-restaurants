@@ -1,3 +1,4 @@
+import HospitalityVenueNavigation from '@/components/HospitalityVenueNavigation';
 import { CITIES, COUNTRIES, CUISINES, getGoogleMapsUrl, type Restaurant } from '@/lib/store';
 import { demoRestaurantPhoto } from '@/lib/demo-photos';
 import RestaurantMenuPreview from '@/components/RestaurantMenuPreview';
@@ -57,6 +58,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
           </p>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-5xl">{restaurant.name}</h1>
           <p className="mt-3 text-base text-[#555]">{cuisine} · {city}, {country}</p>
+          <HospitalityVenueNavigation language={language} />
           <div className="mt-7 h-[2px] w-full bg-[#D2AC37]" aria-hidden="true" />
         </div>
         <section className="hidden px-5 pt-7 sm:block sm:px-10 lg:px-14" aria-label={pt ? 'Fotografia do restaurante' : 'Restaurant photograph'}>
@@ -84,6 +86,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
           <div className="mb-7 sm:hidden">
             <h1 className="text-3xl font-semibold tracking-tight">{restaurant.name}</h1>
             <p className="mt-3 text-base text-[#555]">{cuisine} · {city}, {country}</p>
+          <HospitalityVenueNavigation language={language} />
             <div className="mt-6 h-[2px] w-full bg-[#D2AC37]" aria-hidden="true" />
           </div>
 

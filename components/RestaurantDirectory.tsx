@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { CITIES, COUNTRIES, CUISINES, type Restaurant } from '@/lib/store';
 import { translations } from '@/lib/translations';
 import { demoRestaurantPhoto } from '@/lib/demo-photos';
-import { BUSINESS_TYPES } from '@/lib/business-types';
+import HospitalityVenueNavigation from '@/components/HospitalityVenueNavigation';
 
 type Language = 'pt' | 'en';
 
@@ -44,30 +44,7 @@ export default function RestaurantDirectory({ language, records, unavailable }: 
               ? 'Explore restaurantes por país, cidade e tipo de cozinha.'
               : 'Explore restaurants by country, city and cuisine.'}
           </p>
-          <nav aria-label={isPt ? 'Tipos de negócio' : 'Business types'} className="mt-6">
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-3 text-sm font-medium sm:gap-x-7">
-              {BUSINESS_TYPES.map((type) => type.id === 'restaurant' ? (
-                <a
-                  key={type.id}
-                  href="#restaurant-filters"
-                  aria-current="page"
-                  className="whitespace-nowrap font-semibold text-[#987515] underline decoration-[#D2AC37] decoration-2 underline-offset-8 hover:text-[#6d5210] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#b18a23]"
-                >
-                  {type[language]}
-                </a>
-              ) : (
-                <span key={type.id} title={isPt ? 'Em breve' : 'Planned'} className="whitespace-nowrap text-[#777777]">
-                  {type[language]}
-                </span>
-              ))}
-            </div>
-            <Link
-              href={isPt ? '/pt/restaurantes/registar' : '/en/restaurants/submit'}
-              className="mt-4 inline-flex text-xs font-medium text-[#82620f] underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-[#b18a23]"
-            >
-              {isPt ? 'Demonstração de Perfis Adaptáveis' : 'Adaptive Profile Demo'}
-            </Link>
-          </nav>
+          <HospitalityVenueNavigation language={language} directory />
         </div>
 
         <section id="restaurant-filters" aria-label={isPt ? 'Filtros de pesquisa' : 'Search filters'} className="mb-10 rounded-2xl border border-[#ded8c5] bg-white p-5 sm:p-7">

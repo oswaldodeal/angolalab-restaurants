@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from 'react';
 import Link from 'next/link';
+import HospitalityVenueNavigation from '@/components/HospitalityVenueNavigation';
 import { CITIES, COUNTRIES, CUISINES } from '@/lib/store';
 import { BUSINESS_TYPES, BASIC_PROFILE_LIMITS, BASIC_PROFILE_EXAMPLES, basicProfileItemCount, type BusinessType } from '@/lib/business-types';
 
@@ -102,11 +103,15 @@ export default function RestaurantRegistration({ language, available }: { langua
           {pt ? 'AngolaLab · Registo de Negócios' : 'AngolaLab · Business Registration'}
         </p>
         <h1 className="text-3xl font-semibold">{pt ? 'Registar restaurante' : 'Register a restaurant'}</h1>
-        <p className="mb-7 mt-3 border-b-[3px] border-[#D2AC37] pb-7 leading-relaxed text-[#555]">
+        <p className="mt-3 leading-relaxed text-[#555]">
           {pt
             ? 'Envie os dados para análise. O restaurante não será publicado ou verificado automaticamente.'
             : 'Submit details for review. Your restaurant will not be published or verified automatically.'}
         </p>
+
+        <div className="mb-7 border-b-[3px] border-[#D2AC37] pb-7">
+          <HospitalityVenueNavigation language={language} showDemo={false} />
+        </div>
 
         {!submitted && (
           <section className="mb-7 rounded-xl border border-[#ded8c5] bg-[#fffdf8] p-6" aria-label={pt ? 'Tipo de negócio' : 'Business type'}>

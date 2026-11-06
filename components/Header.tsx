@@ -145,7 +145,7 @@ export default function Header() {
 
   return (
 <header className="sticky top-0 z-50 w-full max-w-full bg-[#22262D] shadow-sm">   
-      <div className="mx-auto flex w-full max-w-7xl min-w-0 items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
+      <div className="mx-auto flex w-full max-w-7xl min-w-0 items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:pl-8 lg:pr-12">
        <Link
   href={`/${lang}`}
   className="inline-flex min-w-0 shrink-0 items-center gap-2 rounded-md text-lg font-bold sm:gap-3 sm:text-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C]"
