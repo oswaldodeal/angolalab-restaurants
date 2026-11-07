@@ -69,7 +69,9 @@ export default function Header() {
   const navLinkClass = 'rounded-md text-[#F2C94C] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C]';
   const isHome = path === '/pt' || path === '/en';
   const isRestaurantDirectory = path === '/pt/restaurantes' || path === '/en/restaurants';
-  const headerWidth = isRestaurantDirectory ? 'max-w-6xl px-5 sm:px-8'
+  const isRestaurantProfile = /^\/(?:en\/restaurants\/(?!submit$)|pt\/restaurantes\/(?!registar$))[^/]+$/.test(path);
+  const headerWidth = isRestaurantProfile ? 'max-w-6xl px-5 sm:border-x sm:border-transparent sm:px-10 lg:px-14'
+    : isRestaurantDirectory ? 'max-w-6xl px-5 sm:px-8'
     : isHome ? 'max-w-6xl' : 'max-w-7xl px-4 sm:px-6 lg:pl-8 lg:pr-12';
 
   const languageMenu = (
