@@ -31,7 +31,7 @@ export default function RestaurantDirectory({ language, records, unavailable }: 
 
   return (
     <main className="min-h-screen bg-white text-[#222222]">
-      <section className="mx-auto max-w-6xl px-5 py-10 sm:px-8 md:py-14">
+      <section className="page-rail py-10 md:py-14">
         <div className="mb-9 border-b-[3px] border-[#D2AC37] pb-7">
           <p className="mb-3 text-xs font-bold uppercase tracking-[0.17em] text-[#987515] sm:text-sm">
             {isPt ? 'AngolaLab · Rede de Restaurantes' : 'AngolaLab · Restaurant Network'}

@@ -4,8 +4,8 @@ import HomeEducationCard from '@/components/HomeEducationCard';
 
 export default function EcosystemHomePage() {
  return (<>
-  <section className="lab-dark-section w-full px-5 py-10 sm:py-20">
-   <div className="mx-auto max-w-6xl">
+  <section className="lab-dark-section w-full py-10 sm:py-20">
+   <div className="page-rail">
     <p className="mb-4 hidden text-xs font-bold uppercase tracking-[0.18em] text-[#f2c94c] sm:block">AngolaLab · Research · Technology · Education</p>
     <h1 className="max-w-4xl text-3xl font-bold leading-tight text-white sm:text-5xl">Discover businesses. Connect people.</h1>
     <p className="mt-6 hidden max-w-3xl text-lg leading-8 text-slate-300 sm:block">AngolaLab helps businesses become visible, professionals share skills and people build digital projects. Research and education support this mission.</p>
@@ -15,8 +15,8 @@ export default function EcosystemHomePage() {
     </div>
    </div>
   </section>
-  <section id="business-directory" aria-labelledby="business-directory-title" className="scroll-mt-24 bg-[#f3f2ef] px-5 py-14 text-[#252525] sm:py-16">
-   <div className="mx-auto max-w-6xl">
+  <section id="business-directory" aria-labelledby="business-directory-title" className="scroll-mt-24 bg-[#f3f2ef] py-14 text-[#252525] sm:py-16">
+   <div className="page-rail">
     <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#927018]">AngolaLab · Business Connections</p>
     <h2 id="business-directory-title" className="mt-3 text-3xl font-bold leading-tight sm:text-4xl">Economic Intelligence</h2>
     <p className="mt-4 max-w-3xl leading-7 text-[#555]">Explore business categories and discover local services. We are starting with restaurants and developing the other categories step by step, with clear verification standards.</p>
@@ -35,8 +35,8 @@ export default function EcosystemHomePage() {
    </div>
   </section>
   <div id="connections" className="scroll-mt-24"><HomeDigitalCards language="en" /></div>
-  <section className="bg-[#f3f2ef] px-5 pb-14 text-[#252525]" aria-labelledby="fpp-home-title">
-   <div className="mx-auto max-w-6xl rounded-3xl border border-[#e4d8bc] bg-white p-6 shadow-sm sm:p-9">
+  <section className="bg-[#f3f2ef] pb-14 text-[#252525]" aria-labelledby="fpp-home-title">
+   <div className="page-rail rounded-3xl border border-[#e4d8bc] bg-white p-6 shadow-sm sm:p-9">
     <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#927018]">AngolaLab · Professional Connections</p>
     <h2 id="fpp-home-title" className="mt-3 text-3xl font-bold">Skills can connect across borders.</h2>
     <p className="mt-4 max-w-3xl leading-7 text-[#555]">Free Professional Profiles help people present their skills and collaboration countries. The directory is a demonstration; live verification and connections are not yet enabled.</p>
@@ -47,8 +47,8 @@ export default function EcosystemHomePage() {
    </div>
   </section>
   <HomeEducationCard language="en" />
-  <section id="aeis" aria-labelledby="aeis-heading" className="scroll-mt-24 bg-[#f3f2ef] px-5 py-14 text-[#252525] sm:py-16">
-   <div className="mx-auto max-w-6xl">
+  <section id="aeis" aria-labelledby="aeis-heading" className="scroll-mt-24 bg-[#f3f2ef] py-14 text-[#252525] sm:py-16">
+   <div className="page-rail">
     <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#927018]">AngolaLab Economic Intelligence System</p>
     <div className="mt-3 grid gap-5 md:grid-cols-[1.2fr_1fr] md:items-end">
      <h2 id="aeis-heading" className="text-3xl font-bold leading-tight sm:text-4xl">AEIS · Research & Intelligence</h2>

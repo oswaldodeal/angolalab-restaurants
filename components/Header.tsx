@@ -70,9 +70,8 @@ export default function Header() {
   const isHome = path === '/pt' || path === '/en';
   const isRestaurantDirectory = path === '/pt/restaurantes' || path === '/en/restaurants';
   const isRestaurantProfile = /^\/(?:en\/restaurants\/(?!submit$)|pt\/restaurantes\/(?!registar$))[^/]+$/.test(path);
-  const headerWidth = isRestaurantProfile ? 'max-w-6xl px-5 sm:border-x sm:border-transparent sm:px-10 lg:px-14'
-    : isRestaurantDirectory ? 'max-w-6xl px-5 sm:px-8'
-    : isHome ? 'max-w-6xl' : 'max-w-7xl px-4 sm:px-6 lg:pl-8 lg:pr-12';
+  const headerWidth = isHome || isRestaurantDirectory || isRestaurantProfile
+    ? 'page-rail' : 'w-full max-w-7xl px-4 sm:px-6 lg:pl-8 lg:pr-12';
 
   const languageMenu = (
     <details ref={languageRef} className="group relative">
@@ -106,8 +105,8 @@ export default function Header() {
 
 
   return (
-<header className={`sticky top-0 z-50 w-full max-w-full bg-[#22262D] shadow-sm ${isHome ? 'px-5' : ''}`}>   
-      <div className={`mx-auto flex w-full min-w-0 items-center justify-between gap-3 py-3 ${headerWidth}`}>
+<header className={`sticky top-0 z-50 w-full max-w-full bg-[#22262D] shadow-sm`}>   
+      <div className={`mx-auto flex min-w-0 items-center justify-between gap-3 py-3 ${headerWidth}`}>
        <Link
   href={`/${lang}`}
   className="inline-flex min-w-0 shrink-0 items-center gap-2 rounded-md text-lg font-bold sm:gap-3 sm:text-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C]"

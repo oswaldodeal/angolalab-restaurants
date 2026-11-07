@@ -3,8 +3,8 @@ import Link from 'next/link';
 export default function HomeEducationCard({ language }: { language: 'en' | 'pt' }) {
   const pt = language === 'pt';
   return (
-    <section id="education" aria-labelledby="education-heading" className="bg-[#f3f2ef] px-5 pb-14 text-[#252525] sm:pb-20">
-      <div className="mx-auto max-w-6xl overflow-hidden rounded-3xl border border-[#e4d8bc] bg-white shadow-[0_16px_40px_rgba(0,0,0,0.06)]">
+    <section id="education" aria-labelledby="education-heading" className="bg-[#f3f2ef] pb-14 text-[#252525] sm:pb-20">
+      <div className="page-rail overflow-hidden rounded-3xl border border-[#e4d8bc] bg-white shadow-[0_16px_40px_rgba(0,0,0,0.06)]">
         <div className="grid min-w-0 items-center gap-7 p-5 sm:p-8 lg:grid-cols-2 lg:gap-10 lg:p-10">
           <div className="min-w-0">
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#927018]">{pt ? 'AngolaLab · Educação' : 'AngolaLab · Education'}</p>

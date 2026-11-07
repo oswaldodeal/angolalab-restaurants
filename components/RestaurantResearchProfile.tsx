@@ -35,7 +35,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
 
   return (
     <div className="bg-[#fafafa] text-[#242424]">
-      <article className="mx-auto max-w-6xl overflow-hidden border-[#e9e5db] bg-white sm:border-x">
+      <article className="mx-auto max-w-6xl overflow-hidden bg-white sm:shadow-[inset_1px_0_#e9e5db,inset_-1px_0_#e9e5db]">
         {/* Mobile: photograph immediately below header, full width as in the approved reference. */}
         <section className="sm:hidden" aria-label={pt ? 'Fotografia do restaurante' : 'Restaurant photograph'}>
           <div className="relative h-[290px] w-full overflow-hidden bg-gradient-to-br from-[#ad8b50] to-[#252a32]">
@@ -52,7 +52,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
         </section>
 
         {/* Desktop: retain the approved Research Archive order and gold divider. */}
-        <div className="hidden px-5 pt-7 sm:block sm:px-10 sm:pt-10 lg:px-14">
+        <div className="page-rail hidden pt-7 sm:block sm:pt-10">
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#987515]">
             {pt ? 'AngolaLab · Perfil do restaurante' : 'AngolaLab · Restaurant profile'}
           </p>
@@ -61,7 +61,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
           <HospitalityVenueNavigation language={language} />
           <div className="mt-7 h-[2px] w-full bg-[#D2AC37]" aria-hidden="true" />
         </div>
-        <section className="hidden px-5 pt-7 sm:block sm:px-10 lg:px-14" aria-label={pt ? 'Fotografia do restaurante' : 'Restaurant photograph'}>
+        <section className="page-rail hidden pt-7 sm:block" aria-label={pt ? 'Fotografia do restaurante' : 'Restaurant photograph'}>
           <div className="relative h-[390px] overflow-hidden rounded-xl border border-[#e9e5db] bg-gradient-to-br from-[#ad8b50] to-[#252a32] lg:h-[510px]">
             {!photo && !isDemo && <div className="flex h-full items-center justify-center px-6 text-center text-sm font-semibold text-white">{pt ? 'Fotografia ainda não adicionada' : 'Photograph not yet added'}</div>}
             {photo && (
@@ -74,7 +74,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
           </div>
         </section>
 
-        <div className="px-5 pb-12 pt-7 sm:px-10 sm:pt-8 lg:px-14">
+        <div className="page-rail pb-12 pt-7 sm:pt-8">
           {!isDemo && <p className="mb-7 border-l-4 border-[#D2AC37] bg-[#fbf7ed] p-4 text-sm">{pt ? 'Registo Básico analisado pela equipa. A verificação do negócio ainda não foi concluída. Contactos, morada completa e mapa permanecem privados.' : 'Staff-reviewed Basic listing. Business verification is not complete. Contacts, full address and map remain private.'}</p>}
           {isDemo && (
             <p className="mb-7 border-l-4 border-[#D2AC37] bg-[#fbf7ed] px-4 py-4 text-sm leading-relaxed text-[#514321] sm:mb-8 sm:px-5">

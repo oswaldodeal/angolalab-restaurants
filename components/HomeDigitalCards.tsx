@@ -21,8 +21,8 @@ export default function HomeDigitalCards({ language }: { language: 'en' | 'pt' }
   }, [language]);
 
   return (
-    <section className="bg-[#f3f2ef] px-5 py-12 text-[#252525] sm:py-16" aria-labelledby="home-digital-cards">
-      <div className="mx-auto grid max-w-6xl items-center gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-12">
+    <section className="bg-[#f3f2ef] py-12 text-[#252525] sm:py-16" aria-labelledby="home-digital-cards">
+      <div className="page-rail grid items-center gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-12">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#927018]">
             {pt ? 'AngolaLab · Conexões digitais' : 'AngolaLab · Digital connections'}
