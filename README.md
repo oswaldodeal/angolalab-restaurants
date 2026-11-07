@@ -43,3 +43,21 @@ The public read path intentionally excludes all private intake fields, including
 Validation: `node tests/restaurant-workflow.cjs` (Node 22+ SQLite support), `npx tsc --noEmit`,
 and `npm run build`. Tests use an isolated in-memory SQLite database with simulated HTTP
 responses; they never contact the real Turso database or publish a real business.
+
+## Private pilot accounts
+
+The EN and PT account routes use Clerk test keys. Without both keys, the
+pages display the account availability notice. Production disables pilot accounts.
+
+1. Create a Clerk development instance. Enable email and password, require
+   email verification at sign-up, and disable passwordless sign-in and social
+   providers for this pilot. Keep password recovery available.
+2. In Vercel, set `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY`
+   from that same instance for Preview on `feature/research-profile-layout-v1`.
+   Keep the secret key server-only. Redeploy the branch after saving the variables.
+3. In a signed-out browser, visit `/pt/conta` and `/en/account`. Each should
+   redirect to its sign-in page. Create a test account, verify its email, sign
+   out, and check that an incorrect password fails and the correct password
+   opens the account. Confirm that signing out blocks direct access again.
+
+Pilot accounts have no staff privileges or restaurant ownership assignments.

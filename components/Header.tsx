@@ -24,6 +24,7 @@ export default function Header() {
       : path.startsWith('/en/restaurants/submit') || path.startsWith('/pt/restaurantes/registar') ? (target === 'pt' ? '/restaurantes/registar' : '/restaurants/submit')
       : path.startsWith('/en/restaurants') || path.startsWith('/pt/restaurantes') ? (target === 'pt' ? '/restaurantes' : '/restaurants')
       : path.startsWith('/en/about') || path.startsWith('/pt/sobre') ? (target === 'pt' ? '/sobre' : '/about')
+      : path === '/en/account' || path === '/pt/conta' ? (target === 'pt' ? '/conta' : '/account')
       : path.startsWith('/en/signin') || path.startsWith('/pt/entrar') ? (target === 'pt' ? '/entrar' : '/signin')
       : path.startsWith('/en/signup') || path.startsWith('/pt/registar') ? (target === 'pt' ? '/registar' : '/signup')
       : path.startsWith('/en/menu-editor') || path.startsWith('/pt/editor-ementa') ? (target === 'pt' ? '/editor-ementa' : '/menu-editor')
