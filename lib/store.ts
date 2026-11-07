@@ -37,11 +37,13 @@ isPremium: boolean;
 export const COUNTRIES = [
   { id: 'AO', pt: 'Angola', en: 'Angola' },
   { id: 'PT', pt: 'Portugal', en: 'Portugal' },
+  { id: 'GB', pt: 'Inglaterra (Reino Unido)', en: 'England (United Kingdom)' },
 ];
 
 export const CUISINES = [
   { id: 'angolan', pt: 'Angolana', en: 'Angolan' },
   { id: 'portuguese', pt: 'Portuguesa', en: 'Portuguese' },
+  { id: 'brazilian', pt: 'Brasileira', en: 'Brazilian' },
   { id: 'seafood', pt: 'Marisco', en: 'Seafood' },
   { id: 'grill', pt: 'Churrascaria', en: 'Grill' },
   { id: 'pizzeria', pt: 'Pizzaria', en: 'Pizzeria' },
@@ -63,6 +65,13 @@ export const CITIES = [
   { id: 'porto', country: 'PT', pt: 'Porto', en: 'Porto' },
   { id: 'coimbra', country: 'PT', pt: 'Coimbra', en: 'Coimbra' },
   { id: 'faro', country: 'PT', pt: 'Faro', en: 'Faro' },
+
+  // England, United Kingdom — initial city coverage for the UK pilot
+  { id: 'manchester', country: 'GB', pt: 'Manchester', en: 'Manchester' },
+  { id: 'oldham', country: 'GB', pt: 'Oldham', en: 'Oldham' },
+  { id: 'london', country: 'GB', pt: 'Londres', en: 'London' },
+  { id: 'birmingham', country: 'GB', pt: 'Birmingham', en: 'Birmingham' },
+  { id: 'liverpool', country: 'GB', pt: 'Liverpool', en: 'Liverpool' },
 ];
 
 // Helper: generate Google Maps link
@@ -104,6 +113,60 @@ export const initialRestaurants: Restaurant[] = [
     phone: '+244 935 200 452',
     hours: 'Segunda a Sábado: 08h00 – 22h00',
     description: 'Comida tradicional angolana. Funge, calulu, peixe grelhado fresco e muito mais. Ambiente familiar.',
+    menuPhotos: [],
+    photos: [],
+    isPremium: false,
+  },
+  {
+    // Fictional Manchester pilot listing — no real business identity or verification implied.
+    id: 'rest-003',
+    ownerId: 'demo',
+    name: 'Sabores de Manchester (Demo)',
+    cuisine: 'portuguese',
+    country: 'GB',
+    city: 'manchester',
+    neighbourhood: 'Manchester',
+    address: '',
+    lat: null,
+    lng: null,
+    status: 'basic',
+    submittedAt: '2026-10-26T00:00:00Z',
+    menuPhotos: [],
+    photos: [],
+    isPremium: false,
+  },
+  {
+    // Fictional Manchester pilot — Angolan cuisine, Basic tier, no real business.
+    id: 'rest-004',
+    ownerId: 'demo',
+    name: 'Sabores de Angola Manchester (Demo)',
+    cuisine: 'angolan',
+    country: 'GB',
+    city: 'manchester',
+    neighbourhood: 'Manchester',
+    address: '',
+    lat: null,
+    lng: null,
+    status: 'basic',
+    submittedAt: '2026-10-26T00:00:00Z',
+    menuPhotos: [],
+    photos: [],
+    isPremium: false,
+  },
+  {
+    // Fictional Manchester pilot — Brazilian cuisine, Basic tier, no real business.
+    id: 'rest-005',
+    ownerId: 'demo',
+    name: 'Sabores do Brasil Manchester (Demo)',
+    cuisine: 'brazilian',
+    country: 'GB',
+    city: 'manchester',
+    neighbourhood: 'Manchester',
+    address: '',
+    lat: null,
+    lng: null,
+    status: 'basic',
+    submittedAt: '2026-10-26T00:00:00Z',
     menuPhotos: [],
     photos: [],
     isPremium: false,
