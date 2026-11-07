@@ -34,7 +34,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
 
 
   return (
-    <div className="bg-[#fafafa] text-[#242424]">
+    <div className="bg-[#f3f2ef] text-[#242424]">
       <article className="page-rail overflow-hidden">
         {/* Mobile: photograph immediately below the header, inside the shared page width. */}
         <section className="sm:hidden" aria-label={pt ? 'Fotografia do restaurante' : 'Restaurant photograph'}>
