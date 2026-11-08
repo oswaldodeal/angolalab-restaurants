@@ -144,16 +144,21 @@ export default function RestaurantRegistration({ language, available }: { langua
               <p className="mt-1 text-xs leading-relaxed text-[#666]">
                 {pt ? 'Exemplo ilustrativo: não representa um negócio real, nem publica produtos.' : 'Illustrative example: not a real business and no products are published.'}
               </p>
-              <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label={pt ? 'Escolher demonstração de perfil' : 'Choose profile demonstration'}>
-                {(['basic', 'verified', 'pro'] as const).map((tier) => (
+              <div className="mt-4 grid gap-2 sm:grid-cols-3" role="group" aria-label={pt ? 'Comparar e explorar perfis' : 'Compare and explore profile tiers'}>
+                {([
+                  { tier: 'basic', label: pt ? 'Básico · Gratuito' : 'Basic · Free', summary: pt ? 'Ficha após análise da equipa, com cidade, cozinha e horário.' : 'Staff-reviewed listing with city, cuisine and opening hours.' },
+                  { tier: 'verified', label: pt ? 'Verificado · Exemplo' : 'Verified · Example', summary: pt ? 'Após verificação do negócio: mais fotografias, morada completa e mapa.' : 'After business verification: more photos, full address and map.' },
+                  { tier: 'pro', label: pt ? 'Pro Verificado · Planeado' : 'Pro Verified · Planned', summary: pt ? 'Domínio próprio e cartão de visita. Ainda indisponível.' : 'Own domain and business card. Still in planning.' },
+                ] as const).map(({ tier, label, summary }) => (
                   <button
                     key={tier}
                     type="button"
                     aria-pressed={previewTier === tier}
                     onClick={() => setPreviewTier(tier)}
-                    className={`rounded-lg border px-4 py-2 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b18a23] ${previewTier === tier ? 'border-[#987515] bg-[#fff0bd] text-[#59430a]' : 'border-[#d9d5c9] bg-white text-[#555] hover:bg-[#fffaf0]'}`}
+                    className={`flex flex-col gap-2 rounded-lg border px-4 py-3 text-left text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b18a23] ${previewTier === tier ? 'border-[#987515] bg-[#fff0bd] text-[#59430a]' : 'border-[#d9d5c9] bg-white text-[#555] hover:bg-[#fffaf0]'}`}
                   >
-                    {tier === 'basic' ? (pt ? 'Básico' : 'Basic') : tier === 'verified' ? (pt ? 'Verificado · Exemplo' : 'Verified · Example') : (pt ? 'Pro Verificado · Planeado' : 'Pro Verified · Planned')}
+                    <span className="font-semibold">{label}</span>
+                    <span className="text-xs leading-relaxed">{summary}</span>
                   </button>
                 ))}
               </div>
