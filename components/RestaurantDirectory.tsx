@@ -45,6 +45,15 @@ export default function RestaurantDirectory({ language, records, unavailable, ve
               ? 'Explore restaurantes por país, cidade e tipo de cozinha.'
               : 'Explore restaurants by country, city and cuisine.'}
           </p>
+          {verifiedOnly && (
+            <Link
+              href={isPt ? '/pt/restaurantes' : '/en/restaurants'}
+              className="mt-4 inline-flex rounded-sm text-sm font-semibold text-emerald-700 underline underline-offset-4 hover:text-emerald-800 focus-visible:outline-2 focus-visible:outline-offset-4"
+            >
+              <span aria-hidden="true" className="mr-2">←</span>
+              {isPt ? 'Explorar todos os restaurantes' : 'Browse all restaurants'}
+            </Link>
+          )}
           <HospitalityVenueNavigation language={language} directory />
         </div>
 
