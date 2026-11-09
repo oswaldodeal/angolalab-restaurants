@@ -163,6 +163,24 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
                     ? (pt ? 'A ementa ainda não foi adicionada.' : 'The menu has not been added yet.')
                     : null}
                 </p>
+                {illustrativePhoto && (
+                  <figure className="mt-5 overflow-hidden rounded-xl border border-[#e9e5db] bg-white">
+                    {/* Bundled sample, displayed only when staff select the demo cover. */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src="/demo/grilled-fish-with-funge.webp"
+                      alt={pt ? 'Peixe grelhado com funge e legumes' : 'Grilled fish with funge and greens'}
+                      loading="lazy"
+                      width={1000}
+                      height={750}
+                      className="h-auto w-full"
+                    />
+                    <figcaption className="px-4 py-3">
+                      <span className="block font-semibold">{pt ? 'Peixe grelhado com funge' : 'Grilled fish with funge'}</span>
+                      <span className="text-sm text-[#555]">{pt ? 'Imagem ilustrativa · Exemplo de prato' : 'Illustrative image · Sample dish'}</span>
+                    </figcaption>
+                  </figure>
+                )}
                 {demoBasicOffers.length > 0 && (
                   <div className="mt-5 space-y-4">
                     <p className="text-sm text-[#6b5b35]">{pt ? 'Exemplos ilustrativos de refeições, preços e períodos. Não são ofertas reais.' : 'Illustrative meals, prices and availability periods. These are not real offers.'}</p>
