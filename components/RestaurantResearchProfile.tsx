@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import HospitalityVenueNavigation from '@/components/HospitalityVenueNavigation';
-import { CITIES, COUNTRIES, CUISINES, getGoogleMapsUrl, type Restaurant } from '@/lib/store';
+import { CITIES, COUNTRIES, CUISINES, SAMPLE_RESTAURANT_COVER, getGoogleMapsUrl, type Restaurant } from '@/lib/store';
 import { demoRestaurantPhoto } from '@/lib/demo-photos';
 import RestaurantMenuPreview from '@/components/RestaurantMenuPreview';
 
@@ -12,8 +12,9 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
   const city = CITIES.find((c) => c.id === restaurant.city)?.[language] ?? restaurant.city;
   const country = COUNTRIES.find((c) => c.id === restaurant.country)?.[language] ?? restaurant.country;
   const cuisine = CUISINES.find((c) => c.id === restaurant.cuisine)?.[language] ?? restaurant.cuisine;
-  const photo = restaurant.ownerId === 'demo' ? demoRestaurantPhoto(restaurant.id) : null;
+  const photo = restaurant.ownerId === 'demo' ? demoRestaurantPhoto(restaurant.id) : restaurant.photos[0];
   const verified = restaurant.status === 'verified';
+  const illustrativePhoto = photo === SAMPLE_RESTAURANT_COVER;
   const isDemo = restaurant.ownerId === 'demo';
   const isPro = verified && !isDemo && restaurant.profilePlan === 'pro';
   const mapPinIcon = (
@@ -56,9 +57,9 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
             {photo && (
               // Temporary illustrative imagery; not a photo of a verified business.
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={photo} alt={pt ? 'Fotografia ilustrativa de restaurante' : 'Illustrative restaurant interior photograph'} className="h-full w-full object-cover" />
+              <img src={photo} alt={isDemo || illustrativePhoto ? (pt ? 'Fotografia ilustrativa de restaurante' : 'Illustrative restaurant photograph') : (pt ? `Fotografia de capa de ${restaurant.name}` : `${restaurant.name} cover photo`)} referrerPolicy="no-referrer" className="h-full w-full object-cover" />
             )}
-            {isDemo && <span className="absolute bottom-4 left-4 right-4 rounded-md bg-[#fff0b0] px-3 py-2 text-center text-xs font-bold text-[#57410c]">
+            {(isDemo || illustrativePhoto) && <span className="absolute bottom-4 left-4 right-4 rounded-md bg-[#fff0b0] px-3 py-2 text-center text-xs font-bold text-[#57410c]">
               AngolaLab Test · {pt ? 'Imagem ilustrativa' : 'Illustrative image'}
             </span>}
           </div>
@@ -79,9 +80,9 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
             {!photo && !isDemo && <div className="flex h-full items-center justify-center px-6 text-center text-sm font-semibold text-white">{pt ? 'Fotografia ainda não adicionada' : 'Photograph not yet added'}</div>}
             {photo && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={photo} alt={pt ? 'Fotografia ilustrativa de restaurante' : 'Illustrative restaurant interior photograph'} className="h-full w-full object-cover" />
+              <img src={photo} alt={isDemo || illustrativePhoto ? (pt ? 'Fotografia ilustrativa de restaurante' : 'Illustrative restaurant photograph') : (pt ? `Fotografia de capa de ${restaurant.name}` : `${restaurant.name} cover photo`)} referrerPolicy="no-referrer" className="h-full w-full object-cover" />
             )}
-            {isDemo && <span className="absolute bottom-6 left-6 rounded-md bg-[#fff0b0] px-4 py-2 text-sm font-bold text-[#57410c]">
+            {(isDemo || illustrativePhoto) && <span className="absolute bottom-6 left-6 rounded-md bg-[#fff0b0] px-4 py-2 text-sm font-bold text-[#57410c]">
               AngolaLab Test · {pt ? 'Imagem ilustrativa' : 'Illustrative image'}
             </span>}
           </div>
@@ -127,11 +128,11 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
                 </div>
               </div>
               <div className="flex flex-wrap gap-3">
-                {isPro && restaurant.touristLabUrl && (
-                  <a href={restaurant.touristLabUrl} className="inline-flex items-center gap-2 rounded-lg border border-[#d9d5c9] px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50">
+                {isPro && (
+                  <Link href={`/findme?lang=${language}&city=${encodeURIComponent(restaurant.city)}`} className="inline-flex items-center gap-2 rounded-lg border border-[#d9d5c9] px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50">
                     {mapPinIcon}
-                    {pt ? 'Encontrar no TouristLab' : 'Find on TouristLab'}
-                  </a>
+                    {pt ? 'Explorar com FindMe' : 'Explore with FindMe'}
+                  </Link>
                 )}
                 <a href={getGoogleMapsUrl(restaurant)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-[#b18a23] px-4 py-2 text-sm font-semibold text-[#75570d] hover:bg-[#fbf7ed]">
                   {mapPinIcon}

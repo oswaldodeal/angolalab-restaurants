@@ -1,3 +1,4 @@
+import { SAMPLE_RESTAURANT_COVER } from '@/lib/store';
 import StaffReviewForm from '@/components/StaffReviewForm';
 import { enableProPlan, publishVerifiedContacts, signOutStaff } from './actions';
 import { redirect } from 'next/navigation';
@@ -41,7 +42,7 @@ export default async function StaffReview({ searchParams }: { searchParams: Prom
         Pilot reviews use one shared staff identity; review notes and timestamps are recorded.
       </p>
       <form action={signOutStaff}><button className="mt-5 rounded-lg border border-[#ded8c5] px-4 py-2">Sign out / Sair</button></form>
-      {result && <p role="status" className="mt-5 rounded-lg bg-[#fffaf0] p-4">{result === 'invalid-touristlab' ? 'Enter a valid HTTPS TouristLab place URL.' : result === 'verified' ? 'Verified profile published / Perfil verificado publicado.' : result === 'invalid-verification' ? 'Enter a valid business address and public phone, record the evidence, and confirm permission to publish.' : result === 'saved' ? 'Decision saved. Directory updated / Decisão guardada.' : result === 'stale' ? 'This record has already been reviewed. No change was made.' : result === 'invalid' ? 'Add a review note of 20–2000 characters. Publication also requires the identity and permission check.' : 'Unable to save. No publication decision was confirmed. Try again later.'}</p>}
+      {result && <p role="status" className="mt-5 rounded-lg bg-[#fffaf0] p-4">{result === 'invalid-cover' ? 'Enter a direct HTTPS image URL for the approved cover photo.' : result === 'verified' ? 'Verified profile published / Perfil verificado publicado.' : result === 'invalid-verification' ? 'Enter a valid business address and public phone, record the evidence, and confirm permission to publish.' : result === 'saved' ? 'Decision saved. Directory updated / Decisão guardada.' : result === 'stale' ? 'This record has already been reviewed. No change was made.' : result === 'invalid' ? 'Add a review note of 20–2000 characters. Publication also requires the identity and permission check.' : 'Unable to save. No publication decision was confirmed. Try again later.'}</p>}
       {submissions.length === 0 ? <p className="mt-8">No submissions yet.</p> :
         <div className="mt-8 space-y-5">{submissions.map((item, index) =>
           <article key={item.id} className="rounded-xl border border-[#ded8c5] p-6">
@@ -87,12 +88,16 @@ export default async function StaffReview({ searchParams }: { searchParams: Prom
               <form action={enableProPlan} className="mt-4 space-y-3">
                 <input type="hidden" name="id" value={item.id} />
                 <label className="block text-sm font-medium">
-                  TouristLab place URL / Ligação do local no TouristLab
-                  <input type="url" name="touristLabUrl" maxLength={2000} defaultValue={item.touristlab_url ?? ''} className="mt-1 w-full rounded border border-[#ded8c5] p-2" />
+                  Cover photo URL / Ligação da fotografia de capa
+                  <input type="url" name="coverPhotoUrl" maxLength={2000} defaultValue={item.cover_photo_url === SAMPLE_RESTAURANT_COVER ? '' : item.cover_photo_url ?? ''} className="mt-1 w-full rounded border border-[#ded8c5] p-2" />
                 </label>
                 <button type="submit" className="rounded-lg bg-[#252a32] px-4 py-2 text-sm font-semibold text-white">
-                  {item.pro_id ? 'Save TouristLab link / Guardar ligação TouristLab' : 'Enable Pro Verified / Ativar Pro Verificado'}
+                  {item.pro_id ? 'Save cover photo / Guardar fotografia de capa' : 'Enable Pro Verified / Ativar Pro Verificado'}
                 </button>
+                <button type="submit" name="sampleCover" value="yes" formNoValidate className="ml-3 rounded-lg border border-[#ded8c5] px-4 py-2 text-sm font-semibold text-emerald-700">
+                  Use sample cover / Usar capa de demonstração
+                </button>
+                {item.cover_photo_url === SAMPLE_RESTAURANT_COVER && <p className="text-sm text-[#555]">Sample cover in use / Capa de demonstração ativa</p>}
               </form>
             )}
             {item.status === 'approved' && <a className="mt-4 inline-block font-semibold text-[#876613]" href={'/en/restaurants/' + item.id}>{item.verified_at ? 'Open Verified profile →' : 'Open Basic profile →'}</a>}

@@ -250,7 +250,7 @@ export default function RestaurantRegistration({ language, available }: { langua
                     <div className="mt-4 rounded-lg border border-dashed border-[#c8b98b] bg-[#fffaf0] p-4">
                       <p className="text-sm font-semibold text-[#76570f]">{pt ? 'Funcionalidades futuras · Ainda não disponíveis' : 'Future features · Not available yet'}</p>
                       <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                        {(pt ? ['Domínio próprio do negócio (planeado)', 'Encontrar no TouristLab (planeado)', 'Cartão de visita digital com ligação ao perfil (planeado)', 'Design de cartão físico com identidade exclusiva do negócio (planeado)', 'Impressão de cartões físicos sob encomenda (planeado; custo separado)'] : ['Business-owned domain (planned)', 'Find on TouristLab (planned)', 'Digital business card linking to the profile (planned)', 'Physical card design using only the business identity (planned)', 'Made-to-order physical printing (planned; separately priced)']).map((item) => (
+                        {(pt ? ['Domínio próprio do negócio (planeado)', 'Cartão de visita digital com ligação ao perfil (planeado)', 'Design de cartão físico com identidade exclusiva do negócio (planeado)', 'Impressão de cartões físicos sob encomenda (planeado; custo separado)'] : ['Business-owned domain (planned)', 'Digital business card linking to the profile (planned)', 'Physical card design using only the business identity (planned)', 'Made-to-order physical printing (planned; separately priced)']).map((item) => (
                           <div key={item} className="rounded-md border border-[#ece8dc] bg-white p-3">{item}</div>
                         ))}
                       </div>

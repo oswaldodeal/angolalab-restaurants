@@ -8,6 +8,14 @@ let preparation: Promise<void> | undefined;
 export async function prepareRestaurantDatabase() {
   if (!preparation) preparation = (async () => {
     for (const statement of restaurantSchema) await executePrivateSql(statement);
+    const columns = sqlRows(await executePrivateSql('PRAGMA table_info(restaurant_pro_plans)'));
+    if (!columns.some(column => column.name === 'cover_photo_url')) {
+      try {
+        await executePrivateSql('ALTER TABLE restaurant_pro_plans ADD COLUMN cover_photo_url TEXT');
+      } catch (error) {
+        if (!(error instanceof Error) || error.message !== 'TURSO_COVER_ALREADY_MIGRATED') throw error;
+      }
+    }
   })().catch(error => { preparation = undefined; throw error; });
   return preparation;
 }
@@ -21,9 +29,8 @@ export function publicRestaurant(row: Record<string, string | null>): Restaurant
     phone: verified ? row.public_phone! : undefined,
     lat: null, lng: null, hours: row.opening_hours ?? undefined,
     status: verified ? 'verified' : 'basic', profilePlan: verified ? (row.pro_id ? 'pro' : 'verified') : 'basic',
-    touristLabUrl: verified && row.pro_id ? row.touristlab_url ?? undefined : undefined,
     verifiedAt: verified ? row.verified_at! : undefined, submittedAt: row.published_at!,
-    photos: [], menuPhotos: [], isPremium: false,
+    photos: verified && row.pro_id && row.cover_photo_url ? [row.cover_photo_url] : [], menuPhotos: [], isPremium: false,
   };
 }
 
@@ -35,8 +42,13 @@ async function readListings(id?: string) {
   const verifiedColumns = `${columns},v.public_address,v.public_phone,v.verified_at`;
   try {
     try {
-      return await executePrivateSql(`SELECT ${verifiedColumns},p.id AS pro_id,p.touristlab_url
-        ${verifiedListings} LEFT JOIN restaurant_pro_plans p ON p.id = v.id ${tail}`, args);
+      const proListings = `${verifiedListings} LEFT JOIN restaurant_pro_plans p ON p.id = v.id ${tail}`;
+      try {
+        return await executePrivateSql(`SELECT ${verifiedColumns},p.id AS pro_id,p.cover_photo_url ${proListings}`, args);
+      } catch (error) {
+        if (!(error instanceof Error) || error.message !== 'TURSO_COVER_NOT_MIGRATED') throw error;
+        return await executePrivateSql(`SELECT ${verifiedColumns},p.id AS pro_id ${proListings}`, args);
+      }
     } catch (error) {
       if (!(error instanceof Error) || error.message !== 'TURSO_PRO_PLANS_NOT_MIGRATED') throw error;
       return await executePrivateSql(`SELECT ${verifiedColumns} ${verifiedListings} ${tail}`, args);

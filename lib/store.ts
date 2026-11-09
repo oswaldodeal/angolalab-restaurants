@@ -1,3 +1,5 @@
+export const SAMPLE_RESTAURANT_COVER = '/demo/luanda-restaurant-cover.webp';
+
 export type Restaurant = {
   id: string;
   ownerId: string;
@@ -29,7 +31,6 @@ verifiedAt?: string;
 
 // Website profile plan
 profilePlan?: 'basic' | 'verified' | 'pro';
-touristLabUrl?: string;
 
 // Legacy field — retained during migration
 isPremium: boolean;
