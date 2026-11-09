@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import HospitalityVenueNavigation from '@/components/HospitalityVenueNavigation';
 import { CITIES, COUNTRIES, CUISINES, getGoogleMapsUrl, type Restaurant } from '@/lib/store';
 import { demoRestaurantPhoto } from '@/lib/demo-photos';
@@ -211,7 +212,15 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
                   {isDemo
                     ? (pt ? 'Demonstração · Sem verificação real' : 'Demo · Not actually verified')
                     : verified
-                      ? (pt ? 'Perfil verificado' : 'Verified profile')
+                      ? (
+                        <Link
+                          href={pt ? '/pt/restaurantes?verified=1' : '/en/restaurants?verified=1'}
+                          aria-label={pt ? 'Perfil verificado. Ver todos os restaurantes verificados' : 'Verified profile. Browse all verified restaurants'}
+                          className="rounded-sm underline underline-offset-4 hover:text-emerald-800 focus-visible:outline-2 focus-visible:outline-offset-4"
+                        >
+                          {pt ? 'Perfil verificado' : 'Verified profile'}
+                        </Link>
+                      )
                       : (pt ? 'Perfil básico / em análise' : 'Basic / under review')}
                 </p>
               </section>

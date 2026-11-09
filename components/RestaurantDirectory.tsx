@@ -9,7 +9,7 @@ import HospitalityVenueNavigation from '@/components/HospitalityVenueNavigation'
 
 type Language = 'pt' | 'en';
 
-export default function RestaurantDirectory({ language, records, unavailable }: { language: Language; records: Restaurant[]; unavailable: boolean }) {
+export default function RestaurantDirectory({ language, records, unavailable, verifiedOnly }: { language: Language; records: Restaurant[]; unavailable: boolean; verifiedOnly: boolean }) {
   const [country, setCountry] = useState('');
   const [city, setCity] = useState('');
   const [cuisine, setCuisine] = useState('');
@@ -22,11 +22,12 @@ export default function RestaurantDirectory({ language, records, unavailable }: 
   );
   const restaurants = useMemo(
     () => records.filter((item) =>
+      (!verifiedOnly || (item.status === 'verified' && item.ownerId !== 'demo')) &&
       (!country || item.country === country) &&
       (!city || item.city === city) &&
       (!cuisine || item.cuisine === cuisine)
     ),
-    [records, country, city, cuisine]
+    [records, country, city, cuisine, verifiedOnly]
   );
 
   return (
@@ -37,7 +38,7 @@ export default function RestaurantDirectory({ language, records, unavailable }: 
             {isPt ? 'AngolaLab · Rede de Restaurantes' : 'AngolaLab · Restaurant Network'}
           </p>
           <h1 className="mb-3 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
-            {t.home.browseRestaurants}
+            {verifiedOnly ? (isPt ? 'Restaurantes verificados' : 'Verified restaurants') : t.home.browseRestaurants}
           </h1>
           <p className="max-w-2xl text-base leading-relaxed text-[#535353] sm:text-lg">
             {isPt
@@ -107,10 +108,14 @@ export default function RestaurantDirectory({ language, records, unavailable }: 
           </div>
         </section>
 
-        {unavailable && <p role="status" className="mb-6 rounded-lg border border-[#ded8c5] bg-[#fffaf0] p-4 text-sm">{isPt ? 'Registos de negócios temporariamente indisponíveis. Apenas demonstrações são apresentadas.' : 'Business listings are temporarily unavailable. Only demonstrations are shown.'}</p>}
+        {unavailable && <p role="status" className="mb-6 rounded-lg border border-[#ded8c5] bg-[#fffaf0] p-4 text-sm">{verifiedOnly
+          ? (isPt ? 'Registos verificados temporariamente indisponíveis.' : 'Verified listings are temporarily unavailable.')
+          : (isPt ? 'Registos de negócios temporariamente indisponíveis. Apenas demonstrações são apresentadas.' : 'Business listings are temporarily unavailable. Only demonstrations are shown.')}</p>}
         <section aria-label={isPt ? 'Resultados de restaurantes' : 'Restaurant results'}>
           <h2 className="mb-6 text-xl font-semibold text-[#987515]">
-            {isPt ? '02 · Perfis de restaurantes' : '02 · Restaurant profiles'}
+            {verifiedOnly
+              ? (isPt ? '02 · Perfis verificados' : '02 · Verified profiles')
+              : (isPt ? '02 · Perfis de restaurantes' : '02 · Restaurant profiles')}
           </h2>
 
           {restaurants.length === 0 ? (
