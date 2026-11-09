@@ -15,6 +15,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
   const photo = restaurant.ownerId === 'demo' ? demoRestaurantPhoto(restaurant.id) : null;
   const verified = restaurant.status === 'verified';
   const isDemo = restaurant.ownerId === 'demo';
+  const isPro = verified && !isDemo && restaurant.profilePlan === 'pro';
   const mapPinIcon = (
     <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4 shrink-0">
       <path d="M20 10c0 6-8 11-8 11S4 16 4 10a8 8 0 1 1 16 0Z" />
@@ -22,7 +23,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
     </svg>
   );
   const phoneIcon = (
-    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4 shrink-0">
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`size-4 shrink-0 ${isPro ? 'text-[#b38a24]' : ''}`}>
       <path d="M7 3H4a1 1 0 0 0-1 1c0 9.4 7.6 17 17 17a1 1 0 0 0 1-1v-3l-5-2-1.5 2a14 14 0 0 1-7.5-7.5L9 8 7 3Z" />
     </svg>
   );
@@ -126,6 +127,12 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
                 </div>
               </div>
               <div className="flex flex-wrap gap-3">
+                {isPro && restaurant.touristLabUrl && (
+                  <a href={restaurant.touristLabUrl} className="inline-flex items-center gap-2 rounded-lg border border-[#d9d5c9] px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50">
+                    {mapPinIcon}
+                    {pt ? 'Encontrar no TouristLab' : 'Find on TouristLab'}
+                  </a>
+                )}
                 <a href={getGoogleMapsUrl(restaurant)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-[#b18a23] px-4 py-2 text-sm font-semibold text-[#75570d] hover:bg-[#fbf7ed]">
                   {mapPinIcon}
                   {pt ? 'Ver no mapa' : 'View map'}
@@ -215,10 +222,10 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
                       ? (
                         <Link
                           href={pt ? '/pt/restaurantes?verified=1' : '/en/restaurants?verified=1'}
-                          aria-label={pt ? 'Perfil verificado. Ver todos os restaurantes verificados' : 'Verified profile. Browse all verified restaurants'}
+                          aria-label={pt ? `${isPro ? 'Pro Verificado' : 'Perfil verificado'}. Ver todos os restaurantes verificados` : `${isPro ? 'Pro Verified' : 'Verified profile'}. Browse all verified restaurants`}
                           className="rounded-sm underline underline-offset-4 hover:text-emerald-800 focus-visible:outline-2 focus-visible:outline-offset-4"
                         >
-                          {pt ? 'Perfil verificado' : 'Verified profile'}
+                          {isPro ? (pt ? 'Pro Verificado' : 'Pro Verified') : (pt ? 'Perfil verificado' : 'Verified profile')}
                         </Link>
                       )
                       : (pt ? 'Perfil básico / em análise' : 'Basic / under review')}

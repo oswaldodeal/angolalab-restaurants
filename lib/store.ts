@@ -29,6 +29,7 @@ verifiedAt?: string;
 
 // Website profile plan
 profilePlan?: 'basic' | 'verified' | 'pro';
+touristLabUrl?: string;
 
 // Legacy field — retained during migration
 isPremium: boolean;

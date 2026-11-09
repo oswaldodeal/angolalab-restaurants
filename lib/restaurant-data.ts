@@ -20,7 +20,8 @@ export function publicRestaurant(row: Record<string, string | null>): Restaurant
     city: row.city!, cuisine: row.cuisine!, neighbourhood: '', address: verified ? row.public_address! : '',
     phone: verified ? row.public_phone! : undefined,
     lat: null, lng: null, hours: row.opening_hours ?? undefined,
-    status: verified ? 'verified' : 'basic', profilePlan: verified ? 'verified' : 'basic',
+    status: verified ? 'verified' : 'basic', profilePlan: verified ? (row.pro_id ? 'pro' : 'verified') : 'basic',
+    touristLabUrl: verified && row.pro_id ? row.touristlab_url ?? undefined : undefined,
     verifiedAt: verified ? row.verified_at! : undefined, submittedAt: row.published_at!,
     photos: [], menuPhotos: [], isPremium: false,
   };
@@ -30,11 +31,17 @@ async function readListings(id?: string) {
   const columns = 'l.id,l.name,l.country,l.city,l.cuisine,l.opening_hours,l.published_at';
   const tail = id === undefined ? 'ORDER BY l.published_at DESC' : 'WHERE l.id = ?';
   const args = id === undefined ? [] : [id];
+  const verifiedListings = `FROM restaurant_listings l LEFT JOIN restaurant_verified_contacts v ON v.id = l.id`;
+  const verifiedColumns = `${columns},v.public_address,v.public_phone,v.verified_at`;
   try {
-    return await executePrivateSql(`SELECT ${columns},v.public_address,v.public_phone,v.verified_at
-      FROM restaurant_listings l LEFT JOIN restaurant_verified_contacts v ON v.id = l.id ${tail}`, args);
+    try {
+      return await executePrivateSql(`SELECT ${verifiedColumns},p.id AS pro_id,p.touristlab_url
+        ${verifiedListings} LEFT JOIN restaurant_pro_plans p ON p.id = v.id ${tail}`, args);
+    } catch (error) {
+      if (!(error instanceof Error) || error.message !== 'TURSO_PRO_PLANS_NOT_MIGRATED') throw error;
+      return await executePrivateSql(`SELECT ${verifiedColumns} ${verifiedListings} ${tail}`, args);
+    }
   } catch (error) {
-    // Before the first staff visit prepares the new table, old listings remain Basic.
     if (!(error instanceof Error) || error.message !== 'TURSO_VERIFIED_CONTACTS_NOT_MIGRATED') throw error;
     return executePrivateSql(`SELECT ${columns} FROM restaurant_listings l ${tail}`, args);
   }

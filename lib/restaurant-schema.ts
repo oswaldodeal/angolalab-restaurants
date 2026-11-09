@@ -33,6 +33,15 @@ export const restaurantSchema = [
     public_address TEXT NOT NULL, public_phone TEXT NOT NULL,
     note TEXT NOT NULL, reviewer TEXT NOT NULL, verified_at TEXT NOT NULL
   )`,
+  `CREATE TABLE IF NOT EXISTS restaurant_pro_plans (
+    id TEXT PRIMARY KEY REFERENCES restaurant_verified_contacts(id),
+    activated_at TEXT NOT NULL, touristlab_url TEXT
+  )`,
+  `CREATE TRIGGER IF NOT EXISTS restaurant_remove_pro_plan
+    BEFORE DELETE ON restaurant_verified_contacts
+    BEGIN
+      DELETE FROM restaurant_pro_plans WHERE id = OLD.id;
+    END`,
   `CREATE TRIGGER IF NOT EXISTS restaurant_audit_verification
     AFTER INSERT ON restaurant_verified_contacts
     BEGIN

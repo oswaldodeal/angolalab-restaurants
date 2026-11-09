@@ -69,3 +69,33 @@ export async function publishVerifiedContacts(form: FormData) {
   revalidatePath('/pt/restaurantes', 'layout');
   redirect('/staff/review?result=' + result);
 }
+
+export async function enableProPlan(form: FormData) {
+  if (!(await staffAuthorized())) redirect('/staff/review/login');
+  const id = String(form.get('id') ?? '');
+  if (!/^[a-zA-Z0-9-]{1,100}$/.test(id)) redirect('/staff/review?result=invalid');
+  const touristLabUrl = String(form.get('touristLabUrl') ?? '').trim();
+  if (touristLabUrl) {
+    try {
+      const url = new URL(touristLabUrl);
+      if (url.protocol !== 'https:' || url.username || url.password || touristLabUrl.length > 2000) throw new Error();
+    } catch {
+      redirect('/staff/review?result=invalid-touristlab');
+    }
+  }
+  let result = 'saved';
+  try {
+    await prepareRestaurantDatabase();
+    const updated = await executePrivateSql(`INSERT INTO restaurant_pro_plans (id,activated_at,touristlab_url)
+      SELECT v.id,?,? FROM restaurant_verified_contacts v
+      JOIN restaurant_listings l ON l.id = v.id
+      JOIN restaurant_intake i ON i.id = v.id
+      WHERE v.id = ? AND i.status = 'approved' ON CONFLICT(id) DO UPDATE SET touristlab_url = excluded.touristlab_url`,
+    [new Date().toISOString(), touristLabUrl || null, id]);
+    if (Number(updated.affected_row_count) !== 1) result = 'stale';
+  } catch { result = 'unavailable'; }
+  revalidatePath('/staff/review');
+  revalidatePath('/en/restaurants', 'layout');
+  revalidatePath('/pt/restaurantes', 'layout');
+  redirect('/staff/review?result=' + result);
+}

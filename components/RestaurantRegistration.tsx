@@ -209,7 +209,7 @@ export default function RestaurantRegistration({ language, available }: { langua
                   </div>
                   {previewTier === 'pro' && (
                     <section className="mt-4 rounded-lg border border-[#ded8c5] bg-[#faf9f6] p-4">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-[#fff0bd] px-3 py-1 text-xs font-semibold text-[#76570f]">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
                         <span aria-hidden="true">✓</span> {pt ? 'Pro Verificado · Exemplo' : 'Pro Verified · Example'}
                       </span>
                       <h4 className="mt-3 font-semibold">{pt ? 'Galeria do restaurante' : 'Restaurant gallery'}</h4>
