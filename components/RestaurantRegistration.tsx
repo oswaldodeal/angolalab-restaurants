@@ -6,6 +6,19 @@ import HospitalityVenueNavigation from '@/components/HospitalityVenueNavigation'
 import { CITIES, COUNTRIES, CUISINES } from '@/lib/store';
 import { BUSINESS_TYPES, BASIC_PROFILE_LIMITS, BASIC_PROFILE_EXAMPLES, basicProfileItemCount, type BusinessType } from '@/lib/business-types';
 
+const photoTypes = ['image/jpeg', 'image/png', 'image/webp'];
+const photoLimit = 6;
+const photoSizeLimit = 5 * 1024 * 1024;
+
+function readPhoto(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
+
 type Language = 'pt' | 'en';
 type Fields = {
   ownerName: string;
@@ -29,12 +42,33 @@ export default function RestaurantRegistration({ language, available }: { langua
   const [form, setForm] = useState<Fields>(empty);
   const [businessType, setBusinessType] = useState<BusinessType>('restaurant');
   const [previewTier, setPreviewTier] = useState<'basic' | 'verified' | 'pro'>('basic');
+  const [proPhotos, setProPhotos] = useState<string[]>([]);
+  const [photoError, setPhotoError] = useState('');
+  const [readingPhotos, setReadingPhotos] = useState(false);
   const [cardPublishedPreview, setCardPublishedPreview] = useState(false);
   const [sampleCardType, setSampleCardType] = useState<'business' | 'personal'>('business');
   const [businessVerifiedDemo, setBusinessVerifiedDemo] = useState(false);
   const [saving, setSaving] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  async function addProPhotos(files: File[]) {
+    setPhotoError('');
+    if (files.length === 0) return;
+    if (files.length + proPhotos.length > photoLimit || files.some((file) => !photoTypes.includes(file.type) || file.size > photoSizeLimit)) {
+      setPhotoError(pt ? 'Escolha até seis fotografias JPG, PNG ou WebP, com até 5 MB por ficheiro.' : 'Choose up to six JPG, PNG or WebP photos, up to 5 MB each.');
+      return;
+    }
+    setReadingPhotos(true);
+    try {
+      const photos = await Promise.all(files.map(readPhoto));
+      setProPhotos((previous) => [...previous, ...photos]);
+    } catch {
+      setPhotoError(pt ? 'Não foi possível ler as fotografias.' : 'Could not read the selected photos.');
+    } finally {
+      setReadingPhotos(false);
+    }
+  }
+
   const update = (name: keyof Fields, value: string) => setForm((previous) => ({
     ...previous,
     [name]: value,
@@ -139,7 +173,7 @@ export default function RestaurantRegistration({ language, available }: { langua
                 {pt ? 'Brick 010E · Pré-visualização adaptável' : 'Brick 010E · Adaptive profile preview'}
               </p>
               <h3 className="mt-2 text-lg font-semibold">
-                {BUSINESS_TYPES.find((type) => type.id === businessType)?.[language]} · {previewTier === 'basic' ? (pt ? 'Perfil Básico' : 'Basic Profile') : previewTier === 'verified' ? (pt ? 'Perfil Verificado (exemplo)' : 'Verified Profile (example)') : (pt ? 'Pro Verificado (planeado)' : 'Pro Verified (planned)')}
+                {BUSINESS_TYPES.find((type) => type.id === businessType)?.[language]} · {previewTier === 'basic' ? (pt ? 'Perfil Básico' : 'Basic Profile') : previewTier === 'verified' ? (pt ? 'Perfil Verificado (exemplo)' : 'Verified Profile (example)') : (pt ? 'Pro Verificado (exemplo)' : 'Pro Verified (example)')}
               </h3>
               <p className="mt-1 text-xs leading-relaxed text-[#666]">
                 {pt ? 'Exemplo ilustrativo: não representa um negócio real, nem publica produtos.' : 'Illustrative example: not a real business and no products are published.'}
@@ -148,7 +182,7 @@ export default function RestaurantRegistration({ language, available }: { langua
                 {([
                   { tier: 'basic', label: pt ? 'Básico · Gratuito' : 'Basic · Free', summary: pt ? 'Ficha após análise da equipa, com cidade, cozinha e horário.' : 'Staff-reviewed listing with city, cuisine and opening hours.' },
                   { tier: 'verified', label: pt ? 'Verificado · Exemplo' : 'Verified · Example', summary: pt ? 'Após verificação do negócio: mais fotografias, morada completa e mapa.' : 'After business verification: more photos, full address and map.' },
-                  { tier: 'pro', label: pt ? 'Pro Verificado · Planeado' : 'Pro Verified · Planned', summary: pt ? 'Domínio próprio e cartão de visita. Ainda indisponível.' : 'Own domain and business card. Still in planning.' },
+                  { tier: 'pro', label: pt ? 'Pro Verificado · Exemplo' : 'Pro Verified · Example', summary: pt ? 'Experimente a galeria. Domínio próprio e cartão de visita estão planeados.' : 'Try the photo gallery. A custom domain and business card are planned.' },
                 ] as const).map(({ tier, label, summary }) => (
                   <button
                     key={tier}
@@ -174,10 +208,49 @@ export default function RestaurantRegistration({ language, available }: { langua
                     ))}
                   </div>
                   {previewTier === 'pro' && (
+                    <section className="mt-4 rounded-lg border border-[#ded8c5] bg-[#faf9f6] p-4">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-[#fff0bd] px-3 py-1 text-xs font-semibold text-[#76570f]">
+                        <span aria-hidden="true">✓</span> {pt ? 'Pro Verificado · Exemplo' : 'Pro Verified · Example'}
+                      </span>
+                      <h4 className="mt-3 font-semibold">{pt ? 'Galeria do restaurante' : 'Restaurant gallery'}</h4>
+                      <p className="mt-1 text-xs text-[#555]">{pt ? 'As fotografias ficam nesta pré-visualização, no seu navegador. A primeira é a fotografia de capa.' : 'Photos stay in this preview in your browser. The first photo is the cover.'}</p>
+                      <label className="mt-3 block text-sm font-medium">
+                        {pt ? 'Adicionar fotografias' : 'Add photos'} ({proPhotos.length}/{photoLimit})
+                        <input
+                          type="file"
+                          accept={photoTypes.join(',')}
+                          multiple
+                          disabled={readingPhotos || proPhotos.length >= photoLimit}
+                          className="mt-2 block w-full text-xs file:mr-3 file:rounded-md file:border-0 file:bg-[#fff0bd] file:px-3 file:py-2 file:font-semibold file:text-[#59430a] disabled:opacity-50"
+                          onChange={(event) => {
+                            const files = Array.from(event.currentTarget.files ?? []);
+                            event.currentTarget.value = '';
+                            void addProPhotos(files);
+                          }}
+                        />
+                      </label>
+                      {photoError && <p role="alert" className="mt-2 text-xs text-red-700">{photoError}</p>}
+                      {proPhotos.length > 0 && (
+                        <ul className="mt-4 grid gap-3 sm:grid-cols-3">
+                          {proPhotos.map((src, index) => (
+                            <li key={index} className={index === 0 ? 'sm:col-span-3' : undefined}>
+                              {/* Local browser preview of a user-selected file. */}
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={src} alt={pt ? `Fotografia ${index + 1} da galeria` : `Gallery photo ${index + 1}`} className={`w-full rounded-lg object-cover ${index === 0 ? 'aspect-video' : 'aspect-[4/3]'}`} />
+                              <button type="button" className="mt-1 text-xs underline underline-offset-2" onClick={() => setProPhotos((previous) => previous.filter((_, photoIndex) => photoIndex !== index))}>
+                                {pt ? `Remover fotografia ${index + 1}` : `Remove photo ${index + 1}`}
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </section>
+                  )}
+                  {previewTier === 'pro' && (
                     <div className="mt-4 rounded-lg border border-dashed border-[#c8b98b] bg-[#fffaf0] p-4">
                       <p className="text-sm font-semibold text-[#76570f]">{pt ? 'Funcionalidades futuras · Ainda não disponíveis' : 'Future features · Not available yet'}</p>
                       <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                        {(pt ? ['Domínio próprio do negócio (planeado)', 'Cartão de visita digital com ligação ao perfil (planeado)', 'Design de cartão físico com identidade exclusiva do negócio (planeado)', 'Impressão de cartões físicos sob encomenda (planeado; custo separado)'] : ['Business-owned domain (planned)', 'Digital business card linking to the profile (planned)', 'Physical card design using only the business identity (planned)', 'Made-to-order physical printing (planned; separately priced)']).map((item) => (
+                        {(pt ? ['Domínio próprio do negócio (planeado)', 'Encontrar no TouristLab (planeado)', 'Cartão de visita digital com ligação ao perfil (planeado)', 'Design de cartão físico com identidade exclusiva do negócio (planeado)', 'Impressão de cartões físicos sob encomenda (planeado; custo separado)'] : ['Business-owned domain (planned)', 'Find on TouristLab (planned)', 'Digital business card linking to the profile (planned)', 'Physical card design using only the business identity (planned)', 'Made-to-order physical printing (planned; separately priced)']).map((item) => (
                           <div key={item} className="rounded-md border border-[#ece8dc] bg-white p-3">{item}</div>
                         ))}
                       </div>
