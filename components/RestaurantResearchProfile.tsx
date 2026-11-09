@@ -93,7 +93,13 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
           {verified && !isDemo && restaurant.address && (
             <section className="mb-7 flex flex-wrap items-center justify-between gap-5 rounded-xl border border-[#e9e5db] bg-[#fffdf8] p-5 sm:p-6">
               <div className="min-w-0">
-                <h2 className="text-lg font-semibold">{pt ? 'Morada e contacto público' : 'Address and public contact'}</h2>
+                <h2 className="flex items-center gap-2 text-lg font-semibold">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5 shrink-0 text-[#866415]">
+                    <path fill="currentColor" d="m12 1 3 2.2 3.7.2 1.4 3.4 2.9 2.3-1 3.6.4 3.7-3.2 1.8-2 3.1-3.6-.6L12 23l-3.4-2.3-3.6.6-2-3.1-3-1.8.4-3.7L0 9.1l2.9-2.3 1.4-3.4 3.7-.2L12 1Z" />
+                    <path d="m7.5 12 3 3 6-6" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <span>{pt ? 'Morada e contacto público' : 'Address and public contact'}</span>
+                </h2>
                 <p className="mt-2 break-words text-sm text-[#555]">{restaurant.address}</p>
                 {restaurant.phone && (
                   <p className="mt-1 text-sm text-[#555]">{pt ? 'Telefone público' : 'Public phone'}: {restaurant.phone}</p>
