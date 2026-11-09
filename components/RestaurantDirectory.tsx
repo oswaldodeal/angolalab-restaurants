@@ -154,7 +154,7 @@ export default function RestaurantDirectory({ language, records, unavailable }: 
                           />
                         ) : restaurant.ownerId !== 'demo' ? <div className="flex h-full items-center justify-center px-5 text-center text-sm font-semibold text-white">{isPt ? 'Fotografia ainda não adicionada' : 'Photograph not yet added'}</div> : null}
                         <span className="absolute left-4 top-4 rounded-md bg-[#fff0b0] px-3 py-1 text-xs font-bold text-[#57410c]">
-                          {restaurant.ownerId === 'demo' ? (isPt ? 'AngolaLab Test · Demonstração' : 'AngolaLab Test · Demo') : (isPt ? 'Básico · Sem verificação' : 'Basic · Not verified')}
+                          {restaurant.ownerId === 'demo' ? (isPt ? 'AngolaLab Test · Demonstração' : 'AngolaLab Test · Demo') : restaurant.status === 'verified' ? (isPt ? 'Perfil verificado' : 'Verified profile') : (isPt ? 'Básico · Sem verificação' : 'Basic · Not verified')}
                         </span>
                       </div>
                       <div className="p-5">
@@ -164,7 +164,7 @@ export default function RestaurantDirectory({ language, records, unavailable }: 
                       </div>
                     </Link>
                     <div className="border-t border-[#ece8dc] px-5 py-4">
-                      <p className="text-xs text-[#666]">{restaurant.ownerId === 'demo' ? (isPt ? 'Perfil de demonstração — não é um negócio verificado.' : 'Demonstration profile — not a verified business.') : (isPt ? 'Registo Básico analisado pela equipa. Verificação do negócio ainda não concluída.' : 'Staff-reviewed Basic listing. Business verification is not complete.')}</p>
+                      <p className="text-xs text-[#666]">{restaurant.ownerId === 'demo' ? (isPt ? 'Perfil de demonstração — não é um negócio verificado.' : 'Demonstration profile — not a verified business.') : restaurant.status === 'verified' ? (isPt ? 'Morada e telefone públicos aprovados pela equipa.' : 'Staff-approved public address and phone.') : (isPt ? 'Registo Básico analisado pela equipa. Verificação do negócio ainda não concluída.' : 'Staff-reviewed Basic listing. Business verification is not complete.')}</p>
                     </div>
                   </article>
                 );

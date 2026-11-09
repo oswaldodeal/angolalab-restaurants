@@ -24,6 +24,7 @@ export async function executePrivateSql(sql: string, values: Array<string | null
   if (first?.type !== 'ok' || !first.response?.result) {
     const detail = first?.error?.message ?? '';
     if (/readonly|read.only|not authorized|SQLITE_AUTH/i.test(detail)) throw new Error('TURSO_WRITE_DENIED');
+    if (/no such table:\s*(?:main\.)?restaurant_verified_contacts\b/i.test(detail)) throw new Error('TURSO_VERIFIED_CONTACTS_NOT_MIGRATED');
     if (/no such column|has no column/i.test(detail)) throw new Error('TURSO_SCHEMA_MISMATCH');
     throw new Error('TURSO_QUERY_FAILED');
   }

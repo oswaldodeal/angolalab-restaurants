@@ -28,6 +28,22 @@ export const restaurantSchema = [
     from_status TEXT NOT NULL, to_status TEXT NOT NULL,
     note TEXT NOT NULL, reviewer TEXT NOT NULL, reviewed_at TEXT NOT NULL
   )`,
+  `CREATE TABLE IF NOT EXISTS restaurant_verified_contacts (
+    id TEXT PRIMARY KEY REFERENCES restaurant_listings(id),
+    public_address TEXT NOT NULL, public_phone TEXT NOT NULL,
+    note TEXT NOT NULL, reviewer TEXT NOT NULL, verified_at TEXT NOT NULL
+  )`,
+  `CREATE TRIGGER IF NOT EXISTS restaurant_audit_verification
+    AFTER INSERT ON restaurant_verified_contacts
+    BEGIN
+      INSERT INTO restaurant_review_history (submission_id,from_status,to_status,note,reviewer,reviewed_at)
+      VALUES (NEW.id,'basic','verified',NEW.note,NEW.reviewer,NEW.verified_at);
+    END`,
+  `CREATE TRIGGER IF NOT EXISTS restaurant_remove_verified_contacts
+    BEFORE DELETE ON restaurant_listings
+    BEGIN
+      DELETE FROM restaurant_verified_contacts WHERE id = OLD.id;
+    END`,
   `CREATE TRIGGER IF NOT EXISTS restaurant_publish_basic
     AFTER UPDATE OF status ON restaurant_intake
     WHEN OLD.status != NEW.status AND NEW.status = 'approved'

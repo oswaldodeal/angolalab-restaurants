@@ -1,5 +1,5 @@
 import StaffReviewForm from '@/components/StaffReviewForm';
-import { signOutStaff } from './actions';
+import { publishVerifiedContacts, signOutStaff } from './actions';
 import { redirect } from 'next/navigation';
 import { staffAuthorized } from '@/lib/staff-auth';
 import { getStaffSubmissions } from '@/lib/staff-submissions';
@@ -41,7 +41,7 @@ export default async function StaffReview({ searchParams }: { searchParams: Prom
         Pilot reviews use one shared staff identity; review notes and timestamps are recorded.
       </p>
       <form action={signOutStaff}><button className="mt-5 rounded-lg border border-[#ded8c5] px-4 py-2">Sign out / Sair</button></form>
-      {result && <p role="status" className="mt-5 rounded-lg bg-[#fffaf0] p-4">{result === 'saved' ? 'Decision saved. Directory updated / Decisão guardada.' : result === 'stale' ? 'This record has already been reviewed. No change was made.' : result === 'invalid' ? 'Add a review note of 20–2000 characters. Publication also requires the identity and permission check.' : 'Unable to save. No publication decision was confirmed. Try again later.'}</p>}
+      {result && <p role="status" className="mt-5 rounded-lg bg-[#fffaf0] p-4">{result === 'verified' ? 'Verified profile published / Perfil verificado publicado.' : result === 'invalid-verification' ? 'Enter a valid business address and public phone, record the evidence, and confirm permission to publish.' : result === 'saved' ? 'Decision saved. Directory updated / Decisão guardada.' : result === 'stale' ? 'This record has already been reviewed. No change was made.' : result === 'invalid' ? 'Add a review note of 20–2000 characters. Publication also requires the identity and permission check.' : 'Unable to save. No publication decision was confirmed. Try again later.'}</p>}
       {submissions.length === 0 ? <p className="mt-8">No submissions yet.</p> :
         <div className="mt-8 space-y-5">{submissions.map((item, index) =>
           <article key={item.id} className="rounded-xl border border-[#ded8c5] p-6">
@@ -59,7 +59,31 @@ export default async function StaffReview({ searchParams }: { searchParams: Prom
             </div>
             {item.review_note && <p className="mt-4 rounded-lg bg-[#fffaf0] p-4 text-sm">Latest review: {item.review_note} · {item.reviewed_by} · {item.reviewed_at}</p>}
             {(item.status === 'pending' || item.status === 'approved') && <StaffReviewForm id={item.id} published={item.status === 'approved'} />}
-            {item.status === 'approved' && <a className="mt-4 inline-block font-semibold text-[#876613]" href={'/en/restaurants/' + item.id}>Open Basic profile →</a>}
+            {item.status === 'approved' && !item.verified_at && (
+              <form action={publishVerifiedContacts} className="mt-6 space-y-4 rounded-lg border border-[#ded8c5] bg-[#fffaf0] p-4">
+                <h3 className="font-semibold">Publish Verified profile / Publicar perfil verificado</h3>
+                <p className="text-sm text-[#555]">Enter the business details approved for publication. Owner contacts above are private.</p>
+                <input type="hidden" name="id" value={item.id} />
+                <label className="block text-sm font-medium">
+                  Public business address / Morada pública
+                  <input name="publicAddress" required minLength={5} maxLength={300} className="mt-1 w-full rounded border border-[#ded8c5] bg-white p-2" />
+                </label>
+                <label className="block text-sm font-medium">
+                  Public business phone / Telefone público
+                  <input name="publicPhone" type="tel" required maxLength={35} className="mt-1 w-full rounded border border-[#ded8c5] bg-white p-2" />
+                </label>
+                <label className="block text-sm font-medium">
+                  Verification evidence / Evidência de verificação
+                  <textarea name="evidenceNote" required minLength={20} maxLength={2000} className="mt-1 w-full rounded border border-[#ded8c5] bg-white p-2" />
+                </label>
+                <label className="flex items-start gap-2 text-sm">
+                  <input type="checkbox" name="verifiedConsent" required className="mt-1" />
+                  <span>I checked the business evidence and have permission to publish this address and phone number.</span>
+                </label>
+                <button type="submit" className="rounded-lg bg-[#252a32] px-4 py-3 font-semibold text-white">Publish Verified / Publicar verificado</button>
+              </form>
+            )}
+            {item.status === 'approved' && <a className="mt-4 inline-block font-semibold text-[#876613]" href={'/en/restaurants/' + item.id}>{item.verified_at ? 'Open Verified profile →' : 'Open Basic profile →'}</a>}
           </article>)}</div>}
     </div>
   </main>;

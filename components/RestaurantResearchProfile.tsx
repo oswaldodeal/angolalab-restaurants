@@ -75,7 +75,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
         </section>
 
         <div className="pb-12 pt-7 sm:pt-8">
-          {!isDemo && <p className="mb-7 border-l-4 border-[#D2AC37] bg-[#fbf7ed] p-4 text-sm">{pt ? 'Registo Básico analisado pela equipa. A verificação do negócio ainda não foi concluída. Contactos, morada completa e mapa permanecem privados.' : 'Staff-reviewed Basic listing. Business verification is not complete. Contacts, full address and map remain private.'}</p>}
+          {!isDemo && !verified && <p className="mb-7 border-l-4 border-[#D2AC37] bg-[#fbf7ed] p-4 text-sm">{pt ? 'Registo Básico analisado pela equipa. A verificação do negócio ainda não foi concluída. Contactos, morada completa e mapa permanecem privados.' : 'Staff-reviewed Basic listing. Business verification is not complete. Contacts, full address and map remain private.'}</p>}
           {isDemo && (
             <p className="mb-7 border-l-4 border-[#D2AC37] bg-[#fbf7ed] px-4 py-4 text-sm leading-relaxed text-[#514321] sm:mb-8 sm:px-5">
               {pt
@@ -89,6 +89,28 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
           <HospitalityVenueNavigation language={language} />
             <div className="mt-6 h-[2px] w-full bg-[#D2AC37]" aria-hidden="true" />
           </div>
+
+          {verified && !isDemo && restaurant.address && (
+            <section className="mb-7 flex flex-wrap items-center justify-between gap-5 rounded-xl border border-[#e9e5db] bg-[#fffdf8] p-5 sm:p-6">
+              <div className="min-w-0">
+                <h2 className="text-lg font-semibold">{pt ? 'Morada e contacto público' : 'Address and public contact'}</h2>
+                <p className="mt-2 break-words text-sm text-[#555]">{restaurant.address}</p>
+                {restaurant.phone && (
+                  <p className="mt-1 text-sm text-[#555]">{pt ? 'Telefone público' : 'Public phone'}: {restaurant.phone}</p>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <a href={getGoogleMapsUrl(restaurant)} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-[#b18a23] px-4 py-2 text-sm font-semibold text-[#75570d] hover:bg-[#fbf7ed]">
+                  {pt ? 'Ver no mapa ↗' : 'View map ↗'}
+                </a>
+                {restaurant.phone && (
+                  <a href={'tel:' + restaurant.phone.replace(/[^+0-9]/g, '')} className="rounded-lg bg-[#252a32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#424850]">
+                    {pt ? 'Ligar' : 'Call'}
+                  </a>
+                )}
+              </div>
+            </section>
+          )}
 
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(270px,1fr)]">
             <div className="space-y-6">
@@ -166,16 +188,6 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
                       : (pt ? 'Perfil básico / em análise' : 'Basic / under review')}
                 </p>
               </section>
-              {verified && !isDemo && (
-                <section className="rounded-xl border border-[#e9e5db] p-6">
-                  <h2 className="text-lg font-semibold">{pt ? 'Localização e horário' : 'Location and hours'}</h2>
-                  <p className="mt-4 text-sm leading-relaxed text-[#555]">{restaurant.address}</p>
-                  {restaurant.hours && <p className="mt-3 text-sm text-[#555]">{restaurant.hours}</p>}
-                  <a href={getGoogleMapsUrl(restaurant)} target="_blank" rel="noopener noreferrer" className="mt-5 inline-block rounded-lg border border-[#b18a23] px-4 py-2 text-sm font-semibold text-[#75570d] hover:bg-[#fbf7ed]">
-                    {pt ? 'Ver no mapa ↗' : 'View map ↗'}
-                  </a>
-                </section>
-              )}
             </aside>
           </div>
         </div>
