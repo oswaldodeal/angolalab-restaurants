@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { CITIES, COUNTRIES, CUISINES, type Restaurant } from '@/lib/store';
+import { CITIES, COUNTRIES, CUISINES, SAMPLE_RESTAURANT_COVER, type Restaurant } from '@/lib/store';
 import { translations } from '@/lib/translations';
 import { demoRestaurantPhoto } from '@/lib/demo-photos';
 import HospitalityVenueNavigation from '@/components/HospitalityVenueNavigation';
@@ -149,6 +149,8 @@ export default function RestaurantDirectory({ language, records, unavailable, ve
                 const cuisineLabel = CUISINES.find((item) => item.id === restaurant.cuisine)?.[language] ?? restaurant.cuisine;
                 const cityLabel = CITIES.find((item) => item.id === restaurant.city)?.[language] ?? restaurant.city;
                 const countryLabel = COUNTRIES.find((item) => item.id === restaurant.country)?.[language] ?? restaurant.country;
+                const isDemo = restaurant.ownerId === 'demo';
+                const coverPhoto = isDemo ? demoRestaurantPhoto(restaurant.id) : restaurant.photos[0];
                 return (
                   <article key={restaurant.id} className="group overflow-hidden rounded-2xl border border-[#ded8c5] bg-white shadow-sm transition-shadow hover:shadow-lg">
                     <Link
@@ -157,16 +159,21 @@ export default function RestaurantDirectory({ language, records, unavailable, ve
                       aria-label={isPt ? `Abrir perfil de ${restaurant.name}` : `Open ${restaurant.name} profile`}
                     >
                       <div className="relative h-52 overflow-hidden bg-gradient-to-br from-[#b58d44] via-[#61503b] to-[#242831]">
-                        {restaurant.ownerId === 'demo' && demoRestaurantPhoto(restaurant.id) ? (
-                          // Remote demo imagery: no claims of ownership or business identity.
+                        {coverPhoto ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
-                            src={demoRestaurantPhoto(restaurant.id)!}
-                            alt={isPt ? 'Fotografia ilustrativa de restaurante' : 'Illustrative restaurant photograph'}
+                            src={coverPhoto}
+                            alt=""
+                            referrerPolicy="no-referrer"
                             loading="lazy"
                             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                           />
                         ) : restaurant.ownerId !== 'demo' ? <div className="flex h-full items-center justify-center px-5 text-center text-sm font-semibold text-white">{isPt ? 'Fotografia ainda não adicionada' : 'Photograph not yet added'}</div> : null}
+                        {coverPhoto === SAMPLE_RESTAURANT_COVER && !isDemo && (
+                          <span className="absolute bottom-3 left-4 rounded-md bg-white px-2 py-1 text-xs font-semibold text-[#555]">
+                            {isPt ? 'Imagem ilustrativa' : 'Illustrative image'}
+                          </span>
+                        )}
                         <span className="absolute left-4 top-4 rounded-md bg-[#fff0b0] px-3 py-1 text-xs font-bold text-[#57410c]">
                           {restaurant.ownerId === 'demo' ? (isPt ? 'AngolaLab Test · Demonstração' : 'AngolaLab Test · Demo') : restaurant.status === 'verified' ? (isPt ? 'Perfil verificado' : 'Verified profile') : (isPt ? 'Básico · Sem verificação' : 'Basic · Not verified')}
                         </span>
