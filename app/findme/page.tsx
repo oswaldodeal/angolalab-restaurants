@@ -1,15 +1,16 @@
 import Link from 'next/link';
+import { getRestaurantDirectory } from '@/lib/restaurant-data';
 import { CITIES, COUNTRIES } from '@/lib/store';
 
 const categories = [
-  { en: 'Hotels', pt: 'Hotéis' },
-  { en: 'Parks', pt: 'Parques' },
-  { en: 'Restaurants', pt: 'Restaurantes' },
-  { en: 'Arts and culture', pt: 'Artes e cultura' },
-  { en: 'Events', pt: 'Eventos', web: true },
-  { en: 'Businesses', pt: 'Empresas' },
-  { en: 'Colleges and universities', pt: 'Faculdades e universidades' },
-  { en: 'Hospitals', pt: 'Hospitais' },
+  { id: 'hotels', en: 'Hotels', pt: 'Hotéis' },
+  { id: 'parks', en: 'Parks', pt: 'Parques' },
+  { id: 'restaurants', en: 'Restaurants', pt: 'Restaurantes' },
+  { id: 'arts', en: 'Arts and culture', pt: 'Artes e cultura' },
+  { id: 'events', en: 'Events', pt: 'Eventos' },
+  { id: 'businesses', en: 'Businesses', pt: 'Empresas' },
+  { id: 'colleges', en: 'Colleges and universities', pt: 'Faculdades e universidades' },
+  { id: 'hospitals', en: 'Hospitals', pt: 'Hospitais' },
 ];
 
 export default async function FindMe({ searchParams }: PageProps<'/findme'>) {
@@ -19,6 +20,14 @@ export default async function FindMe({ searchParams }: PageProps<'/findme'>) {
   const city = CITIES.find(item => item.id === params.city);
   const country = COUNTRIES.find(item => item.id === city?.country);
   const location = city && country ? `${city[language]}, ${country[language]}` : '';
+
+  const selected = categories.find(category => category.id === params.category);
+  const directory = selected?.id === 'restaurants' ? await getRestaurantDirectory() : null;
+  const restaurants = directory?.restaurants.filter(restaurant =>
+    restaurant.status === 'verified' && restaurant.ownerId !== 'demo' &&
+    (!city || (restaurant.city === city.id && restaurant.country === city.country))
+  ) ?? [];
+  const restaurantPath = pt ? '/pt/restaurantes' : '/en/restaurants';
 
   return (
     <main className="min-h-screen bg-[#f3f2ef] text-[#242424]">
@@ -31,23 +40,47 @@ export default async function FindMe({ searchParams }: PageProps<'/findme'>) {
         </p>
         <ul className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {categories.map(category => {
-            const query = [category[language], location].filter(Boolean).join(' ');
-            const href = category.web
-              ? `https://www.google.com/search?q=${encodeURIComponent(query)}`
-              : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+            const query = new URLSearchParams({ lang: language, category: category.id });
+            if (city) query.set('city', city.id);
+            const active = selected?.id === category.id;
             return (
-              <li key={category.en}>
-                <a href={href} className="block rounded-xl border border-[#ded8c5] bg-white p-5 hover:border-emerald-700 focus-visible:outline-2 focus-visible:outline-offset-4">
-                  <span className="block font-semibold">{category[language]}</span>
-                  <span className="mt-1 block text-sm text-emerald-700">{category.web ? 'Google Search ↗' : 'Google Maps ↗'}</span>
-                </a>
+              <li key={category.id}>
+                <Link href={`/findme?${query}#findme-results`} aria-current={active ? 'true' : undefined}
+                  className={`block rounded-xl border bg-white p-5 font-semibold hover:border-emerald-700 focus-visible:outline-2 focus-visible:outline-offset-4 ${active ? 'border-emerald-700 text-emerald-700' : 'border-[#ded8c5]'}`}>
+                  {category[language]}
+                </Link>
               </li>
             );
           })}
         </ul>
-        <Link href={pt ? '/pt/restaurantes?verified=1' : '/en/restaurants?verified=1'} className="mt-7 inline-block font-semibold text-emerald-700 underline underline-offset-4">
-          {pt ? 'Restaurantes verificados no AngolaLab' : 'Verified restaurants on AngolaLab'}
-        </Link>
+        {selected && (
+          <section id="findme-results" className="mt-8 scroll-mt-28 rounded-xl border border-[#ded8c5] bg-white p-5 sm:p-7">
+            <h2 className="text-2xl font-semibold">{selected[language]}</h2>
+            {directory?.unavailable ? (
+              <p role="status" className="mt-3 text-[#555]">{pt ? 'Os registos estão temporariamente indisponíveis.' : 'Listings are temporarily unavailable.'}</p>
+            ) : restaurants.length > 0 ? (
+              <ul className="mt-4 divide-y divide-[#e9e5db]">
+                {restaurants.map(restaurant => (
+                  <li key={restaurant.id} className="py-3">
+                    <Link href={`${restaurantPath}/${encodeURIComponent(restaurant.id)}`} className="font-semibold text-emerald-700 underline underline-offset-4">
+                      {restaurant.name}
+                    </Link>
+                    <p className="mt-1 text-sm text-[#555]">
+                      {CITIES.find(item => item.id === restaurant.city)?.[language] ?? restaurant.city}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-3 text-[#555]">{pt ? 'Ainda não há registos verificados no AngolaLab para esta seleção.' : 'There are no verified AngolaLab listings for this selection yet.'}</p>
+            )}
+            {selected.id === 'restaurants' && city && (
+              <Link href={`/findme?lang=${language}&category=restaurants#findme-results`} className="mt-4 inline-block font-semibold text-emerald-700 underline underline-offset-4">
+                {pt ? 'Ver restaurantes em todas as cidades' : 'Show restaurants in all cities'}
+              </Link>
+            )}
+          </section>
+        )}
       </section>
     </main>
   );

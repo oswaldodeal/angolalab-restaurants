@@ -136,7 +136,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
                 )}
                 <a href={getGoogleMapsUrl(restaurant)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-[#b18a23] px-4 py-2 text-sm font-semibold text-[#75570d] hover:bg-[#fbf7ed]">
                   {mapPinIcon}
-                  {pt ? 'Ver no mapa' : 'View map'}
+                  {pt ? 'Como chegar' : 'Get directions'}
                 </a>
                 {restaurant.phone && (
                   <a href={'tel:' + restaurant.phone.replace(/[^+0-9]/g, '')} className="inline-flex items-center gap-2 rounded-lg bg-[#252a32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#424850]">

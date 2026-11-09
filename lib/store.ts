@@ -79,7 +79,7 @@ export const CITIES = [
 // Helper: generate Google Maps link
 export function getGoogleMapsUrl(restaurant: Restaurant): string {
   if (restaurant.lat !== null && restaurant.lng !== null) {
-    return `https://www.google.com/maps/search/?api=1&query=${restaurant.lat},${restaurant.lng}`;
+    return `https://www.google.com/maps/dir/?api=1&destination=${restaurant.lat},${restaurant.lng}`;
   }
 
   const country = COUNTRIES.find(
@@ -93,7 +93,7 @@ export function getGoogleMapsUrl(restaurant: Restaurant): string {
     country?.en ?? restaurant.country,
   ].join(', ');
 
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(location)}`;
 }
 
 // Sample data
