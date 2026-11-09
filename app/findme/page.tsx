@@ -24,7 +24,7 @@ export default async function FindMe({ searchParams }: PageProps<'/findme'>) {
   const selected = categories.find(category => category.id === params.category);
   const directory = selected?.id === 'restaurants' ? await getRestaurantDirectory() : null;
   const restaurants = directory?.restaurants.filter(restaurant =>
-    restaurant.status === 'verified' && restaurant.ownerId !== 'demo' &&
+    restaurant.status === 'verified' && restaurant.profilePlan === 'pro' && restaurant.ownerId !== 'demo' &&
     (!city || (restaurant.city === city.id && restaurant.country === city.country))
   ) ?? [];
   const restaurantPath = pt ? '/pt/restaurantes' : '/en/restaurants';
@@ -38,6 +38,7 @@ export default async function FindMe({ searchParams }: PageProps<'/findme'>) {
             ? (pt ? `Escolha o que procura em ${location}.` : `Choose what to explore in ${location}.`)
             : (pt ? 'Escolha o que procura.' : 'Choose what you want to explore.')}
         </p>
+        <p className="mt-2 text-sm text-[#555]">{pt ? 'O FindMe apresenta perfis Pro Verificados do AngolaLab.' : 'FindMe features AngolaLab Pro Verified profiles.'}</p>
         <ul className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {categories.map(category => {
             const query = new URLSearchParams({ lang: language, category: category.id });
@@ -72,7 +73,7 @@ export default async function FindMe({ searchParams }: PageProps<'/findme'>) {
                 ))}
               </ul>
             ) : (
-              <p className="mt-3 text-[#555]">{pt ? 'Ainda não há registos verificados no AngolaLab para esta seleção.' : 'There are no verified AngolaLab listings for this selection yet.'}</p>
+              <p className="mt-3 text-[#555]">{pt ? 'Ainda não há perfis Pro Verificados no AngolaLab para esta seleção.' : 'There are no Pro Verified AngolaLab profiles for this selection yet.'}</p>
             )}
             {selected.id === 'restaurants' && city && (
               <Link href={`/findme?lang=${language}&category=restaurants#findme-results`} className="mt-4 inline-block font-semibold text-emerald-700 underline underline-offset-4">
