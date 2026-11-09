@@ -14,6 +14,17 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
   const photo = restaurant.ownerId === 'demo' ? demoRestaurantPhoto(restaurant.id) : null;
   const verified = restaurant.status === 'verified';
   const isDemo = restaurant.ownerId === 'demo';
+  const mapPinIcon = (
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4 shrink-0">
+      <path d="M20 10c0 6-8 11-8 11S4 16 4 10a8 8 0 1 1 16 0Z" />
+      <circle cx="12" cy="10" r="2.5" />
+    </svg>
+  );
+  const phoneIcon = (
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4 shrink-0">
+      <path d="M7 3H4a1 1 0 0 0-1 1c0 9.4 7.6 17 17 17a1 1 0 0 0 1-1v-3l-5-2-1.5 2a14 14 0 0 1-7.5-7.5L9 8 7 3Z" />
+    </svg>
+  );
   // Illustrative Basic-profile offers only; replace with reviewed owner-submitted data later.
   const demoBasicOffers = isDemo && restaurant.status === 'basic' ? [
     {
@@ -94,25 +105,33 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
             <section className="mb-7 flex flex-wrap items-center justify-between gap-5 rounded-xl border border-[#e9e5db] bg-[#fffdf8] p-5 sm:p-6">
               <div className="flex min-w-0 items-stretch gap-4 sm:gap-5">
                 <div className="flex shrink-0 items-center border-r border-[#e9e5db] pr-4 sm:pr-5">
-                  <svg aria-hidden="true" viewBox="0 0 24 24" className="size-10 text-emerald-600 sm:size-12">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" className="size-10 text-emerald-700 sm:size-12">
                     <path fill="currentColor" d="m12 1 3 2.2 3.7.2 1.4 3.4 2.9 2.3-1 3.6.4 3.7-3.2 1.8-2 3.1-3.6-.6L12 23l-3.4-2.3-3.6.6-2-3.1-3-1.8.4-3.7L0 9.1l2.9-2.3 1.4-3.4 3.7-.2L12 1Z" />
                     <path d="m7.5 12 3 3 6-6" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
                 <div className="min-w-0">
                   <h2 className="text-lg font-semibold">{pt ? 'Morada e contacto público' : 'Address and public contact'}</h2>
-                  <p className="mt-2 break-words text-sm text-[#555]">{restaurant.address}</p>
+                  <p className="mt-2 flex items-start gap-2 text-sm text-[#555]">
+                    {mapPinIcon}
+                    <span className="min-w-0 break-words">{restaurant.address}</span>
+                  </p>
                   {restaurant.phone && (
-                    <p className="mt-1 break-words text-sm text-[#555]">{pt ? 'Telefone público' : 'Public phone'}: {restaurant.phone}</p>
+                    <p className="mt-1 flex items-start gap-2 text-sm text-[#555]">
+                      {phoneIcon}
+                      <span className="min-w-0 break-words">{pt ? 'Telefone público' : 'Public phone'}: {restaurant.phone}</span>
+                    </p>
                   )}
                 </div>
               </div>
               <div className="flex flex-wrap gap-3">
-                <a href={getGoogleMapsUrl(restaurant)} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-[#b18a23] px-4 py-2 text-sm font-semibold text-[#75570d] hover:bg-[#fbf7ed]">
-                  {pt ? 'Ver no mapa ↗' : 'View map ↗'}
+                <a href={getGoogleMapsUrl(restaurant)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-[#b18a23] px-4 py-2 text-sm font-semibold text-[#75570d] hover:bg-[#fbf7ed]">
+                  {mapPinIcon}
+                  {pt ? 'Ver no mapa' : 'View map'}
                 </a>
                 {restaurant.phone && (
-                  <a href={'tel:' + restaurant.phone.replace(/[^+0-9]/g, '')} className="rounded-lg bg-[#252a32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#424850]">
+                  <a href={'tel:' + restaurant.phone.replace(/[^+0-9]/g, '')} className="inline-flex items-center gap-2 rounded-lg bg-[#252a32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#424850]">
+                    {phoneIcon}
                     {pt ? 'Ligar' : 'Call'}
                   </a>
                 )}
@@ -188,7 +207,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
                 {!isDemo && restaurant.hours && <p className="mt-4 text-sm text-[#555]">{pt ? 'Horário' : 'Hours'}: {restaurant.hours}</p>}
                 <p className="mt-4 text-sm text-[#555]">{pt ? 'Cidade' : 'City'}: {city}</p>
                 <p className="mt-2 text-sm text-[#555]">{pt ? 'Cozinha' : 'Cuisine'}: {cuisine}</p>
-                <p className="mt-4 border-t border-[#e9e5db] pt-4 text-sm font-medium text-[#866415]">
+                <p className={`mt-4 border-t border-[#e9e5db] pt-4 text-sm font-medium ${verified && !isDemo ? 'text-emerald-700' : 'text-[#866415]'}`}>
                   {isDemo
                     ? (pt ? 'Demonstração · Sem verificação real' : 'Demo · Not actually verified')
                     : verified
