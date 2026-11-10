@@ -1,15 +1,33 @@
 'use client';
 import Image from "next/image";
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useEffect, useRef } from 'react';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useRef } from 'react';
 
 export default function Header() {
   const path = usePathname();
-  const lang = path.startsWith('/en') ? 'en' : 'pt';
+  return path === '/findme'
+    ? <Suspense fallback={<HeaderNavigation path={path} lang="pt" />}><FindMeHeader path={path} /></Suspense>
+    : <HeaderNavigation path={path} lang={path.startsWith('/en') ? 'en' : 'pt'} />;
+}
+
+function FindMeHeader({ path }: { path: string }) {
+  const query = useSearchParams().toString();
+  const lang = new URLSearchParams(query).get('lang') === 'pt' ? 'pt' : 'en';
+  return <HeaderNavigation path={path} lang={lang} findMeQuery={query} />;
+}
+
+function HeaderNavigation({ path, lang, findMeQuery }: { path: string; lang: 'pt' | 'en'; findMeQuery?: string }) {
+  const findMeHref = `/findme?lang=${lang}`;
+  const isFindMe = path === '/findme';
   const languageRef = useRef<HTMLDetailsElement>(null);
   const mobileRef = useRef<HTMLDetailsElement>(null);
   const languagePath = (target: 'pt' | 'en') => {
+    if (isFindMe) {
+      const params = new URLSearchParams(findMeQuery);
+      params.set('lang', target);
+      return `/findme?${params}`;
+    }
     // Keep the restaurant ID when changing language on a profile.
     const restaurantPath = path.match(/^\/(?:en\/restaurants|pt\/restaurantes)(\/.*)?$/);
     if (restaurantPath) {
@@ -131,6 +149,7 @@ export default function Header() {
           {lang === 'pt' ? (
             <>
               <Link href="/pt/cartoes" className={navLinkClass}>Cartões Digitais</Link>
+              <Link href={findMeHref} className={navLinkClass} aria-current={isFindMe ? 'page' : undefined}>FindMe</Link>
               <Link href="/pt/sobre" className={navLinkClass}>Sobre Nós</Link>
               {languageMenu}
               <Link href="/pt/entrar" className={navLinkClass}>Entrar</Link>
@@ -139,6 +158,7 @@ export default function Header() {
           ) : (
             <>
               <Link href="/en/cards" className={navLinkClass}>Digital Cards</Link>
+              <Link href={findMeHref} className={navLinkClass} aria-current={isFindMe ? 'page' : undefined}>FindMe</Link>
               <Link href="/en/about" className={navLinkClass}>About Us</Link>
               {languageMenu}
               <Link href="/en/signin" className={navLinkClass}>Sign In</Link>
@@ -159,6 +179,7 @@ export default function Header() {
               <Link href={`/${lang}`} className="rounded-lg px-3 py-3 text-[#F2C94C] hover:bg-white/10">{lang === 'pt' ? 'Início' : 'Home'}</Link>
               <Link href={lang === 'pt' ? '/pt/restaurantes' : '/en/restaurants'} className="rounded-lg px-3 py-3 text-[#F2C94C] hover:bg-white/10">{lang === 'pt' ? 'Restaurantes' : 'Restaurants'}</Link>
               <Link href={lang === 'pt' ? '/pt/cartoes' : '/en/cards'} className="rounded-lg px-3 py-3 text-[#F2C94C] hover:bg-white/10">{lang === 'pt' ? 'Cartões Digitais' : 'Digital Cards'}</Link>
+              <Link href={findMeHref} onClick={switchLanguage} aria-current={isFindMe ? 'page' : undefined} className="rounded-lg px-3 py-3 text-[#F2C94C] hover:bg-white/10">FindMe</Link>
               <Link href={lang === 'pt' ? '/pt/sobre' : '/en/about'} className="rounded-lg px-3 py-3 text-[#F2C94C] hover:bg-white/10">{lang === 'pt' ? 'Sobre Nós' : 'About Us'}</Link>
               <div className="my-1 border-t border-[#585047]" />
               <p className="px-3 pt-2 text-xs font-semibold text-[#d8c68d]">{lang === 'pt' ? 'Idioma' : 'Language'}</p>
