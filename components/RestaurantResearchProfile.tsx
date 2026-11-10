@@ -194,7 +194,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
                         </div>
                         {/* Temporary illustrative food photograph, not owner-submitted. */}
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={offer.image} alt={pt ? `Imagem ilustrativa: ${offer.title}` : `Illustrative image: ${offer.title}`} className="h-44 w-full rounded-lg object-cover sm:h-36 sm:w-44 sm:shrink-0" />
+                        <img src={offer.image} alt={pt ? `Imagem ilustrativa: ${offer.title}` : `Illustrative image: ${offer.title}`} className="aspect-[4/3] w-full rounded-lg object-cover sm:w-2/5 sm:max-w-72 sm:shrink-0" />
                       </article>
                     ))}
                   </div>
