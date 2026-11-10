@@ -91,8 +91,32 @@ export async function enableProPlan(form: FormData) {
       SELECT v.id,?,? FROM restaurant_verified_contacts v
       JOIN restaurant_listings l ON l.id = v.id
       JOIN restaurant_intake i ON i.id = v.id
-      WHERE v.id = ? AND i.status = 'approved' ON CONFLICT(id) DO UPDATE SET cover_photo_url = excluded.cover_photo_url`,
+      WHERE v.id = ? AND i.status = 'approved' ON CONFLICT(id) DO UPDATE SET cover_photo_url = excluded.cover_photo_url
+      WHERE excluded.cover_photo_url IS NOT NULL`,
     [new Date().toISOString(), coverPhotoUrl || null, id]);
+    if (Number(updated.affected_row_count) !== 1) result = 'stale';
+  } catch { result = 'unavailable'; }
+  revalidatePath('/staff/review');
+  revalidatePath('/en/restaurants', 'layout');
+  revalidatePath('/pt/restaurantes', 'layout');
+  redirect('/staff/review?result=' + result);
+}
+
+export async function removeCoverPhoto(form: FormData) {
+  if (!(await staffAuthorized())) redirect('/staff/review/login');
+  const id = String(form.get('id') ?? '');
+  const expectedCover = String(form.get('expectedCover') ?? '');
+  if (!/^[a-zA-Z0-9-]{1,100}$/.test(id) || !expectedCover || expectedCover.length > 2000) {
+    redirect('/staff/review?result=stale');
+  }
+
+  let result = 'cover-removed';
+  try {
+    await prepareRestaurantDatabase();
+    const updated = await executePrivateSql(
+      'UPDATE restaurant_pro_plans SET cover_photo_url = NULL WHERE id = ? AND cover_photo_url = ?',
+      [id, expectedCover],
+    );
     if (Number(updated.affected_row_count) !== 1) result = 'stale';
   } catch { result = 'unavailable'; }
   revalidatePath('/staff/review');
