@@ -34,6 +34,14 @@ export default function EcosystemHomePage() {
     <p className="mt-5 text-sm leading-6 text-[#70695b]">Restaurantes abre o directório de negócios; Educação liga à plataforma AEIS. As restantes categorias empresariais estão previstas e ainda não aceitam registos.</p>
    </div>
   </section>
+  <a href="https://angolalab-business-connection.oswaldodeal.chatgpt.site/?lang=pt" className="block border-b-4 border-[#e4bd62] bg-[#181817] py-10 text-white focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-[#e4bd62] sm:py-16">
+   <div className="page-rail">
+    <p className="text-sm font-bold uppercase tracking-widest text-[#e4bd62]">Business Connection</p>
+    <h2 className="mt-4 max-w-4xl text-3xl font-bold leading-tight sm:text-6xl">Ligamos a sua empresa a fornecedores e parceiros internacionais.</h2>
+    <p className="mt-4">Um serviço gratuito de ligação para empresas angolanas verificadas.</p>
+    <span className="mt-6 inline-block rounded-lg bg-[#e4bd62] px-5 py-3 font-bold text-[#181817]">Explorar Business Connection →</span>
+   </div>
+  </a>
   <div id="connections" className="scroll-mt-24"><HomeDigitalCards language="pt" /></div>
   <section className="bg-[#f3f2ef] pb-14 text-[#252525]" aria-labelledby="fpp-home-title">
    <div className="page-rail rounded-3xl border border-[#e4d8bc] bg-white p-6 shadow-sm sm:p-9">
