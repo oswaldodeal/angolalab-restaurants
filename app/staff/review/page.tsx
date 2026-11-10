@@ -1,3 +1,4 @@
+import StaffPhotoInput from '@/components/StaffPhotoInput';
 import { SAMPLE_RESTAURANT_COVER } from '@/lib/store';
 import StaffReviewForm from '@/components/StaffReviewForm';
 import { enableProPlan, publishVerifiedContacts, removeCoverPhoto, signOutStaff, updateMenuPhoto } from './actions';
@@ -91,7 +92,7 @@ export default async function StaffReview({ searchParams }: { searchParams: Prom
                   <input type="hidden" name="id" value={item.id} />
                   <label className="block text-sm font-medium">
                     Choose a new cover file / Escolher nova fotografia de capa
-                    <input type="file" name="photoFile" accept="image/jpeg,image/png,image/webp" className="mt-1 block w-full" />
+                    <StaffPhotoInput />
                     <span className="text-xs text-[#555]">JPG, PNG, WebP · 250 KB max</span>
                   </label>
                   <label className="block text-sm font-medium">
@@ -131,13 +132,13 @@ export default async function StaffReview({ searchParams }: { searchParams: Prom
                   <input type="hidden" name="expectedMenu" value={item.menu_photo_url ?? ''} />
                   <label className="block text-sm font-medium">
                     Choose a menu image / Escolher imagem da ementa
-                    <input type="file" name="photoFile" accept="image/jpeg,image/png,image/webp" className="mt-1 block w-full" />
+                    <StaffPhotoInput />
                     <span className="text-xs text-[#555]">JPG, PNG, WebP · 250 KB max</span>
                   </label>
                   <div className="flex flex-wrap gap-2">
                     <button type="submit" className="rounded-lg bg-[#252a32] px-4 py-2 text-sm font-semibold text-white">Save menu image / Guardar imagem</button>
-                    <button type="submit" name="sampleMenu" value="yes" className="rounded-lg border border-[#ded8c5] px-4 py-2 text-sm font-semibold text-emerald-700">Use sample dish / Usar prato de demonstração</button>
-                    {item.menu_photo_url && <button type="submit" name="removeMenu" value="yes" className="rounded-lg border border-red-300 px-4 py-2 text-sm font-semibold text-red-700">Remove menu image / Remover imagem</button>}
+                    <button type="submit" name="sampleMenu" value="yes" formNoValidate className="rounded-lg border border-[#ded8c5] px-4 py-2 text-sm font-semibold text-emerald-700">Use sample dish / Usar prato de demonstração</button>
+                    {item.menu_photo_url && <button type="submit" name="removeMenu" value="yes" formNoValidate className="rounded-lg border border-red-300 px-4 py-2 text-sm font-semibold text-red-700">Remove menu image / Remover imagem</button>}
                   </div>
                 </form>
               </section>
