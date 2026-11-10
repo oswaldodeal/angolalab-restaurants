@@ -1,3 +1,4 @@
+export const SAMPLE_MENU_PHOTO = '/demo/grilled-fish-with-funge.webp';
 export const SAMPLE_RESTAURANT_COVER = '/demo/luanda-restaurant-cover.webp';
 
 export type Restaurant = {

@@ -1,6 +1,6 @@
 import { SAMPLE_RESTAURANT_COVER } from '@/lib/store';
 import StaffReviewForm from '@/components/StaffReviewForm';
-import { enableProPlan, publishVerifiedContacts, removeCoverPhoto, signOutStaff } from './actions';
+import { enableProPlan, publishVerifiedContacts, removeCoverPhoto, signOutStaff, updateMenuPhoto } from './actions';
 import { redirect } from 'next/navigation';
 import { staffAuthorized } from '@/lib/staff-auth';
 import { getStaffSubmissions } from '@/lib/staff-submissions';
@@ -42,7 +42,7 @@ export default async function StaffReview({ searchParams }: { searchParams: Prom
         Pilot reviews use one shared staff identity; review notes and timestamps are recorded.
       </p>
       <form action={signOutStaff}><button className="mt-5 rounded-lg border border-[#ded8c5] px-4 py-2">Sign out / Sair</button></form>
-      {result && <p role="status" className="mt-5 rounded-lg bg-[#fffaf0] p-4">{result === 'cover-removed' ? 'Cover photo removed / Fotografia de capa removida.' : result === 'invalid-cover' ? 'Enter a direct HTTPS image URL for the approved cover photo.' : result === 'verified' ? 'Verified profile published / Perfil verificado publicado.' : result === 'invalid-verification' ? 'Enter a valid business address and public phone, record the evidence, and confirm permission to publish.' : result === 'saved' ? 'Decision saved. Directory updated / Decisão guardada.' : result === 'stale' ? 'This record has changed or already been reviewed. Reload it and try again.' : result === 'invalid' ? 'Add a review note of 20–2000 characters. Publication also requires the identity and permission check.' : 'Unable to save. No publication decision was confirmed. Try again later.'}</p>}
+      {result && <p role="status" className="mt-5 rounded-lg bg-[#fffaf0] p-4">{result === 'invalid-upload' ? 'Choose a JPG, PNG or WebP image up to 250 KB.' : result === 'menu-saved' ? 'Menu image saved / Imagem da ementa guardada.' : result === 'menu-removed' ? 'Menu image removed / Imagem da ementa removida.' : result === 'cover-removed' ? 'Cover photo removed / Fotografia de capa removida.' : result === 'invalid-cover' ? 'Enter a direct HTTPS image URL for the approved cover photo.' : result === 'verified' ? 'Verified profile published / Perfil verificado publicado.' : result === 'invalid-verification' ? 'Enter a valid business address and public phone, record the evidence, and confirm permission to publish.' : result === 'saved' ? 'Decision saved. Directory updated / Decisão guardada.' : result === 'stale' ? 'This record has changed or already been reviewed. Reload it and try again.' : result === 'invalid' ? 'Add a review note of 20–2000 characters. Publication also requires the identity and permission check.' : 'Unable to save. No publication decision was confirmed. Try again later.'}</p>}
       {submissions.length === 0 ? <p className="mt-8">No submissions yet.</p> :
         <div className="mt-8 space-y-5">{submissions.map((item, index) =>
           <article key={item.id} className="rounded-xl border border-[#ded8c5] p-6">
@@ -90,8 +90,13 @@ export default async function StaffReview({ searchParams }: { searchParams: Prom
                 <form action={enableProPlan} className="mt-4 space-y-3">
                   <input type="hidden" name="id" value={item.id} />
                   <label className="block text-sm font-medium">
+                    Choose a new cover file / Escolher nova fotografia de capa
+                    <input type="file" name="photoFile" accept="image/jpeg,image/png,image/webp" className="mt-1 block w-full" />
+                    <span className="text-xs text-[#555]">JPG, PNG, WebP · 250 KB max</span>
+                  </label>
+                  <label className="block text-sm font-medium">
                     Cover photo URL / Ligação da fotografia de capa
-                    <input type="url" name="coverPhotoUrl" maxLength={2000} defaultValue={item.cover_photo_url === SAMPLE_RESTAURANT_COVER ? '' : item.cover_photo_url ?? ''} className="mt-1 w-full rounded border border-[#ded8c5] p-2" />
+                    <input type="url" name="coverPhotoUrl" maxLength={2000} defaultValue={item.cover_photo_url?.startsWith('https://') ? item.cover_photo_url : ''} className="mt-1 w-full rounded border border-[#ded8c5] p-2" />
                   </label>
                   <button type="submit" className="rounded-lg bg-[#252a32] px-4 py-2 text-sm font-semibold text-white">
                     {item.pro_id ? (item.cover_photo_url ? 'Replace cover / Substituir capa' : 'Add cover / Adicionar capa') : 'Enable Pro Verified / Ativar Pro Verificado'}
@@ -112,6 +117,29 @@ export default async function StaffReview({ searchParams }: { searchParams: Prom
                     </button>
                   </form>
                 )}
+              </section>
+            )}
+            {item.pro_id && (
+              <section className="mt-6 rounded-lg border border-[#ded8c5] p-4">
+                <h3 className="font-semibold">Menu image / Imagem da ementa</h3>
+                {item.menu_photo_url && (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img src={item.menu_photo_url} alt="Current menu image / Imagem atual da ementa" loading="lazy" className="mt-3 w-full max-w-xs rounded-lg" />
+                )}
+                <form action={updateMenuPhoto} className="mt-4 space-y-3">
+                  <input type="hidden" name="id" value={item.id} />
+                  <input type="hidden" name="expectedMenu" value={item.menu_photo_url ?? ''} />
+                  <label className="block text-sm font-medium">
+                    Choose a menu image / Escolher imagem da ementa
+                    <input type="file" name="photoFile" accept="image/jpeg,image/png,image/webp" className="mt-1 block w-full" />
+                    <span className="text-xs text-[#555]">JPG, PNG, WebP · 250 KB max</span>
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    <button type="submit" className="rounded-lg bg-[#252a32] px-4 py-2 text-sm font-semibold text-white">Save menu image / Guardar imagem</button>
+                    <button type="submit" name="sampleMenu" value="yes" className="rounded-lg border border-[#ded8c5] px-4 py-2 text-sm font-semibold text-emerald-700">Use sample dish / Usar prato de demonstração</button>
+                    {item.menu_photo_url && <button type="submit" name="removeMenu" value="yes" className="rounded-lg border border-red-300 px-4 py-2 text-sm font-semibold text-red-700">Remove menu image / Remover imagem</button>}
+                  </div>
+                </form>
               </section>
             )}
             {item.status === 'approved' && <a className="mt-4 inline-block font-semibold text-[#876613]" href={'/en/restaurants/' + item.id}>{item.verified_at ? 'Open Verified profile →' : 'Open Basic profile →'}</a>}

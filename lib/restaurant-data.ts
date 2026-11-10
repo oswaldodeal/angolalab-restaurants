@@ -1,7 +1,7 @@
 import 'server-only';
 import { executePrivateSql, sqlRows } from '@/lib/turso';
 import { restaurantSchema } from '@/lib/restaurant-schema';
-import { initialRestaurants, type Restaurant } from '@/lib/store';
+import { initialRestaurants, SAMPLE_MENU_PHOTO, SAMPLE_RESTAURANT_COVER, type Restaurant } from '@/lib/store';
 
 let preparation: Promise<void> | undefined;
 // Used by intake/staff only. Public reads never migrate or publish records.
@@ -9,9 +9,10 @@ export async function prepareRestaurantDatabase() {
   if (!preparation) preparation = (async () => {
     for (const statement of restaurantSchema) await executePrivateSql(statement);
     const columns = sqlRows(await executePrivateSql('PRAGMA table_info(restaurant_pro_plans)'));
-    if (!columns.some(column => column.name === 'cover_photo_url')) {
+    for (const name of ['cover_photo_url', 'menu_photo_url']) {
+      if (columns.some(column => column.name === name)) continue;
       try {
-        await executePrivateSql('ALTER TABLE restaurant_pro_plans ADD COLUMN cover_photo_url TEXT');
+        await executePrivateSql(`ALTER TABLE restaurant_pro_plans ADD COLUMN ${name} TEXT`);
       } catch (error) {
         if (!(error instanceof Error) || error.message !== 'TURSO_COVER_ALREADY_MIGRATED') throw error;
       }
@@ -23,6 +24,7 @@ export async function prepareRestaurantDatabase() {
 export function publicRestaurant(row: Record<string, string | null>): Restaurant {
   // Only separately approved business contact fields can cross this boundary.
   const verified = Boolean(row.verified_at && row.public_address && row.public_phone);
+  const menuPhoto = row.menu_photo_url ?? (row.cover_photo_url === SAMPLE_RESTAURANT_COVER ? SAMPLE_MENU_PHOTO : '');
   return {
     id: row.id!, ownerId: 'staff-reviewed', name: row.name!, country: row.country!,
     city: row.city!, cuisine: row.cuisine!, neighbourhood: '', address: verified ? row.public_address! : '',
@@ -30,7 +32,7 @@ export function publicRestaurant(row: Record<string, string | null>): Restaurant
     lat: null, lng: null, hours: row.opening_hours ?? undefined,
     status: verified ? 'verified' : 'basic', profilePlan: verified ? (row.pro_id ? 'pro' : 'verified') : 'basic',
     verifiedAt: verified ? row.verified_at! : undefined, submittedAt: row.published_at!,
-    photos: verified && row.pro_id && row.cover_photo_url ? [row.cover_photo_url] : [], menuPhotos: [], isPremium: false,
+    photos: verified && row.pro_id && row.cover_photo_url ? [row.cover_photo_url] : [], menuPhotos: verified && row.pro_id && menuPhoto ? [menuPhoto] : [], isPremium: false,
   };
 }
 
@@ -44,8 +46,11 @@ async function readListings(id?: string) {
     try {
       const proListings = `${verifiedListings} LEFT JOIN restaurant_pro_plans p ON p.id = v.id ${tail}`;
       try {
-        return await executePrivateSql(`SELECT ${verifiedColumns},p.id AS pro_id,p.cover_photo_url ${proListings}`, args);
+        return await executePrivateSql(`SELECT ${verifiedColumns},p.id AS pro_id,p.cover_photo_url,p.menu_photo_url ${proListings}`, args);
       } catch (error) {
+        if (error instanceof Error && error.message === 'TURSO_MENU_NOT_MIGRATED') {
+          return await executePrivateSql(`SELECT ${verifiedColumns},p.id AS pro_id,p.cover_photo_url ${proListings}`, args);
+        }
         if (!(error instanceof Error) || error.message !== 'TURSO_COVER_NOT_MIGRATED') throw error;
         return await executePrivateSql(`SELECT ${verifiedColumns},p.id AS pro_id ${proListings}`, args);
       }

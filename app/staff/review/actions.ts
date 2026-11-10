@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import { staffAuthorized, STAFF_COOKIE } from '@/lib/staff-auth';
 import { executePrivateSql } from '@/lib/turso';
-import { SAMPLE_RESTAURANT_COVER } from '@/lib/store';
+import { SAMPLE_MENU_PHOTO, SAMPLE_RESTAURANT_COVER } from '@/lib/store';
 import { prepareRestaurantDatabase } from '@/lib/restaurant-data';
 
 export async function reviewRestaurant(form: FormData) {
@@ -71,12 +71,25 @@ export async function publishVerifiedContacts(form: FormData) {
   redirect('/staff/review?result=' + result);
 }
 
+async function uploadedPhoto(form: FormData, invalidResult: string) {
+  const file = form.get('photoFile');
+  if (typeof file !== 'object' || !file || !file.size) return '';
+  if (file.size > 250 * 1024) redirect('/staff/review?result=' + invalidResult);
+  const bytes = Buffer.from(await file.arrayBuffer());
+  const jpeg = file.type === 'image/jpeg' && bytes.subarray(0, 3).equals(Buffer.from([255, 216, 255]));
+  const png = file.type === 'image/png' && bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
+  const webp = file.type === 'image/webp' && bytes.toString('ascii', 0, 4) === 'RIFF' && bytes.toString('ascii', 8, 12) === 'WEBP';
+  if (!jpeg && !png && !webp) redirect('/staff/review?result=' + invalidResult);
+  return `data:${file.type};base64,${bytes.toString('base64')}`;
+}
+
 export async function enableProPlan(form: FormData) {
   if (!(await staffAuthorized())) redirect('/staff/review/login');
   const id = String(form.get('id') ?? '');
   if (!/^[a-zA-Z0-9-]{1,100}$/.test(id)) redirect('/staff/review?result=invalid');
-  const coverPhotoUrl = form.get('sampleCover') === 'yes' ? SAMPLE_RESTAURANT_COVER : String(form.get('coverPhotoUrl') ?? '').trim();
-  if (coverPhotoUrl && coverPhotoUrl !== SAMPLE_RESTAURANT_COVER) {
+  const upload = form.get('sampleCover') === 'yes' ? '' : await uploadedPhoto(form, 'invalid-upload');
+  const coverPhotoUrl = upload || (form.get('sampleCover') === 'yes' ? SAMPLE_RESTAURANT_COVER : String(form.get('coverPhotoUrl') ?? '').trim());
+  if (!upload && coverPhotoUrl && coverPhotoUrl !== SAMPLE_RESTAURANT_COVER) {
     try {
       const url = new URL(coverPhotoUrl);
       if (url.protocol !== 'https:' || url.username || url.password || coverPhotoUrl.length > 2000) throw new Error();
@@ -91,9 +104,11 @@ export async function enableProPlan(form: FormData) {
       SELECT v.id,?,? FROM restaurant_verified_contacts v
       JOIN restaurant_listings l ON l.id = v.id
       JOIN restaurant_intake i ON i.id = v.id
-      WHERE v.id = ? AND i.status = 'approved' ON CONFLICT(id) DO UPDATE SET cover_photo_url = excluded.cover_photo_url
+      WHERE v.id = ? AND i.status = 'approved' ON CONFLICT(id) DO UPDATE SET cover_photo_url = excluded.cover_photo_url,
+      menu_photo_url = COALESCE(restaurant_pro_plans.menu_photo_url,
+        CASE WHEN restaurant_pro_plans.cover_photo_url = ? THEN ? END)
       WHERE excluded.cover_photo_url IS NOT NULL`,
-    [new Date().toISOString(), coverPhotoUrl || null, id]);
+    [new Date().toISOString(), coverPhotoUrl || null, id, SAMPLE_RESTAURANT_COVER, SAMPLE_MENU_PHOTO]);
     if (Number(updated.affected_row_count) !== 1) result = 'stale';
   } catch { result = 'unavailable'; }
   revalidatePath('/staff/review');
@@ -106,7 +121,7 @@ export async function removeCoverPhoto(form: FormData) {
   if (!(await staffAuthorized())) redirect('/staff/review/login');
   const id = String(form.get('id') ?? '');
   const expectedCover = String(form.get('expectedCover') ?? '');
-  if (!/^[a-zA-Z0-9-]{1,100}$/.test(id) || !expectedCover || expectedCover.length > 2000) {
+  if (!/^[a-zA-Z0-9-]{1,100}$/.test(id) || !expectedCover || expectedCover.length > 350000) {
     redirect('/staff/review?result=stale');
   }
 
@@ -114,9 +129,35 @@ export async function removeCoverPhoto(form: FormData) {
   try {
     await prepareRestaurantDatabase();
     const updated = await executePrivateSql(
-      'UPDATE restaurant_pro_plans SET cover_photo_url = NULL WHERE id = ? AND cover_photo_url = ?',
-      [id, expectedCover],
+      `UPDATE restaurant_pro_plans SET cover_photo_url = NULL,
+        menu_photo_url = COALESCE(menu_photo_url, CASE WHEN cover_photo_url = ? THEN ? END)
+        WHERE id = ? AND cover_photo_url = ?`,
+      [SAMPLE_RESTAURANT_COVER, SAMPLE_MENU_PHOTO, id, expectedCover],
     );
+    if (Number(updated.affected_row_count) !== 1) result = 'stale';
+  } catch { result = 'unavailable'; }
+  revalidatePath('/staff/review');
+  revalidatePath('/en/restaurants', 'layout');
+  revalidatePath('/pt/restaurantes', 'layout');
+  redirect('/staff/review?result=' + result);
+}
+
+export async function updateMenuPhoto(form: FormData) {
+  if (!(await staffAuthorized())) redirect('/staff/review/login');
+  const id = String(form.get('id') ?? '');
+  if (!/^[a-zA-Z0-9-]{1,100}$/.test(id)) redirect('/staff/review?result=stale');
+
+  const expected = String(form.get('expectedMenu') ?? '');
+  const remove = form.get('removeMenu') === 'yes';
+  const photo = remove ? '' : form.get('sampleMenu') === 'yes' ? SAMPLE_MENU_PHOTO : await uploadedPhoto(form, 'invalid-upload');
+  if ((!remove && !photo) || expected.length > 350000) redirect('/staff/review?result=invalid-upload');
+
+  let result = remove ? 'menu-removed' : 'menu-saved';
+  try {
+    await prepareRestaurantDatabase();
+    const updated = await executePrivateSql(`UPDATE restaurant_pro_plans SET menu_photo_url = ?
+      WHERE id = ? AND COALESCE(menu_photo_url, CASE WHEN cover_photo_url = ? THEN ? ELSE '' END) = ?`,
+    [photo, id, SAMPLE_RESTAURANT_COVER, SAMPLE_MENU_PHOTO, expected]);
     if (Number(updated.affected_row_count) !== 1) result = 'stale';
   } catch { result = 'unavailable'; }
   revalidatePath('/staff/review');
