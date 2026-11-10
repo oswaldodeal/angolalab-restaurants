@@ -130,11 +130,11 @@ export default async function StaffReview({ searchParams }: { searchParams: Prom
                 <form action={updateMenuPhoto} className="mt-4 space-y-3">
                   <input type="hidden" name="id" value={item.id} />
                   <input type="hidden" name="expectedMenu" value={item.menu_photo_url ?? ''} />
-                  <label className="block text-sm font-medium">
+                  <div className="block text-sm font-medium">
                     Choose a menu image / Escolher imagem da ementa
-                    <StaffPhotoInput />
+                    <StaffPhotoInput cover />
                     <span className="text-xs text-[#555]">JPG, PNG, WebP · 250 KB max</span>
-                  </label>
+                  </div>
                   <div className="flex flex-wrap gap-2">
                     <button type="submit" className="rounded-lg bg-[#252a32] px-4 py-2 text-sm font-semibold text-white">Save menu image / Guardar imagem</button>
                     <button type="submit" name="sampleMenu" value="yes" formNoValidate className="rounded-lg border border-[#ded8c5] px-4 py-2 text-sm font-semibold text-emerald-700">Use sample dish / Usar prato de demonstração</button>
