@@ -131,7 +131,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
                 {isPro && (
                   <Link href={`/findme?lang=${language}&city=${encodeURIComponent(restaurant.city)}`} className="inline-flex items-center gap-2 rounded-lg border border-[#d9d5c9] px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50">
                     {mapPinIcon}
-                    {pt ? 'Explorar com FindMe' : 'Explore with FindMe'}
+                    {pt ? 'Explorar com MeAcha' : 'Explore with FindMe'}
                   </Link>
                 )}
                 <a href={getGoogleMapsUrl(restaurant)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-[#b18a23] px-4 py-2 text-sm font-semibold text-[#75570d] hover:bg-[#fbf7ed]">

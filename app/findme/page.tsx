@@ -32,13 +32,13 @@ export default async function FindMe({ searchParams }: PageProps<'/findme'>) {
   return (
     <main className="min-h-screen bg-[#f3f2ef] text-[#242424]">
       <section className="page-rail py-12">
-        <h1 className="text-4xl font-semibold">FindMe</h1>
+        <h1 className="text-4xl font-semibold">{pt ? 'MeAcha' : 'FindMe'}</h1>
         <p className="mt-3 text-[#555]">
           {location
             ? (pt ? `Escolha o que procura em ${location}.` : `Choose what to explore in ${location}.`)
             : (pt ? 'Escolha o que procura.' : 'Choose what you want to explore.')}
         </p>
-        <p className="mt-2 text-sm text-[#555]">{pt ? 'O FindMe apresenta perfis Pro Verificados do AngolaLab.' : 'FindMe features AngolaLab Pro Verified profiles.'}</p>
+        <p className="mt-2 text-sm text-[#555]">{pt ? 'O MeAcha apresenta perfis Pro Verificados do AngolaLab.' : 'FindMe features AngolaLab Pro Verified profiles.'}</p>
         <ul className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {categories.map(category => {
             const query = new URLSearchParams({ lang: language, category: category.id });

@@ -149,7 +149,7 @@ function HeaderNavigation({ path, lang, findMeQuery }: { path: string; lang: 'pt
           {lang === 'pt' ? (
             <>
               <Link href="/pt/cartoes" className={navLinkClass}>Cartões Digitais</Link>
-              <Link href={findMeHref} className={navLinkClass} aria-current={isFindMe ? 'page' : undefined}>FindMe</Link>
+              <Link href={findMeHref} className={navLinkClass} aria-current={isFindMe ? 'page' : undefined}>MeAcha</Link>
               <Link href="/pt/sobre" className={navLinkClass}>Sobre Nós</Link>
               {languageMenu}
               <Link href="/pt/entrar" className={navLinkClass}>Entrar</Link>
@@ -179,7 +179,7 @@ function HeaderNavigation({ path, lang, findMeQuery }: { path: string; lang: 'pt
               <Link href={`/${lang}`} className="rounded-lg px-3 py-3 text-[#F2C94C] hover:bg-white/10">{lang === 'pt' ? 'Início' : 'Home'}</Link>
               <Link href={lang === 'pt' ? '/pt/restaurantes' : '/en/restaurants'} className="rounded-lg px-3 py-3 text-[#F2C94C] hover:bg-white/10">{lang === 'pt' ? 'Restaurantes' : 'Restaurants'}</Link>
               <Link href={lang === 'pt' ? '/pt/cartoes' : '/en/cards'} className="rounded-lg px-3 py-3 text-[#F2C94C] hover:bg-white/10">{lang === 'pt' ? 'Cartões Digitais' : 'Digital Cards'}</Link>
-              <Link href={findMeHref} onClick={switchLanguage} aria-current={isFindMe ? 'page' : undefined} className="rounded-lg px-3 py-3 text-[#F2C94C] hover:bg-white/10">FindMe</Link>
+              <Link href={findMeHref} onClick={switchLanguage} aria-current={isFindMe ? 'page' : undefined} className="rounded-lg px-3 py-3 text-[#F2C94C] hover:bg-white/10">{lang === 'pt' ? 'MeAcha' : 'FindMe'}</Link>
               <Link href={lang === 'pt' ? '/pt/sobre' : '/en/about'} className="rounded-lg px-3 py-3 text-[#F2C94C] hover:bg-white/10">{lang === 'pt' ? 'Sobre Nós' : 'About Us'}</Link>
               <div className="my-1 border-t border-[#585047]" />
               <p className="px-3 pt-2 text-xs font-semibold text-[#d8c68d]">{lang === 'pt' ? 'Idioma' : 'Language'}</p>
