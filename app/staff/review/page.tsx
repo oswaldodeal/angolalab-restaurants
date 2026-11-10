@@ -90,11 +90,11 @@ export default async function StaffReview({ searchParams }: { searchParams: Prom
                 <h3 className="font-semibold">Cover photo / Fotografia de capa</h3>
                 <form action={enableProPlan} className="mt-4 space-y-3">
                   <input type="hidden" name="id" value={item.id} />
-                  <label className="block text-sm font-medium">
+                  <div className="block text-sm font-medium">
                     Choose a new cover file / Escolher nova fotografia de capa
-                    <StaffPhotoInput />
+                    <StaffPhotoInput cover />
                     <span className="text-xs text-[#555]">JPG, PNG, WebP · 250 KB max</span>
-                  </label>
+                  </div>
                   <label className="block text-sm font-medium">
                     Cover photo URL / Ligação da fotografia de capa
                     <input type="url" name="coverPhotoUrl" maxLength={2000} defaultValue={item.cover_photo_url?.startsWith('https://') ? item.cover_photo_url : ''} className="mt-1 w-full rounded border border-[#ded8c5] p-2" />
