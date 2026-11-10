@@ -1,5 +1,5 @@
 import StaffPhotoInput from '@/components/StaffPhotoInput';
-import { SAMPLE_RESTAURANT_COVER } from '@/lib/store';
+import { MENU_PHOTO_LIMIT, SAMPLE_RESTAURANT_COVER } from '@/lib/store';
 import StaffReviewForm from '@/components/StaffReviewForm';
 import { enableProPlan, publishVerifiedContacts, removeCoverPhoto, signOutStaff, updateMenuPhoto } from './actions';
 import { redirect } from 'next/navigation';
@@ -43,7 +43,7 @@ export default async function StaffReview({ searchParams }: { searchParams: Prom
         Pilot reviews use one shared staff identity; review notes and timestamps are recorded.
       </p>
       <form action={signOutStaff}><button className="mt-5 rounded-lg border border-[#ded8c5] px-4 py-2">Sign out / Sair</button></form>
-      {result && <p role="status" className="mt-5 rounded-lg bg-[#fffaf0] p-4">{result === 'invalid-upload' ? 'Choose a JPG, PNG or WebP image up to 250 KB.' : result === 'menu-saved' ? 'Menu image saved / Imagem da ementa guardada.' : result === 'menu-removed' ? 'Menu image removed / Imagem da ementa removida.' : result === 'cover-removed' ? 'Cover photo removed / Fotografia de capa removida.' : result === 'invalid-cover' ? 'Enter a direct HTTPS image URL for the approved cover photo.' : result === 'verified' ? 'Verified profile published / Perfil verificado publicado.' : result === 'invalid-verification' ? 'Enter a valid business address and public phone, record the evidence, and confirm permission to publish.' : result === 'saved' ? 'Decision saved. Directory updated / Decisão guardada.' : result === 'stale' ? 'This record has changed or already been reviewed. Reload it and try again.' : result === 'invalid' ? 'Add a review note of 20–2000 characters. Publication also requires the identity and permission check.' : 'Unable to save. No publication decision was confirmed. Try again later.'}</p>}
+      {result && <p role="status" className="mt-5 rounded-lg bg-[#fffaf0] p-4">{result === 'menu-duplicate' ? 'This image is already on the menu. / Esta imagem já está na ementa.' : result === 'menu-limit' ? 'Remove an image before adding another. / Remova uma imagem antes de adicionar outra.' : result === 'invalid-upload' ? 'Choose a JPG, PNG or WebP image up to 250 KB.' : result === 'menu-saved' ? 'Menu image saved / Imagem da ementa guardada.' : result === 'menu-removed' ? 'Menu image removed / Imagem da ementa removida.' : result === 'cover-removed' ? 'Cover photo removed / Fotografia de capa removida.' : result === 'invalid-cover' ? 'Enter a direct HTTPS image URL for the approved cover photo.' : result === 'verified' ? 'Verified profile published / Perfil verificado publicado.' : result === 'invalid-verification' ? 'Enter a valid business address and public phone, record the evidence, and confirm permission to publish.' : result === 'saved' ? 'Decision saved. Directory updated / Decisão guardada.' : result === 'stale' ? 'This record has changed or already been reviewed. Reload it and try again.' : result === 'invalid' ? 'Add a review note of 20–2000 characters. Publication also requires the identity and permission check.' : 'Unable to save. No publication decision was confirmed. Try again later.'}</p>}
       {submissions.length === 0 ? <p className="mt-8">No submissions yet.</p> :
         <div className="mt-8 space-y-5">{submissions.map((item, index) =>
           <article key={item.id} className="rounded-xl border border-[#ded8c5] p-6">
@@ -122,23 +122,32 @@ export default async function StaffReview({ searchParams }: { searchParams: Prom
             )}
             {item.pro_id && (
               <section className="mt-6 rounded-lg border border-[#ded8c5] p-4">
-                <h3 className="font-semibold">Menu image / Imagem da ementa</h3>
-                {item.menu_photo_url && (
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  <img src={item.menu_photo_url} alt="Current menu image / Imagem atual da ementa" loading="lazy" className="mt-3 w-full max-w-xs rounded-lg" />
-                )}
+                <h3 className="font-semibold">Menu images / Imagens da ementa ({item.menuPhotos.length}/{MENU_PHOTO_LIMIT})</h3>
+                <ul className="mt-3 grid gap-3 sm:grid-cols-2">
+                  {item.menuPhotos.map((photo, index) => (
+                    <li key={photo}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={photo} alt={`Menu image ${index + 1} / Imagem da ementa ${index + 1}`} loading="lazy" className="w-full max-w-xs rounded-lg" />
+                      <form action={updateMenuPhoto} className="mt-2">
+                        <input type="hidden" name="id" value={item.id} />
+                        <input type="hidden" name="expectedMenu" value={photo} />
+                        <button type="submit" name="removeMenu" value="yes" className="rounded-lg border border-red-300 px-4 py-2 text-sm font-semibold text-red-700">
+                          Remove image {index + 1} / Remover imagem {index + 1}
+                        </button>
+                      </form>
+                    </li>
+                  ))}
+                </ul>
                 <form action={updateMenuPhoto} className="mt-4 space-y-3">
                   <input type="hidden" name="id" value={item.id} />
-                  <input type="hidden" name="expectedMenu" value={item.menu_photo_url ?? ''} />
                   <div className="block text-sm font-medium">
                     Choose a menu image / Escolher imagem da ementa
                     <StaffPhotoInput cover />
                     <span className="text-xs text-[#555]">JPG, PNG, WebP · 250 KB max</span>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    <button type="submit" className="rounded-lg bg-[#252a32] px-4 py-2 text-sm font-semibold text-white">Save menu image / Guardar imagem</button>
+                    <button type="submit" className="rounded-lg bg-[#252a32] px-4 py-2 text-sm font-semibold text-white">Add menu image / Adicionar imagem</button>
                     <button type="submit" name="sampleMenu" value="yes" formNoValidate className="rounded-lg border border-[#ded8c5] px-4 py-2 text-sm font-semibold text-emerald-700">Use sample dish / Usar prato de demonstração</button>
-                    {item.menu_photo_url && <button type="submit" name="removeMenu" value="yes" formNoValidate className="rounded-lg border border-red-300 px-4 py-2 text-sm font-semibold text-red-700">Remove menu image / Remover imagem</button>}
                   </div>
                 </form>
               </section>

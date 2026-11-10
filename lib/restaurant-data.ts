@@ -1,7 +1,7 @@
 import 'server-only';
 import { executePrivateSql, sqlRows } from '@/lib/turso';
 import { restaurantSchema } from '@/lib/restaurant-schema';
-import { initialRestaurants, SAMPLE_MENU_PHOTO, SAMPLE_RESTAURANT_COVER, type Restaurant } from '@/lib/store';
+import { initialRestaurants, readMenuPhotos, type Restaurant } from '@/lib/store';
 
 let preparation: Promise<void> | undefined;
 // Used by intake/staff only. Public reads never migrate or publish records.
@@ -24,7 +24,6 @@ export async function prepareRestaurantDatabase() {
 export function publicRestaurant(row: Record<string, string | null>): Restaurant {
   // Only separately approved business contact fields can cross this boundary.
   const verified = Boolean(row.verified_at && row.public_address && row.public_phone);
-  const menuPhoto = row.menu_photo_url ?? (row.cover_photo_url === SAMPLE_RESTAURANT_COVER ? SAMPLE_MENU_PHOTO : '');
   return {
     id: row.id!, ownerId: 'staff-reviewed', name: row.name!, country: row.country!,
     city: row.city!, cuisine: row.cuisine!, neighbourhood: '', address: verified ? row.public_address! : '',
@@ -32,7 +31,7 @@ export function publicRestaurant(row: Record<string, string | null>): Restaurant
     lat: null, lng: null, hours: row.opening_hours ?? undefined,
     status: verified ? 'verified' : 'basic', profilePlan: verified ? (row.pro_id ? 'pro' : 'verified') : 'basic',
     verifiedAt: verified ? row.verified_at! : undefined, submittedAt: row.published_at!,
-    photos: verified && row.pro_id && row.cover_photo_url ? [row.cover_photo_url] : [], menuPhotos: verified && row.pro_id && menuPhoto ? [menuPhoto] : [], isPremium: false,
+    photos: verified && row.pro_id && row.cover_photo_url ? [row.cover_photo_url] : [], menuPhotos: verified && row.pro_id ? readMenuPhotos(row.menu_photo_url, row.cover_photo_url) : [], isPremium: false,
   };
 }
 

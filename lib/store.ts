@@ -1,6 +1,20 @@
 export const SAMPLE_MENU_PHOTO = '/demo/grilled-fish-with-funge.webp';
 export const SAMPLE_RESTAURANT_COVER = '/demo/luanda-restaurant-cover.webp';
 
+export const MENU_PHOTO_LIMIT = 6;
+
+export function readMenuPhotos(value: string | null | undefined, cover: string | null | undefined): string[] {
+  if (value == null) return cover === SAMPLE_RESTAURANT_COVER ? [SAMPLE_MENU_PHOTO] : [];
+  if (!value) return [];
+  if (!value.startsWith('[')) return [value];
+  try {
+    const photos: unknown = JSON.parse(value);
+    return Array.isArray(photos) ? photos.filter((photo): photo is string => typeof photo === 'string' && photo.length > 0) : [];
+  } catch {
+    return [];
+  }
+}
+
 export type Restaurant = {
   id: string;
   ownerId: string;

@@ -4,8 +4,8 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import { staffAuthorized, STAFF_COOKIE } from '@/lib/staff-auth';
-import { executePrivateSql } from '@/lib/turso';
-import { SAMPLE_MENU_PHOTO, SAMPLE_RESTAURANT_COVER } from '@/lib/store';
+import { executePrivateSql, sqlRows } from '@/lib/turso';
+import { MENU_PHOTO_LIMIT, readMenuPhotos, SAMPLE_MENU_PHOTO, SAMPLE_RESTAURANT_COVER } from '@/lib/store';
 import { prepareRestaurantDatabase } from '@/lib/restaurant-data';
 
 export async function reviewRestaurant(form: FormData) {
@@ -152,13 +152,26 @@ export async function updateMenuPhoto(form: FormData) {
   const photo = remove ? '' : form.get('sampleMenu') === 'yes' ? SAMPLE_MENU_PHOTO : await uploadedPhoto(form, 'invalid-upload');
   if ((!remove && !photo) || expected.length > 350000) redirect('/staff/review?result=invalid-upload');
 
-  let result = remove ? 'menu-removed' : 'menu-saved';
+  let result = 'stale';
   try {
     await prepareRestaurantDatabase();
-    const updated = await executePrivateSql(`UPDATE restaurant_pro_plans SET menu_photo_url = ?
-      WHERE id = ? AND COALESCE(menu_photo_url, CASE WHEN cover_photo_url = ? THEN ? ELSE '' END) = ?`,
-    [photo, id, SAMPLE_RESTAURANT_COVER, SAMPLE_MENU_PHOTO, expected]);
-    if (Number(updated.affected_row_count) !== 1) result = 'stale';
+    const [row] = sqlRows(await executePrivateSql(
+      'SELECT menu_photo_url,cover_photo_url FROM restaurant_pro_plans WHERE id = ?', [id],
+    ));
+    if (row) {
+      const photos = readMenuPhotos(row.menu_photo_url, row.cover_photo_url);
+      if (!remove && photos.includes(photo)) {
+        result = 'menu-duplicate';
+      } else if (!remove && photos.length >= MENU_PHOTO_LIMIT) {
+        result = 'menu-limit';
+      } else if (!remove || photos.includes(expected)) {
+        const next = remove ? photos.filter(item => item !== expected) : [...photos, photo];
+        const updated = await executePrivateSql(`UPDATE restaurant_pro_plans SET menu_photo_url = ?
+          WHERE id = ? AND menu_photo_url IS ? AND (menu_photo_url IS NOT NULL OR cover_photo_url IS ?)`,
+        [JSON.stringify(next), id, row.menu_photo_url, row.cover_photo_url]);
+        if (Number(updated.affected_row_count) === 1) result = remove ? 'menu-removed' : 'menu-saved';
+      }
+    }
   } catch { result = 'unavailable'; }
   revalidatePath('/staff/review');
   revalidatePath('/en/restaurants', 'layout');

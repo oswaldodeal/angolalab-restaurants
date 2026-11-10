@@ -146,12 +146,17 @@ async function action(id, decision, consent = true) {
   const updateMenu = () => load('app/staff/review/actions').updateMenuPhoto(menuForm);
   await assert.rejects(updateMenu, error => error.url.endsWith('result=menu-saved'));
   assert.equal((await data.getPublishedRestaurant(id)).menuPhotos[0], uploadedCover);
+  menuForm.set('sampleMenu', 'yes');
+  await assert.rejects(updateMenu, error => error.url.endsWith('result=menu-saved'));
+  assert.equal((await data.getPublishedRestaurant(id)).menuPhotos.length, 2);
+  await assert.rejects(updateMenu, error => error.url.endsWith('result=menu-duplicate'));
   menuForm.set('removeMenu', 'yes');
   await assert.rejects(updateMenu, error => error.url.endsWith('result=stale'));
   menuForm.set('expectedMenu', uploadedCover);
   await assert.rejects(updateMenu, error => error.url.endsWith('result=menu-removed'));
   const afterMenuRemoval = await data.getPublishedRestaurant(id);
-  assert.equal(afterMenuRemoval.menuPhotos.length, 0);
+  assert.equal(afterMenuRemoval.menuPhotos.length, 1);
+  assert.equal(afterMenuRemoval.menuPhotos[0], '/demo/grilled-fish-with-funge.webp');
   assert.equal(afterMenuRemoval.photos[0], uploadedCover);
   assert.equal(await action(id, 'withdrawn'), '/staff/review?result=saved');
   assert.equal(await data.getPublishedRestaurant(id), null, 'Withdrawal removes profile');
