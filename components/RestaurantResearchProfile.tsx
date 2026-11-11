@@ -2,6 +2,7 @@ import Link from 'next/link';
 import HospitalityVenueNavigation from '@/components/HospitalityVenueNavigation';
 import { CITIES, COUNTRIES, CUISINES, SAMPLE_RESTAURANT_COVER, SAMPLE_MENU_PHOTO, getGoogleMapsUrl, type Restaurant } from '@/lib/store';
 import { demoRestaurantPhoto } from '@/lib/demo-photos';
+import FeaturedMenuCategories from '@/components/FeaturedMenuCategories';
 import RestaurantMenuPreview from '@/components/RestaurantMenuPreview';
 
 export default function RestaurantResearchProfile({ restaurant, language }: {
@@ -219,6 +220,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
                 )}
                 {refinedBasic ? (
                   <>
+                    <FeaturedMenuCategories language={language}>
                     <p className="mt-4 text-sm text-[#555]">{pt ? 'Demonstração · Pratos e preços ilustrativos' : 'Demo · Illustrative dishes and prices'}</p>
                     <div className="mt-5 grid gap-5 sm:grid-cols-2">
                       {[
@@ -237,6 +239,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
                         </figure>
                       ))}
                     </div>
+                    </FeaturedMenuCategories>
                     <div className="mt-6 flex items-center gap-4 rounded-xl border border-[#e9e5db] bg-white p-5">
                       <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="size-8 shrink-0 text-emerald-800">
                         <rect x="5" y="10" width="14" height="11" rx="2" />
