@@ -10,7 +10,7 @@ export default function EcosystemHomePage() {
     <h1 className="max-w-4xl text-3xl font-bold leading-tight text-white sm:text-5xl">Descubra negócios. Conecte pessoas.</h1>
     <p className="mt-6 hidden max-w-3xl text-lg leading-8 text-slate-300 sm:block">A AngolaLab ajuda negócios a ganhar visibilidade, profissionais a apresentar competências e pessoas a desenvolver projectos digitais. A investigação e a educação sustentam esta missão.</p>
     <div className="mt-6 grid grid-cols-2 gap-2 sm:mt-8 sm:flex sm:flex-wrap sm:gap-3">
-     <a href="#aeis" className="inline-flex min-h-12 items-center justify-center rounded-lg bg-[#d4af37] px-2 py-3 text-center text-sm font-semibold text-[#171717] hover:bg-[#f2c94c] sm:px-6 sm:text-base"><span className="sm:hidden">Investigação AEIS</span><span className="hidden sm:inline">Inteligência Económica</span></a>
+     <a href="#business-directory" className="inline-flex min-h-12 items-center justify-center rounded-lg bg-[#d4af37] px-2 py-3 text-center text-sm font-semibold text-[#171717] hover:bg-[#f2c94c] sm:px-6 sm:text-base"><span className="sm:hidden">Investigação AEIS</span><span className="hidden sm:inline">Inteligência Económica</span></a>
      <a href="#connections" className="inline-flex min-h-12 items-center justify-center rounded-lg border border-[#d4af37] px-2 py-3 text-center text-sm font-semibold text-[#f2c94c] hover:bg-white/10 sm:px-6 sm:text-base"><span className="sm:hidden">Conexões</span><span className="hidden sm:inline">Conexões Digitais</span></a>
     </div>
    </div>
@@ -55,21 +55,5 @@ export default function EcosystemHomePage() {
    </div>
   </section>
   <HomeTourismCard language="pt" />
-  <section id="aeis" aria-labelledby="aeis-heading" className="scroll-mt-24 bg-[#f3f2ef] py-14 text-[#252525] sm:py-16">
-   <div className="page-rail">
-    <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#927018]">Sistema de Inteligência Económica AngolaLab</p>
-    <div className="mt-3 grid gap-5 md:grid-cols-[1.2fr_1fr] md:items-end">
-     <h2 id="aeis-heading" className="text-3xl font-bold leading-tight sm:text-4xl">AEIS · Investigação e Inteligência</h2>
-     <p className="leading-7 text-[#555]">Estudamos evidências, relações e possíveis resultados para apoiar decisões informadas.</p>
-    </div>
-    <div className="mt-8 grid gap-4 md:grid-cols-3">
-     <article className="rounded-2xl border border-[#e4d8bc] bg-white p-6"><p className="text-xs font-bold uppercase tracking-widest text-[#927018]">Investigação</p><h3 className="mt-3 text-xl font-bold">Inteligência Económica</h3><p className="mt-3 leading-7 text-[#555]">Boletins de investigação, pensamento sistémico e questões sobre empresas, tecnologia e desenvolvimento.</p><p className="mt-5 text-sm font-semibold text-[#725716]">Investigação em desenvolvimento</p></article>
-<a href="https://angolalab-63iw-git-feature-home-a-f0a44a-oswaldodeal-s-projects.vercel.app/tourism-intelligence/index.html" className="block rounded-2xl border border-[#e4d8bc] bg-white p-6 transition-colors hover:border-[#927018] hover:bg-[#fffcf4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#927018]"><p className="text-xs font-bold uppercase tracking-widest text-[#927018]">Turismo</p><h3 className="mt-3 text-xl font-bold">Inteligência do Turismo</h3><p className="mt-3 leading-7 text-[#555]">Investigação sobre alojamentos, negócios turísticos e conexões locais através de projectos-piloto avaliados.</p><p className="mt-5 text-sm font-semibold text-[#725716]">Explorar Inteligência do Turismo ↗</p></a>
-<a href="https://angolalab-63iw-git-feature-home-a-f0a44a-oswaldodeal-s-projects.vercel.app/trading" className="block rounded-2xl border border-[#e4d8bc] bg-white p-6 transition-colors hover:border-[#927018] hover:bg-[#fffcf4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#927018]" aria-label="Abrir Trading Intelligence na plataforma AEIS"><p className="text-xs font-bold uppercase tracking-widest text-[#927018]">Mercados</p><h3 className="mt-3 text-xl font-bold">Inteligência dos Mercados</h3><p className="mt-3 leading-7 text-[#555]">Factores macroeconómicos e cenários de mercado para investigação e educação, não aconselhamento financeiro pessoal.</p><p className="mt-5 text-sm font-semibold text-[#725716]">Explorar Trading Intelligence ↗</p></a>
-    </div>
-   </div>
-  </section>
-
-
  </>);
 }
