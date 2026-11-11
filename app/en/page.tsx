@@ -10,7 +10,7 @@ export default function EcosystemHomePage() {
     <h1 className="max-w-4xl text-3xl font-bold leading-tight text-white sm:text-5xl">Discover businesses. Connect people.</h1>
     <p className="mt-6 hidden max-w-3xl text-lg leading-8 text-slate-300 sm:block">AngolaLab helps businesses become visible, professionals share skills and people build digital projects. Research and education support this mission.</p>
     <div className="mt-6 grid grid-cols-2 gap-2 sm:mt-8 sm:flex sm:flex-wrap sm:gap-3">
-     <a href="#aeis" className="inline-flex min-h-12 items-center justify-center rounded-lg bg-[#d4af37] px-2 py-3 text-center text-sm font-semibold text-[#171717] hover:bg-[#f2c94c] sm:px-6 sm:text-base"><span className="sm:hidden">AEIS Research</span><span className="hidden sm:inline">Economic Intelligence</span></a>
+     <a href="#business-directory" className="inline-flex min-h-12 items-center justify-center rounded-lg bg-[#d4af37] px-2 py-3 text-center text-sm font-semibold text-[#171717] hover:bg-[#f2c94c] sm:px-6 sm:text-base"><span className="sm:hidden">AEIS Research</span><span className="hidden sm:inline">Economic Intelligence</span></a>
      <a href="#connections" className="inline-flex min-h-12 items-center justify-center rounded-lg border border-[#d4af37] px-2 py-3 text-center text-sm font-semibold text-[#f2c94c] hover:bg-white/10 sm:px-6 sm:text-base"><span className="sm:hidden">Connections</span><span className="hidden sm:inline">Digital Connections</span></a>
     </div>
    </div>
@@ -55,21 +55,5 @@ export default function EcosystemHomePage() {
    </div>
   </section>
   <HomeTourismCard language="en" />
-  <section id="aeis" aria-labelledby="aeis-heading" className="scroll-mt-24 bg-[#f3f2ef] py-14 text-[#252525] sm:py-16">
-   <div className="page-rail">
-    <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#927018]">AngolaLab Economic Intelligence System</p>
-    <div className="mt-3 grid gap-5 md:grid-cols-[1.2fr_1fr] md:items-end">
-     <h2 id="aeis-heading" className="text-3xl font-bold leading-tight sm:text-4xl">AEIS · Research & Intelligence</h2>
-     <p className="leading-7 text-[#555]">We examine evidence, relationships and possible outcomes to support informed decisions.</p>
-    </div>
-    <div className="mt-8 grid gap-4 md:grid-cols-3">
-     <article className="rounded-2xl border border-[#e4d8bc] bg-white p-6"><p className="text-xs font-bold uppercase tracking-widest text-[#927018]">Research</p><h3 className="mt-3 text-xl font-bold">Economic Intelligence</h3><p className="mt-3 leading-7 text-[#555]">Research briefs, systems thinking and evidence-led questions about business, technology and development.</p><p className="mt-5 text-sm font-semibold text-[#725716]">Research in development</p></article>
-<a href="https://angolalab-63iw-git-feature-home-a-f0a44a-oswaldodeal-s-projects.vercel.app/tourism-intelligence/index.html" className="block rounded-2xl border border-[#e4d8bc] bg-white p-6 transition-colors hover:border-[#927018] hover:bg-[#fffcf4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#927018]"><p className="text-xs font-bold uppercase tracking-widest text-[#927018]">Tourism</p><h3 className="mt-3 text-xl font-bold">Tourism Intelligence</h3><p className="mt-3 leading-7 text-[#555]">Research into accommodation, visitor businesses and local connections through carefully evaluated pilots.</p><p className="mt-5 text-sm font-semibold text-[#725716]">Explore Tourism Intelligence ↗</p></a>
-<a href="https://angolalab-63iw-git-feature-home-a-f0a44a-oswaldodeal-s-projects.vercel.app/trading" className="block rounded-2xl border border-[#e4d8bc] bg-white p-6 transition-colors hover:border-[#927018] hover:bg-[#fffcf4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#927018]" aria-label="Open Trading Intelligence on AEIS"><p className="text-xs font-bold uppercase tracking-widest text-[#927018]">Markets</p><h3 className="mt-3 text-xl font-bold">Trading Intelligence</h3><p className="mt-3 leading-7 text-[#555]">Macroeconomic drivers and market scenarios for research and education, not personal investment advice.</p><p className="mt-5 text-sm font-semibold text-[#725716]">Explore Trading Intelligence ↗</p></a>
-    </div>
-   </div>
-  </section>
-
-
  </>);
 }
