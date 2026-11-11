@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import HomeDigitalCards from '@/components/HomeDigitalCards';
-import HomeEducationCard from '@/components/HomeEducationCard';
+import HomeTourismCard from '@/components/HomeTourismCard';
 
 export default function EcosystemHomePage() {
  return (<>
@@ -54,7 +54,7 @@ export default function EcosystemHomePage() {
     </div>
    </div>
   </section>
-  <HomeEducationCard language="pt" />
+  <HomeTourismCard language="pt" />
   <section id="aeis" aria-labelledby="aeis-heading" className="scroll-mt-24 bg-[#f3f2ef] py-14 text-[#252525] sm:py-16">
    <div className="page-rail">
     <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#927018]">Sistema de Inteligência Económica AngolaLab</p>
