@@ -9,10 +9,11 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
   language: 'pt' | 'en';
 }) {
   const pt = language === 'pt';
+  const refinedBasic = restaurant.ownerId === 'demo' && restaurant.id === 'rest-002' && restaurant.status === 'basic';
   const city = CITIES.find((c) => c.id === restaurant.city)?.[language] ?? restaurant.city;
   const country = COUNTRIES.find((c) => c.id === restaurant.country)?.[language] ?? restaurant.country;
   const cuisine = CUISINES.find((c) => c.id === restaurant.cuisine)?.[language] ?? restaurant.cuisine;
-  const photo = restaurant.ownerId === 'demo' ? demoRestaurantPhoto(restaurant.id) : restaurant.photos[0];
+  const photo = refinedBasic ? '/demo/sabor-cover.webp' : restaurant.ownerId === 'demo' ? demoRestaurantPhoto(restaurant.id) : restaurant.photos[0];
   const verified = restaurant.status === 'verified';
   const illustrativePhoto = photo === SAMPLE_RESTAURANT_COVER;
   const isDemo = restaurant.ownerId === 'demo';
@@ -50,8 +51,24 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
   return (
     <div className="bg-[#f3f2ef] text-[#242424]">
       <article className="page-rail overflow-hidden">
+        {refinedBasic && (
+          <div className="flex flex-wrap items-center justify-between gap-5 pt-8">
+            <div className="flex min-w-0 items-center gap-4">
+              {/* Illustrative identity for the fictional restaurant. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/demo/sabor-logo.svg" alt="" width={110} height={72} className="w-20 shrink-0 sm:w-28" />
+              <div className="border-l border-[#d9d5c9] pl-4">
+                <h1 className="text-2xl font-semibold tracking-tight sm:text-4xl">{restaurant.name}</h1>
+                <p className="mt-1 text-xs uppercase tracking-[0.2em] text-[#555]">{pt ? 'Restaurante' : 'Restaurant'}</p>
+              </div>
+            </div>
+            <span className="rounded-full bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-800">
+              {pt ? 'Perfil Básico · Demonstração' : 'Basic profile · Demo'}
+            </span>
+          </div>
+        )}
         {/* Mobile: photograph immediately below the header, inside the shared page width. */}
-        <section className="sm:hidden" aria-label={pt ? 'Fotografia do restaurante' : 'Restaurant photograph'}>
+        <section className={refinedBasic ? 'mt-6 sm:hidden' : 'sm:hidden'} aria-label={pt ? 'Fotografia do restaurante' : 'Restaurant photograph'}>
           <div className="relative h-[290px] w-full overflow-hidden bg-gradient-to-br from-[#ad8b50] to-[#252a32]">
             {!photo && !isDemo && <div className="flex h-full items-center justify-center px-6 text-center text-sm font-semibold text-white">{pt ? 'Fotografia ainda não adicionada' : 'Photograph not yet added'}</div>}
             {photo && (
@@ -66,7 +83,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
         </section>
 
         {/* Desktop: retain the approved Research Archive order and gold divider. */}
-        <div className="hidden pt-7 sm:block sm:pt-10">
+        <div className={refinedBasic ? 'hidden' : 'hidden pt-7 sm:block sm:pt-10'}>
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#987515]">
             {pt ? 'AngolaLab · Perfil do restaurante' : 'AngolaLab · Restaurant profile'}
           </p>
@@ -97,7 +114,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
                 : 'Fictional profile for design testing. Photos, details and status do not represent a real or verified restaurant.'}
             </p>
           )}
-          <div className="mb-7 sm:hidden">
+          <div className={refinedBasic ? 'hidden' : 'mb-7 sm:hidden'}>
             <h1 className="text-3xl font-semibold tracking-tight">{restaurant.name}</h1>
             <p className="mt-3 text-base text-[#555]">{cuisine} · {city}, {country}</p>
           <HospitalityVenueNavigation language={language} />
@@ -181,7 +198,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
                     </figcaption>
                   </figure>
                 )}
-                {demoBasicOffers.length > 0 && (
+                {!refinedBasic && demoBasicOffers.length > 0 && (
                   <div className="mt-5 space-y-4">
                     <p className="text-sm text-[#6b5b35]">{pt ? 'Exemplos ilustrativos de refeições, preços e períodos. Não são ofertas reais.' : 'Illustrative meals, prices and availability periods. These are not real offers.'}</p>
                     {demoBasicOffers.map((offer) => (
@@ -199,7 +216,38 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
                     ))}
                   </div>
                 )}
-                <RestaurantMenuPreview restaurant={restaurant} language={language} />
+                {refinedBasic ? (
+                  <>
+                    <p className="mt-4 text-sm text-[#555]">{pt ? 'Demonstração · Pratos e preços ilustrativos' : 'Demo · Illustrative dishes and prices'}</p>
+                    <div className="mt-5 grid gap-5 sm:grid-cols-2">
+                      {[
+                        { image: '/demo/moamba.webp', pt: 'Moamba de galinha', en: 'Chicken moamba', price: 'AOA 5 500', period: pt ? 'Dias úteis' : 'Weekdays' },
+                        { image: '/demo/espetada.webp', pt: 'Espetada com mandioca', en: 'Beef skewers with cassava', price: 'AOA 6 000', period: pt ? 'Fins de semana' : 'Weekends' },
+                      ].map(dish => (
+                        <figure key={dish.image} className="overflow-hidden rounded-2xl border border-[#e9e5db] bg-white">
+                          {/* Bundled illustrative meal photograph. */}
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={dish.image} alt={dish[language]} width={700} height={525} loading="lazy" className="aspect-[4/3] w-full object-cover" />
+                          <figcaption className="p-4">
+                            <h3 className="text-lg font-semibold">{dish[language]}</h3>
+                            <p className="mt-2 text-xl font-semibold text-emerald-800">{dish.price}</p>
+                            <p className="mt-2 text-sm text-[#555]">{pt ? 'Disponibilidade ilustrativa' : 'Illustrative availability'} · {dish.period}</p>
+                          </figcaption>
+                        </figure>
+                      ))}
+                    </div>
+                    <div className="mt-6 flex items-center gap-4 rounded-xl border border-[#e9e5db] bg-white p-5">
+                      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="size-8 shrink-0 text-emerald-800">
+                        <rect x="5" y="10" width="14" height="11" rx="2" />
+                        <path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3" />
+                      </svg>
+                      <div>
+                        <h3 className="font-semibold">{pt ? 'Ementa completa em perfis Verificados' : 'Full menu on Verified profiles'}</h3>
+                        <p className="mt-1 text-sm text-[#555]">{pt ? 'O Perfil Básico apresenta duas refeições em destaque.' : 'Basic profiles show two featured meals.'}</p>
+                      </div>
+                    </div>
+                  </>
+                ) : <RestaurantMenuPreview restaurant={restaurant} language={language} />}
                 {isDemo && (
                   <a
                     href={pt ? '/pt/editor-ementa' : '/en/menu-editor'}
