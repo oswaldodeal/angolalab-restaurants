@@ -67,7 +67,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
             </span>
           </div>
         )}
-        {refinedBasic && <HospitalityVenueNavigation language={language} showDemo={false} />}
+        {refinedBasic && <HospitalityVenueNavigation language={language} />}
         {/* Mobile: photograph immediately below the header, inside the shared page width. */}
         <section className={refinedBasic ? 'mt-6 sm:hidden' : 'sm:hidden'} aria-label={pt ? 'Fotografia do restaurante' : 'Restaurant photograph'}>
           <div className="relative h-[290px] w-full overflow-hidden bg-gradient-to-br from-[#ad8b50] to-[#252a32]">
