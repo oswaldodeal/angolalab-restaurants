@@ -13,11 +13,13 @@ const startingMenu: MenuCategory[] = [
   ] },
 ];
 
-type FeaturedMeal = { id: 'breakfast' | 'lunch'; name: string; price: number; availability: string };
-const initialFeaturedMeals: FeaturedMeal[] = [
-  { id: 'breakfast', name: 'Breakfast', price: 8.5, availability: 'Weekdays' },
-  { id: 'lunch', name: 'Lunch', price: 12, availability: 'Weekends' },
-];
+type FeaturedMeal = { id: 'featured-1' | 'featured-2'; name: string; price: number; availability: string; image: string };
+function exampleFeaturedMeals(pt: boolean, country: 'GB' | 'AO'): FeaturedMeal[] {
+  return [
+    { id: 'featured-1', name: pt ? 'Moamba de galinha' : 'Chicken moamba', price: country === 'AO' ? 5500 : 14.5, availability: pt ? 'Dias úteis' : 'Weekdays', image: '/demo/moamba.webp' },
+    { id: 'featured-2', name: pt ? 'Espetada com mandioca' : 'Beef skewers with cassava', price: country === 'AO' ? 6000 : 16, availability: pt ? 'Fins de semana' : 'Weekends', image: '/demo/espetada.webp' },
+  ];
+}
 
 type BasicMenuItem = { id: 'preview-1' | 'preview-2'; name: string; price: number };
 const initialBasicMenuItems: BasicMenuItem[] = [
@@ -31,9 +33,9 @@ const buttonClass = 'rounded-lg border border-[#c9ae6d] bg-white px-3 py-2 text-
 export default function RestaurantMenuEditorDemo({ language }: { language: 'pt' | 'en' }) {
   const pt = language === 'pt';
   const [tier, setTier] = useState<'basic' | 'verified'>('basic');
-  const [country, setCountry] = useState<'GB' | 'AO'>('GB');
+  const [country, setCountry] = useState<'GB' | 'AO'>('AO');
   const [categories, setCategories] = useState<MenuCategory[]>(() => structuredClone(startingMenu));
-  const [featuredMeals, setFeaturedMeals] = useState<FeaturedMeal[]>(() => structuredClone(initialFeaturedMeals));
+  const [featuredMeals, setFeaturedMeals] = useState<FeaturedMeal[]>(() => exampleFeaturedMeals(pt, 'AO'));
   const [basicMenuItems, setBasicMenuItems] = useState<BasicMenuItem[]>(() => structuredClone(initialBasicMenuItems));
   const [newCategory, setNewCategory] = useState('');
   const [newKind, setNewKind] = useState<'food' | 'drinks'>('food');
@@ -101,8 +103,12 @@ export default function RestaurantMenuEditorDemo({ language }: { language: 'pt' 
             </select>
           </label>
           <label className="text-sm font-semibold">
-            {pt ? 'Mercado e moeda' : 'Market and currency'}
-            <select value={country} onChange={(event) => setCountry(event.target.value as 'GB' | 'AO')} className={inputClass + ' mt-2'}>
+            {pt ? 'Mercado e moeda · Repor exemplos ao mudar' : 'Market and currency · Switching resets meal examples'}
+            <select value={country} onChange={(event) => {
+              const market = event.target.value as 'GB' | 'AO';
+              setCountry(market);
+              setFeaturedMeals(exampleFeaturedMeals(pt, market));
+            }} className={inputClass + ' mt-2'}>
               <option value="GB">Manchester · GBP (£)</option>
               <option value="AO">Luanda · AOA (Kz)</option>
             </select>
@@ -143,7 +149,7 @@ export default function RestaurantMenuEditorDemo({ language }: { language: 'pt' 
                   </section>
                 ))}
               </div>
-              <button type="button" onClick={() => setFeaturedMeals(structuredClone(initialFeaturedMeals))} className={buttonClass + ' mt-4'}>
+              <button type="button" onClick={() => setFeaturedMeals(exampleFeaturedMeals(pt, country))} className={buttonClass + ' mt-4'}>
                 {pt ? 'Repor refeições de exemplo' : 'Reset example meals'}
               </button>
               <section className="mt-8" aria-label={pt ? 'Editar dois itens adicionais' : 'Edit two additional menu items'}>
@@ -196,10 +202,15 @@ export default function RestaurantMenuEditorDemo({ language }: { language: 'pt' 
               <p className="mt-2 text-xs text-[#777]">{pt ? 'Não publicado · Apenas nesta página' : 'Not published · This page only'}</p>
               <div className="mt-5 space-y-4">
                 {featuredMeals.map((meal) => (
-                  <article key={meal.id} className="rounded-lg border border-[#e9e5db] bg-white p-4">
+                  <article key={meal.id} className="overflow-hidden rounded-xl border border-[#e9e5db] bg-white">
+                    {/* Illustrative photographs matching the Basic profile example. */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={meal.image} alt={meal.name} width={700} height={525} className="aspect-[4/3] w-full object-cover" />
+                    <div className="p-4">
                     <h3 className="font-semibold">{meal.name.trim() || (pt ? 'Refeição sem nome' : 'Unnamed meal')}</h3>
-                    <p className="mt-2 text-sm text-[#555]">{pt ? 'Preço' : 'Price'}: <strong>{money(meal.price)}</strong></p>
+                    <p className="mt-2 text-sm text-[#555]">{pt ? 'Preço' : 'Price'}: <strong className="text-lg text-emerald-800">{money(meal.price)}</strong></p>
                     {meal.availability.trim() && <p className="mt-1 text-sm text-[#555]">{pt ? 'Disponibilidade' : 'Availability'}: {meal.availability}</p>}
+                    </div>
                   </article>
                 ))}
               </div>
