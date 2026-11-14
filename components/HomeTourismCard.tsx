@@ -1,7 +1,7 @@
 export default function HomeTourismCard({ language }: { language: 'en' | 'pt' }) {
   const pt = language === 'pt';
   return (
-    <section id="tourism" aria-labelledby="tourism-heading" className="bg-[#f3f2ef] pb-14 text-[#252525] sm:pb-20">
+    <section id="tourism" aria-labelledby="tourism-heading" className="scroll-mt-24 bg-[#f3f2ef] pb-14 text-[#252525] sm:pb-20">
       <div className="page-rail overflow-hidden rounded-3xl border border-[#e4d8bc] bg-white shadow-[0_16px_40px_rgba(0,0,0,0.06)]">
         <div className="grid min-w-0 items-center gap-7 p-5 sm:p-8 lg:grid-cols-2 lg:gap-10 lg:p-10">
           <div className="min-w-0">
