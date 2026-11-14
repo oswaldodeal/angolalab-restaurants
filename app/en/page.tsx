@@ -9,13 +9,13 @@ export default function EcosystemHomePage() {
     <p className="mb-4 hidden text-xs font-bold uppercase tracking-[0.18em] text-[#f2c94c] sm:block">AngolaLab · Research · Technology · Education</p>
     <h1 className="max-w-4xl text-3xl font-bold leading-tight text-white sm:text-5xl">Discover businesses. Connect people.</h1>
     <p className="mt-6 hidden max-w-3xl text-lg leading-8 text-slate-300 sm:block">AngolaLab helps businesses become visible, professionals share skills and people build digital projects. Research and education support this mission.</p>
-    <div className="mt-6 grid grid-cols-2 gap-2 sm:mt-8 sm:flex sm:flex-wrap sm:gap-3">
-     <a href="#business-directory" className="inline-flex min-h-12 items-center justify-center rounded-lg bg-[#d4af37] px-2 py-3 text-center text-sm font-semibold text-[#171717] hover:bg-[#f2c94c] sm:px-6 sm:text-base"><span className="sm:hidden">AEIS Research</span><span className="hidden sm:inline">Economic Intelligence</span></a>
-     <a href="#connections" className="inline-flex min-h-12 items-center justify-center rounded-lg border border-[#d4af37] px-2 py-3 text-center text-sm font-semibold text-[#f2c94c] hover:bg-white/10 sm:px-6 sm:text-base"><span className="sm:hidden">Connections</span><span className="hidden sm:inline">Digital Connections</span></a>
-     <a href="#tourism" className="inline-flex min-h-12 items-center justify-center rounded-lg border border-[#d4af37] px-2 py-3 text-center text-sm font-semibold text-[#f2c94c] hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f2c94c] sm:px-6 sm:text-base">Tourism Intelligence</a>
-     <a href="#website-design" className="inline-flex min-h-12 items-center justify-center rounded-lg border border-[#d4af37] px-2 py-3 text-center text-sm font-semibold text-[#f2c94c] hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f2c94c] sm:px-6 sm:text-base">Website Design &amp; Maintenance</a>
-    </div>
-   </div>
+    <div className="mt-6 grid grid-cols-2 gap-2 sm:mt-8 sm:gap-3 md:grid-cols-3 xl:grid-cols-5">
+     <a href="#business-directory" className="inline-flex min-h-12 items-center justify-center rounded-lg border border-[#d4af37] bg-[#d4af37] px-3 py-3 text-center text-sm font-semibold leading-5 text-[#171717] hover:bg-[#f2c94c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f2c94c] sm:px-4">Economic Intelligence</a>
+     <a href="#connections" className="inline-flex min-h-12 items-center justify-center rounded-lg border border-[#d4af37] px-3 py-3 text-center text-sm font-semibold leading-5 text-[#f2c94c] hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f2c94c] sm:px-4">Digital Connections</a>
+     <a href="#tourism" className="inline-flex min-h-12 items-center justify-center rounded-lg border border-[#d4af37] px-3 py-3 text-center text-sm font-semibold leading-5 text-[#f2c94c] hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f2c94c] sm:px-4">Tourism Intelligence</a>
+     <a href="#website-design" className="inline-flex min-h-12 items-center justify-center rounded-lg border border-[#d4af37] px-3 py-3 text-center text-sm font-semibold leading-5 text-[#f2c94c] hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f2c94c] sm:px-4">Website Design &amp; Maintenance</a>
+     <a href="#business-connection" className="inline-flex min-h-12 items-center justify-center rounded-lg border border-[#d4af37] px-3 py-3 text-center text-sm font-semibold leading-5 text-[#f2c94c] hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f2c94c] sm:px-4 col-span-2 md:col-span-1">Business Connection</a>
+    </div></div>
   </section>
   <section id="business-directory" aria-labelledby="business-directory-title" className="scroll-mt-24 bg-[#f3f2ef] py-14 text-[#252525] sm:py-16">
    <div className="page-rail">
@@ -36,7 +36,7 @@ export default function EcosystemHomePage() {
     <p className="mt-5 text-sm leading-6 text-[#70695b]">Restaurants opens the business directory; Education links to the AEIS platform. Other business categories are planned and are not yet open for registration or listing.</p>
    </div>
   </section>
-  <a href="/business-connection/index.html?lang=en" className="block border-b-4 border-[#e4bd62] bg-[#181817] py-10 text-white focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-[#e4bd62] sm:py-16">
+  <a id="business-connection" href="/business-connection/index.html?lang=en" className="scroll-mt-24 block border-b-4 border-[#e4bd62] bg-[#181817] py-10 text-white focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-[#e4bd62] sm:py-16">
    <div className="page-rail">
     <p className="text-sm font-bold uppercase tracking-widest text-[#e4bd62]">Business Connection</p>
     <h2 className="mt-4 max-w-4xl text-3xl font-bold leading-tight sm:text-6xl">We connect your business to Angola.</h2>
