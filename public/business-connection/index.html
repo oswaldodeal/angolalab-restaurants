@@ -1,0 +1,94 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AngolaLab Business Connection</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f4f0;color:#222;font:16px/1.55 system-ui,sans-serif}header,main,.verificationNote{padding:18px max(5vw,calc((100vw - 1080px)/2))}header{display:flex;justify-content:space-between;align-items:center;background:#fff}header strong{font-size:22px}button,input,textarea,select{font:inherit;padding:10px 14px;border:1px solid #aaa394;border-radius:8px}button{cursor:pointer;background:white}button[aria-pressed=true],.primary{background:#e4bd62;color:#191815;border-color:#e4bd62;font-weight:700}.hero{position:static;background:#181817;color:white;padding:clamp(28px,6vw,68px) max(5vw,calc((100vw - 1080px)/2));border-bottom:4px solid #d4ad54}.eyebrow{color:#e4bd62;text-transform:uppercase;letter-spacing:.16em;font-size:13px;font-weight:750}h1{font-size:clamp(34px,6vw,62px);line-height:1.05;max-width:800px;margin:.3em 0}h2,h3{line-height:1.2}.actions,.filters{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}.filters input{flex:1;min-width:0}.card{display:grid;grid-template-columns:190px 1fr;gap:24px;background:white;border:1px solid #dedbd0;padding:22px;border-radius:14px}.visual{display:grid;place-items:center;background:#eeece4;border-radius:10px;min-height:150px}.badge{display:inline-block;background:#f1e7cb;padding:4px 9px;border-radius:6px;font-size:13px;font-weight:700}.card h3{margin:10px 0}.muted,.verificationNote{color:#5b564a}.card p{margin:8px 0}dialog{border:1px solid #ccc;border-radius:14px;width:min(92%,490px);padding:25px}dialog::backdrop{background:#0008}label,textarea{display:block;width:100%;margin:12px 0}textarea{min-height:95px}a{color:inherit}.hero a{padding:10px 14px}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #977000;outline-offset:3px}[hidden]{display:none!important}@media(max-width:600px){.card{grid-template-columns:1fr}.filters>*{width:100%}}
+.brand{display:flex;align-items:center;gap:8px;text-decoration:none}.brand img{border-radius:50%}.homeLabel{font-size:13px;text-decoration:underline}@media(max-width:450px){.homeLabel{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}}
+.mainFooter{padding:3rem max(5vw,calc((100vw - 1080px)/2));background:#0f172a;color:#cbd5e1;font-size:14px}.footerGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem}.footerBrand{display:inline-block;margin-bottom:.75rem;font-size:20px;font-weight:700;color:#f2c94c}.footerBrand span{color:#34d399}.mainFooter h2{font-size:16px;color:white;margin:0 0 .75rem}.mainFooter p,.mainFooter ul{margin:0}.mainFooter ul{list-style:none;padding:0}.mainFooter li+li{margin-top:.5rem}.mainFooter a{text-decoration:none}.mainFooter a:hover{text-decoration:underline}.mainFooter .footerCopyright{margin-top:2rem;padding-top:1.5rem;border-top:1px solid #f2c94c;text-align:center}@media(max-width:767px){.footerGrid{grid-template-columns:1fr}}
+header{position:sticky;top:0;z-index:10;background:#fff;color:#222;gap:8px}header>div{display:flex;gap:4px;flex:none}#opportunities{scroll-margin-top:var(--pinned-height,84px)}@media(max-width:600px){.hero{padding-block:16px}.hero h1{font-size:clamp(24px,7vw,34px)}.hero .actions{margin:10px 0 0}.hero p{margin:8px 0}}@media(max-height:500px){.hero{position:relative;top:auto}}@media(max-width:360px){header button{padding-inline:8px}}.brand strong{color:#f2c94c;font-size:clamp(20px,5vw,30px)}.brand strong span{color:#00a878}.brandIcon{display:grid;place-items:center;width:48px;height:48px;flex:none;border:3px solid #f2c94c;border-radius:50%;overflow:hidden}.brandIcon img{display:block;width:100%;height:100%;transform:scale(1.34)}.brand{gap:clamp(8px,3vw,16px)}
+</style>
+<header><a class="brand" id="brandHome" href="/en"><span class="brandIcon"><img src="/angolalab-icon-gold3.png" width="48" height="48" alt=""></span><strong><span>Angola</span>Lab</strong></a><div><button id="en" aria-pressed="true">EN</button> <button id="pt" aria-pressed="false">PT</button></div></header>
+<section class="hero"><div class="eyebrow">Business Connection</div><h1 data-en="We connect your business to Angola." data-pt="Ligamos a sua empresa a fornecedores e parceiros internacionais."></h1><p data-en="A free connection service for verified Angolan businesses." data-pt="Um serviço gratuito de ligação para empresas angolanas verificadas."></p><div class="actions"><a href="#opportunities" data-en="Browse opportunities" data-pt="Ver oportunidades"></a><button class="primary" id="needs" data-en="Tell us what you need" data-pt="Diga-nos o que procura"></button></div></section>
+<main id="opportunities"><h2 data-en="Business opportunities" data-pt="Oportunidades de negócio"></h2><p class="muted" data-en="Prototype · All listing details are fictional." data-pt="Protótipo · Todos os dados da oferta são fictícios."></p>
+<div class="filters"><input id="search" type="search" aria-label="Search"><select id="category" aria-label="Category"><option value="" data-en="All categories" data-pt="Todas as categorias"></option><option value="equipment" data-en="Equipment" data-pt="Equipamento"></option><option value="services" data-en="Services" data-pt="Serviços"></option></select></div>
+<p id="count" role="status"></p><article class="card" id="offer"><div class="visual"><svg width="95" height="118" viewBox="0 0 95 118" aria-hidden="true"><rect x="16" y="4" width="63" height="108" rx="6" fill="#515653"/><rect x="21" y="10" width="53" height="83" rx="3" fill="#c2c8c4"/><path d="M65 39v23M27 102h40" stroke="#515653" stroke-width="4" stroke-linecap="round"/><path d="M26 15v73" stroke="#e2e6e3" stroke-width="3"/></svg></div><div><span class="badge" data-en="Sample reservation" data-pt="Exemplo de reserva"></span><h3 data-en="Commercial upright fridge · 600 L" data-pt="Frigorífico comercial vertical · 600 L"></h3><p data-en="Example verified supplier · Portugal" data-pt="Exemplo de fornecedor verificado · Portugal"></p><p data-en="2 units held · Delivery to Luanda confirmed in this example" data-pt="2 unidades reservadas · Entrega em Luanda confirmada neste exemplo"></p><p class="muted" data-en="Example hold expires 20 November 2026 at 17:00, Luanda time." data-pt="Neste exemplo, a reserva termina a 20 de Novembro de 2026, às 17h00, hora de Luanda."></p><button id="intro" class="primary" data-en="Request an introduction" data-pt="Solicitar contacto"></button></div></article></main>
+<aside class="verificationNote" data-en="Both businesses and their authorised representatives must be verified before AngolaLab shares contact details. Buyer and supplier arrange payment directly." data-pt="A AngolaLab só partilha contactos depois de verificar ambas as empresas e os seus representantes autorizados. O comprador e o fornecedor tratam directamente do pagamento."></aside>
+<footer class="mainFooter">
+  <div class="footerGrid">
+    <div><a id="footerHome" class="footerBrand" href="/en"><span>Angola</span>Lab</a>
+      <p><span data-en="Discover verified businesses in Angola." data-pt="Descubra negócios verificados em Angola."></span><br><span data-en="Free to list, free to discover." data-pt="Grátis para listar, grátis para descobrir."></span></p>
+    </div>
+    <nav aria-label="Portugal / Angola"><h2>Portugal / Angola</h2><ul>
+      <li><a href="/pt/restaurantes">Restaurantes</a></li>
+      <li><a href="/pt/restaurantes/registar">Adicionar Negócio</a></li>
+      <li><a href="/pt/entrar">Entrar</a></li>
+    </ul></nav>
+    <nav aria-label="English"><h2>English</h2><ul>
+      <li><a href="/en/restaurants">Restaurants</a></li>
+      <li><a href="/en/restaurants/submit">Add Business</a></li>
+      <li><a href="/en/signin">Sign In</a></li>
+    </ul></nav>
+  </div>
+  <p class="footerCopyright">© <span id="footerYear">2026</span> AngolaLab — <span data-en="All rights reserved" data-pt="Todos os direitos reservados"></span></p>
+</footer>
+<dialog id="flow"><form id="form"><h2 id="flowTitle"></h2><p id="flowInfo"></p><label id="request"><span data-en="What are you looking for?" data-pt="O que procura?"></span><textarea id="details" maxlength="500"></textarea></label><p id="result" role="status"></p><button type="button" id="close" data-en="Close" data-pt="Fechar"></button> <button class="primary" id="try" data-en="Test request" data-pt="Testar pedido"></button></form></dialog>
+<script>
+const byId = id => document.getElementById(id);
+let lang = 'en', mode = 'needs';
+const copy = (en, pt) => lang === 'en' ? en : pt;
+function filter() {
+  const query = byId('search').value.trim().toLowerCase();
+  const matches = byId('offer').querySelector('h3').textContent.toLowerCase().includes(query);
+  const visible = matches && byId('category').value !== 'services';
+  byId('offer').hidden = !visible;
+  byId('count').textContent = visible ? copy('1 opportunity', '1 oportunidade') : copy('No matching opportunities', 'Nenhuma oportunidade encontrada');
+}
+function translate(next) {
+  lang = next;
+  document.documentElement.lang = lang;
+  byId('brandHome').pathname = '/' + lang;
+  byId('brandHome').setAttribute('aria-label', copy('AngolaLab Home', 'Página inicial da AngolaLab'));
+  byId('footerHome').pathname = '/' + lang;
+  document.querySelectorAll('[data-en]').forEach(el => el.textContent = el.dataset[lang]);
+  for (const code of ['en', 'pt']) byId(code).setAttribute('aria-pressed', code === lang);
+  byId('search').placeholder = copy('Search products or services', 'Pesquisar produtos ou serviços');
+  byId('search').setAttribute('aria-label', byId('search').placeholder);
+  byId('category').setAttribute('aria-label', copy('Category', 'Categoria'));
+  filter();
+}
+function openFlow(action) {
+  mode = action;
+  const needs = mode === 'needs';
+  byId('form').reset();
+  byId('result').textContent = '';
+  byId('flowTitle').textContent = byId(action).textContent;
+  byId('flowInfo').textContent = needs
+    ? copy('Use sample details to try the private research request. Entries are discarded.', 'Use dados fictícios para testar o pedido privado de pesquisa. Os dados são descartados.')
+    : copy('Both companies and representatives need verification before an introduction can proceed.', 'As duas empresas e os seus representantes precisam de verificação antes de avançar com o contacto.');
+  byId('request').hidden = !needs;
+  byId('details').required = needs;
+  byId('flow').showModal();
+}
+for (const code of ['en', 'pt']) byId(code).onclick = () => translate(code);
+for (const action of ['needs', 'intro']) byId(action).onclick = () => openFlow(action);
+byId('search').oninput = filter;
+byId('category').onchange = filter;
+byId('close').onclick = () => byId('flow').close();
+byId('flow').onclose = () => byId('form').reset();
+byId('form').onsubmit = event => {
+  event.preventDefault();
+  byId('form').reset();
+  byId('result').textContent = mode === 'needs'
+    ? copy('Demo complete. No research request was sent.', 'Teste concluído. Nenhum pedido de pesquisa foi enviado.')
+    : copy('Demo complete. Verification is required and no contact details were shared.', 'Teste concluído. É necessária verificação e nenhum contacto foi partilhado.');
+};
+byId('footerYear').textContent = new Date().getFullYear();
+const hero = document.querySelector('.hero');
+const header = document.querySelector('header');
+const observer = new ResizeObserver(() => {
+  const pinnedHeight = header.offsetHeight + (getComputedStyle(hero).position === 'sticky' ? hero.offsetHeight : 0);
+  document.documentElement.style.setProperty('--pinned-height', pinnedHeight + 'px');
+  hero.style.setProperty('--header-height', header.offsetHeight + 'px');
+});
+observer.observe(hero);
+observer.observe(header);
+translate(new URLSearchParams(location.search).get('lang') === 'pt' ? 'pt' : 'en');
+</script></html>
