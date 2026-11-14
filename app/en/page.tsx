@@ -55,5 +55,13 @@ export default function EcosystemHomePage() {
    </div>
   </section>
   <HomeTourismCard language="en" />
+  <section id="website-design" aria-labelledby="website-design-heading" className="bg-[#f3f2ef] pb-14 text-[#252525] sm:pb-20">
+   <div className="page-rail rounded-3xl border border-[#e4d8bc] bg-white p-6 shadow-sm sm:p-9">
+    <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#927018]">AngolaLab · Digital Services</p>
+    <h2 id="website-design-heading" className="mt-3 text-3xl font-bold leading-tight sm:text-4xl">Website Design &amp; Maintenance</h2>
+    <p className="mt-4 max-w-3xl leading-7 text-[#555]">We build and maintain websites that help businesses establish their online presence and grow. From a new website to improvements and ongoing support, talk to us about your project.</p>
+    <a href="https://angolalab-web-design.oswaldodeal.chatgpt.site/" className="mt-6 inline-flex max-w-full items-center justify-center rounded-lg bg-[#252a32] px-5 py-3 text-center text-sm font-semibold text-white hover:bg-[#424850] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#927018]">Explore Website Design ↗</a>
+   </div>
+  </section>
  </>);
 }
