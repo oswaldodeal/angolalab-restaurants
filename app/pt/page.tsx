@@ -14,7 +14,7 @@ export default function EcosystemHomePage() {
      <a href="#connections" className="inline-flex min-h-12 items-center justify-center rounded-lg border border-[#d4af37] px-3 py-3 text-center text-sm font-semibold leading-5 text-[#f2c94c] hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f2c94c] sm:px-4">Conexões Digitais</a>
      <a href="#tourism" className="inline-flex min-h-12 items-center justify-center rounded-lg border border-[#d4af37] px-3 py-3 text-center text-sm font-semibold leading-5 text-[#f2c94c] hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f2c94c] sm:px-4">Inteligência Turística</a>
      <a href="#website-design" className="inline-flex min-h-12 items-center justify-center rounded-lg border border-[#d4af37] px-3 py-3 text-center text-sm font-semibold leading-5 text-[#f2c94c] hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f2c94c] sm:px-4">Criação e Manutenção de Websites</a>
-     <a href="#business-connection" className="inline-flex min-h-12 items-center justify-center rounded-lg border border-[#d4af37] px-3 py-3 text-center text-sm font-semibold leading-5 text-[#f2c94c] hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f2c94c] sm:px-4 col-span-2 md:col-span-1">Business Connection</a>
+     <a href="#business-connection" className="inline-flex min-h-12 items-center justify-center rounded-lg border border-[#d4af37] px-3 py-3 text-center text-sm font-semibold leading-5 text-[#f2c94c] hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f2c94c] sm:px-4 col-span-2 md:col-span-1">Contacto de Negócios</a>
     </div></div>
   </section>
   <section id="business-directory" aria-labelledby="business-directory-title" className="scroll-mt-24 bg-[#f3f2ef] py-14 text-[#252525] sm:py-16">
@@ -38,10 +38,10 @@ export default function EcosystemHomePage() {
   </section>
   <a id="business-connection" href="/business-connection/index.html?lang=pt" className="scroll-mt-24 block border-b-4 border-[#e4bd62] bg-[#181817] py-10 text-white focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-[#e4bd62] sm:py-16">
    <div className="page-rail">
-    <p className="text-sm font-bold uppercase tracking-widest text-[#e4bd62]">Business Connection</p>
+    <p className="text-sm font-bold uppercase tracking-widest text-[#e4bd62]">Contacto de Negócios</p>
     <h2 className="mt-4 max-w-4xl text-3xl font-bold leading-tight sm:text-6xl">Ligamos a sua empresa a fornecedores e parceiros internacionais.</h2>
     <p className="mt-4">Um serviço gratuito de ligação para empresas angolanas verificadas.</p>
-    <span className="mt-6 inline-block rounded-lg bg-[#e4bd62] px-5 py-3 font-bold text-[#181817]">Explorar Business Connection →</span>
+    <span className="mt-6 inline-block rounded-lg bg-[#e4bd62] px-5 py-3 font-bold text-[#181817]">Explorar Contacto de Negócios →</span>
    </div>
   </a>
   <div id="connections" className="scroll-mt-24"><HomeDigitalCards language="pt" /></div>
