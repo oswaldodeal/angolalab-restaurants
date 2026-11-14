@@ -12,6 +12,8 @@ export default function EcosystemHomePage() {
     <div className="mt-6 grid grid-cols-2 gap-2 sm:mt-8 sm:flex sm:flex-wrap sm:gap-3">
      <a href="#business-directory" className="inline-flex min-h-12 items-center justify-center rounded-lg bg-[#d4af37] px-2 py-3 text-center text-sm font-semibold text-[#171717] hover:bg-[#f2c94c] sm:px-6 sm:text-base"><span className="sm:hidden">AEIS Research</span><span className="hidden sm:inline">Economic Intelligence</span></a>
      <a href="#connections" className="inline-flex min-h-12 items-center justify-center rounded-lg border border-[#d4af37] px-2 py-3 text-center text-sm font-semibold text-[#f2c94c] hover:bg-white/10 sm:px-6 sm:text-base"><span className="sm:hidden">Connections</span><span className="hidden sm:inline">Digital Connections</span></a>
+     <a href="#tourism" className="inline-flex min-h-12 items-center justify-center rounded-lg border border-[#d4af37] px-2 py-3 text-center text-sm font-semibold text-[#f2c94c] hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f2c94c] sm:px-6 sm:text-base">Tourism Intelligence</a>
+     <a href="#website-design" className="inline-flex min-h-12 items-center justify-center rounded-lg border border-[#d4af37] px-2 py-3 text-center text-sm font-semibold text-[#f2c94c] hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f2c94c] sm:px-6 sm:text-base">Website Design &amp; Maintenance</a>
     </div>
    </div>
   </section>
@@ -55,7 +57,7 @@ export default function EcosystemHomePage() {
    </div>
   </section>
   <HomeTourismCard language="en" />
-  <section id="website-design" aria-labelledby="website-design-heading" className="bg-[#f3f2ef] pb-14 text-[#252525] sm:pb-20">
+  <section id="website-design" aria-labelledby="website-design-heading" className="scroll-mt-24 bg-[#f3f2ef] pb-14 text-[#252525] sm:pb-20">
    <div className="page-rail rounded-3xl border border-[#e4d8bc] bg-white p-6 shadow-sm sm:p-9">
     <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#927018]">AngolaLab · Digital Services</p>
     <h2 id="website-design-heading" className="mt-3 text-3xl font-bold leading-tight sm:text-4xl">Website Design &amp; Maintenance</h2>
