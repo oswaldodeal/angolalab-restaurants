@@ -1,7 +1,7 @@
 import 'server-only';
 import { executePrivateSql, sqlRows } from '@/lib/turso';
 import { restaurantSchema } from '@/lib/restaurant-schema';
-import { initialRestaurants, readMenuPhotos, type Restaurant } from '@/lib/store';
+import { initialRestaurants, readMenuPhotos, type Restaurant, type SavedMenuItem } from '@/lib/store';
 
 let preparation: Promise<void> | undefined;
 // Used by intake/staff only. Public reads never migrate or publish records.
@@ -75,5 +75,20 @@ export async function getRestaurantDirectory() {
 export async function getPublishedRestaurant(id: string) {
   const result = await readListings(id);
   const row = sqlRows(result)[0];
-  return row ? publicRestaurant(row) : null;
+  if (!row) return null;
+  const restaurant = publicRestaurant(row);
+  restaurant.menuItems = (await getSavedMenu(id, restaurant.status === 'verified')).map(item => ({ ...item, photo: item.photo && restaurant.menuPhotos.includes(item.photo) ? item.photo : null }));
+  return restaurant;
+}
+
+export async function getSavedMenu(id: string, verified: boolean): Promise<SavedMenuItem[]> {
+  try {
+    const rows = sqlRows(await executePrivateSql(`SELECT m.id,m.name,m.category,m.price,m.photo,m.updated_at
+      FROM restaurant_menu_items m JOIN restaurant_listings l ON l.id=m.restaurant_id
+      WHERE m.restaurant_id=? ${verified ? '' : "AND m.category='mains'"} ORDER BY m.rowid LIMIT ${verified ? 60 : 2}`, [id]));
+    return rows as unknown as SavedMenuItem[];
+  } catch (error) {
+    if (error instanceof Error && error.message === 'TURSO_ITEMS_NOT_MIGRATED') return [];
+    throw error;
+  }
 }

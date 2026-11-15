@@ -37,6 +37,14 @@ export const restaurantSchema = [
     id TEXT PRIMARY KEY REFERENCES restaurant_verified_contacts(id),
     activated_at TEXT NOT NULL, cover_photo_url TEXT, menu_photo_url TEXT
   )`,
+  `CREATE TABLE IF NOT EXISTS restaurant_menu_items (
+    id TEXT PRIMARY KEY, restaurant_id TEXT NOT NULL REFERENCES restaurant_listings(id),
+    name TEXT NOT NULL, category TEXT NOT NULL CHECK(category IN ('mains','drinks','desserts')),
+    price TEXT NOT NULL, photo TEXT, updated_at TEXT NOT NULL
+  )`,
+  `CREATE TRIGGER IF NOT EXISTS restaurant_remove_menu
+    BEFORE DELETE ON restaurant_listings
+    BEGIN DELETE FROM restaurant_menu_items WHERE restaurant_id = OLD.id; END`,
   `CREATE TRIGGER IF NOT EXISTS restaurant_remove_pro_plan
     BEFORE DELETE ON restaurant_verified_contacts
     BEGIN

@@ -1,3 +1,4 @@
+import SavedRestaurantMenu from '@/components/SavedRestaurantMenu';
 import Link from 'next/link';
 import HospitalityVenueNavigation from '@/components/HospitalityVenueNavigation';
 import { CITIES, COUNTRIES, CUISINES, SAMPLE_RESTAURANT_COVER, SAMPLE_MENU_PHOTO, getGoogleMapsUrl, type Restaurant } from '@/lib/store';
@@ -178,11 +179,12 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
               <section className="rounded-xl border border-[#e9e5db] p-6 sm:p-8">
                 <h2 className="text-xl font-semibold">{pt ? '02 · Ementa' : '02 · Menu'}</h2>
                 <p className="mt-4 text-[#555]">
-                  {restaurant.menuPhotos.length === 0 && !restaurant.menuPdf && !isDemo
+                  {!restaurant.menuItems?.length && restaurant.menuPhotos.length === 0 && !restaurant.menuPdf && !isDemo
                     ? (pt ? 'A ementa ainda não foi adicionada.' : 'The menu has not been added yet.')
                     : null}
                 </p>
-                {restaurant.menuPhotos.includes(SAMPLE_MENU_PHOTO) && (
+                {!!restaurant.menuItems?.length && <SavedRestaurantMenu items={restaurant.menuItems} country={restaurant.country} language={language} />}
+                {restaurant.menuPhotos.includes(SAMPLE_MENU_PHOTO) && !restaurant.menuItems?.some(item => item.photo === SAMPLE_MENU_PHOTO) && (
                   <figure className="mt-5 overflow-hidden rounded-xl border border-[#e9e5db] bg-white">
                     {/* Bundled sample, displayed only when staff select the demo cover. */}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -262,7 +264,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
                 )}
                 {restaurant.menuPhotos.some(src => src !== SAMPLE_MENU_PHOTO) && (
                   <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                    {restaurant.menuPhotos.filter(src => src !== SAMPLE_MENU_PHOTO).map((src, index) => (
+                    {restaurant.menuPhotos.filter(src => src !== SAMPLE_MENU_PHOTO && !restaurant.menuItems?.some(item => item.photo === src)).map((src, index) => (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img key={src + index} src={src} alt={pt ? `Ementa, página ${index + 1}` : `Menu, page ${index + 1}`} className="w-full rounded-lg border border-[#e9e5db] object-contain" />
                     ))}

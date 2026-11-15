@@ -15,6 +15,8 @@ export function readMenuPhotos(value: string | null | undefined, cover: string |
   }
 }
 
+export type SavedMenuItem = { id: string; name: string; category: 'mains' | 'drinks' | 'desserts'; price: string; photo: string | null; updated_at: string };
+
 export type Restaurant = {
   id: string;
   ownerId: string;
@@ -37,6 +39,7 @@ export type Restaurant = {
   description?: string;
   menuPdf?: string;
   menuPhotos: string[];
+  menuItems?: SavedMenuItem[];
   photos: string[];
 
  // Independent business verification
