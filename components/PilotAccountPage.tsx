@@ -1,3 +1,4 @@
+import OwnerRestaurants from '@/components/OwnerRestaurants';
 import { ClerkProvider, SignIn, SignOutButton, SignUp } from '@clerk/nextjs';
 import { auth } from '@clerk/nextjs/server';
 import { enGB, ptPT } from '@clerk/localizations';
@@ -30,9 +31,10 @@ export default async function PilotAccountPage({ language, mode }: Props) {
         {mode === 'sign-in' && <SignIn routing="hash" />}
         {mode === 'sign-up' && <SignUp routing="hash" />}
         {mode === 'account' && (
-          <div className="w-full max-w-xl self-start rounded-xl border border-[#ded8c5] p-8">
+          <div className="w-full max-w-4xl self-start rounded-xl border border-[#ded8c5] p-8">
             <h1 className="text-3xl font-semibold">{pt ? 'A sua conta AngolaLab' : 'Your AngolaLab account'}</h1>
             <p className="mt-4">{pt ? 'Sessão iniciada no piloto privado.' : 'You are signed in to the private pilot.'}</p>
+            {userId && <OwnerRestaurants userId={userId} language={language} />}
             <div className="mt-6 flex flex-wrap items-center gap-4">
               <Link className="font-semibold text-[#76570f] underline" href={pt ? '/pt/restaurantes' : '/en/restaurants'}>
                 {pt ? 'Ver restaurantes' : 'Browse Restaurants'}

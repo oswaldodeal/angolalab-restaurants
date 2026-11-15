@@ -37,6 +37,21 @@ export const restaurantSchema = [
     id TEXT PRIMARY KEY REFERENCES restaurant_verified_contacts(id),
     activated_at TEXT NOT NULL, cover_photo_url TEXT, menu_photo_url TEXT
   )`,
+  `CREATE TABLE IF NOT EXISTS restaurant_owners (
+    restaurant_id TEXT PRIMARY KEY REFERENCES restaurant_listings(id),
+    clerk_user_id TEXT NOT NULL, note TEXT NOT NULL, reviewer TEXT NOT NULL, linked_at TEXT NOT NULL
+  )`,
+  `CREATE TRIGGER IF NOT EXISTS restaurant_remove_owner
+    BEFORE DELETE ON restaurant_listings
+    BEGIN DELETE FROM restaurant_owners WHERE restaurant_id=OLD.id; END`,
+  `CREATE TRIGGER IF NOT EXISTS restaurant_audit_owner_link
+    AFTER INSERT ON restaurant_owners
+    BEGIN INSERT INTO restaurant_review_history (submission_id,from_status,to_status,note,reviewer,reviewed_at)
+      VALUES (NEW.restaurant_id,'owner-unlinked','owner-linked',NEW.note,NEW.reviewer,NEW.linked_at); END`,
+  `CREATE TRIGGER IF NOT EXISTS restaurant_audit_owner_unlink
+    AFTER DELETE ON restaurant_owners
+    BEGIN INSERT INTO restaurant_review_history (submission_id,from_status,to_status,note,reviewer,reviewed_at)
+      VALUES (OLD.restaurant_id,'owner-linked','owner-unlinked','Owner access revoked','shared-pilot-staff',strftime('%Y-%m-%dT%H:%M:%fZ','now')); END`,
   `CREATE TABLE IF NOT EXISTS restaurant_menu_items (
     id TEXT PRIMARY KEY, restaurant_id TEXT NOT NULL REFERENCES restaurant_listings(id),
     name TEXT NOT NULL, category TEXT NOT NULL CHECK(category IN ('mains','drinks','desserts')),
