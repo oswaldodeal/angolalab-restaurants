@@ -12,6 +12,8 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
 }) {
   const pt = language === 'pt';
   const refinedBasic = restaurant.ownerId === 'demo' && restaurant.id === 'rest-002' && restaurant.status === 'basic';
+  const brandedIdentity = refinedBasic || restaurant.ownerId !== 'demo';
+  const restaurantLogo = refinedBasic ? '/demo/sabor-logo.svg' : restaurant.logoUrl;
   const city = CITIES.find((c) => c.id === restaurant.city)?.[language] ?? restaurant.city;
   const country = COUNTRIES.find((c) => c.id === restaurant.country)?.[language] ?? restaurant.country;
   const cuisine = CUISINES.find((c) => c.id === restaurant.cuisine)?.[language] ?? restaurant.cuisine;
@@ -53,25 +55,26 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
   return (
     <div className="bg-[#f3f2ef] text-[#242424]">
       <article className="page-rail overflow-hidden">
-        {refinedBasic && (
+        {brandedIdentity && (
           <div className="flex flex-wrap items-center justify-between gap-5 pt-8">
-            <div className="flex min-w-0 items-center gap-4">
-              {/* Illustrative identity for the fictional restaurant. */}
+            <div className="flex min-w-0 flex-1 basis-full items-center gap-4 sm:basis-auto">
+              {/* Owner logo, or the illustrative logo on the Basic demo. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/demo/sabor-logo.svg" alt="" width={110} height={72} className="w-20 shrink-0 sm:w-28" />
-              <div className="border-l border-[#d9d5c9] pl-4">
-                <h1 className="text-2xl font-semibold tracking-tight sm:text-4xl">{restaurant.name}</h1>
+              {restaurantLogo && <img src={restaurantLogo} alt="" width={110} height={80} className="h-16 w-20 shrink-0 object-contain sm:h-20 sm:w-28" />}
+              <div className={`min-w-0 ${restaurantLogo ? 'border-l border-[#d9d5c9] pl-4' : ''}`}>
+                <h1 className="break-words text-2xl font-semibold tracking-tight sm:text-4xl">{restaurant.name}</h1>
+                {!isDemo && <p className="mt-2 text-sm text-[#555]">{cuisine} · {city}, {country}</p>}
                 <p className="mt-1 text-xs uppercase tracking-[0.2em] text-[#555]">{pt ? 'Restaurante' : 'Restaurant'}</p>
               </div>
             </div>
-            <span className="rounded-full bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-800">
-              {pt ? 'Perfil Básico · Demonstração' : 'Basic profile · Demo'}
+            <span className={`ml-auto shrink-0 rounded-full px-4 py-2 text-sm font-semibold ${isDemo || verified ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-700'}`}>
+              {isDemo ? (pt ? 'Perfil Básico · Demonstração' : 'Basic profile · Demo') : isPro ? (pt ? 'Pro Verificado' : 'Pro Verified') : verified ? (pt ? 'Perfil verificado' : 'Verified profile') : (pt ? 'Perfil Básico' : 'Basic profile')}
             </span>
           </div>
         )}
-        {refinedBasic && <HospitalityVenueNavigation language={language} />}
-        {/* Mobile: photograph immediately below the header, inside the shared page width. */}
-        <section className={refinedBasic ? 'mt-6 sm:hidden' : 'sm:hidden'} aria-label={pt ? 'Fotografia do restaurante' : 'Restaurant photograph'}>
+        {brandedIdentity && <HospitalityVenueNavigation language={language} />}
+        {/* Mobile cover follows the identity header inside the shared page width. */}
+        <section className={brandedIdentity ? 'mt-6 sm:hidden' : 'sm:hidden'} aria-label={pt ? 'Fotografia do restaurante' : 'Restaurant photograph'}>
           <div className="relative h-[290px] w-full overflow-hidden bg-gradient-to-br from-[#ad8b50] to-[#252a32]">
             {!photo && !isDemo && <div className="flex h-full items-center justify-center px-6 text-center text-sm font-semibold text-white">{pt ? 'Fotografia ainda não adicionada' : 'Photograph not yet added'}</div>}
             {photo && (
@@ -86,7 +89,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
         </section>
 
         {/* Desktop: retain the approved Research Archive order and gold divider. */}
-        <div className={refinedBasic ? 'hidden' : 'hidden pt-7 sm:block sm:pt-10'}>
+        <div className={brandedIdentity ? 'hidden' : 'hidden pt-7 sm:block sm:pt-10'}>
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#987515]">
             {pt ? 'AngolaLab · Perfil do restaurante' : 'AngolaLab · Restaurant profile'}
           </p>
@@ -117,7 +120,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
                 : 'Fictional profile for design testing. Photos, details and status do not represent a real or verified restaurant.'}
             </p>
           )}
-          <div className={refinedBasic ? 'hidden' : 'mb-7 sm:hidden'}>
+          <div className={brandedIdentity ? 'hidden' : 'mb-7 sm:hidden'}>
             <h1 className="text-3xl font-semibold tracking-tight">{restaurant.name}</h1>
             <p className="mt-3 text-base text-[#555]">{cuisine} · {city}, {country}</p>
           <HospitalityVenueNavigation language={language} />

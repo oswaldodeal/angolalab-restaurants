@@ -75,9 +75,10 @@ async function readListings(id?: string) {
 }
 
 export async function getPublishedRestaurants(): Promise<Restaurant[]> {
-  const [listings, details] = await Promise.all([readListings(), readProfileDetails()]);
+  const [listings, details, logos] = await Promise.all([readListings(), readProfileDetails(), readRestaurantLogos()]);
   const byId = new Map(details.map(item => [item.restaurant_id,item]));
-  return sqlRows(listings).map(row => withProfileDetails(publicRestaurant(row), byId.get(row.id)));
+  const logoById = new Map(logos.map(item => [item.restaurant_id,item.photo_url]));
+  return sqlRows(listings).map(row => ({...withProfileDetails(publicRestaurant(row), byId.get(row.id)),logoUrl:logoById.get(row.id) ?? undefined}));
 }
 
 export async function getRestaurantDirectory() {
@@ -86,10 +87,11 @@ export async function getRestaurantDirectory() {
 }
 
 export async function getPublishedRestaurant(id: string, language: 'pt' | 'en' = 'pt') {
-  const [result, details] = await Promise.all([readListings(id), readProfileDetails(id)]);
+  const [result, details, logos] = await Promise.all([readListings(id), readProfileDetails(id), readRestaurantLogos(id)]);
   const row = sqlRows(result)[0];
   if (!row) return null;
   const restaurant = withProfileDetails(publicRestaurant(row),details[0],language);
+  restaurant.logoUrl = logos[0]?.photo_url ?? undefined;
   restaurant.menuItems = (await getSavedMenu(id, restaurant.status === 'verified')).map(item => ({ ...item, photo: item.photo && restaurant.menuPhotos.includes(item.photo) ? item.photo : null }));
   return restaurant;
 }
@@ -131,4 +133,14 @@ function withProfileDetails(restaurant: Restaurant, details?: Record<string,stri
     description: (language === 'en' && details.description_en?.trim() ? details.description_en : details.description) ?? '',
     hours: (language === 'en' && details.opening_hours_en?.trim() ? details.opening_hours_en : details.opening_hours) ?? '',
   } : restaurant;
+}
+
+export async function readRestaurantLogos(id?: string) {
+  try {
+    return sqlRows(await executePrivateSql(`SELECT g.restaurant_id,g.photo_url FROM restaurant_logos g
+      JOIN restaurant_listings l ON l.id=g.restaurant_id ${id ? 'WHERE g.restaurant_id=?' : ''}`,id ? [id] : []));
+  } catch (error) {
+    if (error instanceof Error && error.message === 'TURSO_LOGOS_NOT_MIGRATED') return [];
+    throw error;
+  }
 }

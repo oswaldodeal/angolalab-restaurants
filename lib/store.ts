@@ -20,6 +20,7 @@ export type SavedMenuItem = { availability: 'available' | 'unavailable'; id: str
 export type Restaurant = {
   id: string;
   ownerId: string;
+  logoUrl?: string;
 
   // Basic info — visible immediately
   name: string;
