@@ -37,3 +37,35 @@ export async function updateOwnerMenuPhoto(_previous: string, form: FormData): P
   revalidatePath('/en/restaurants', 'layout'); revalidatePath('/pt/restaurantes', 'layout');
   return result;
 }
+
+export async function updateOwnerCoverPhoto(_previous: string, form: FormData): Promise<string> {
+  const { userId } = await auth();
+  if (!userId) return 'signed-out';
+  const id = String(form.get('id') ?? '');
+  const token = String(form.get('coverToken') ?? '');
+  const remove = form.get('intent') === 'remove';
+  if (!/^[a-zA-Z0-9-]{1,100}$/.test(id) || (token && !/^[a-f0-9]{64}$/.test(token))) return 'stale';
+  let result = 'stale';
+  try {
+    await prepareRestaurantDatabase();
+    const access = `EXISTS (SELECT 1 FROM restaurant_owners o JOIN restaurant_listings l ON l.id=o.restaurant_id
+      JOIN restaurant_verified_contacts v ON v.id=l.id WHERE o.restaurant_id=restaurant_pro_plans.id AND o.clerk_user_id=?)`;
+    const row = sqlRows(await executePrivateSql(`SELECT cover_photo_url,menu_photo_url FROM restaurant_pro_plans WHERE id=? AND ${access}`, [id,userId]))[0];
+    if (row) {
+      const currentToken = row.cover_photo_url ? createHash('sha256').update(row.cover_photo_url).digest('hex') : '';
+      if (token !== currentToken || (remove && !row.cover_photo_url)) return 'stale';
+      const photo = remove ? null : await photoUpload(form);
+      if (!remove && !photo) return 'invalid-upload';
+      if (!remove && photo === row.cover_photo_url) return 'cover-duplicate';
+      // Preserve the legacy sample menu before the cover changes. A concurrent menu edit wins.
+      const menu = JSON.stringify(readMenuPhotos(row.menu_photo_url,row.cover_photo_url));
+      const changed = await executePrivateSql(`UPDATE restaurant_pro_plans SET cover_photo_url=?,menu_photo_url=COALESCE(menu_photo_url,?)
+        WHERE id=? AND cover_photo_url IS ? AND ${access}`, [photo,menu,id,row.cover_photo_url,userId]);
+      if (Number(changed.affected_row_count) === 1) result = remove ? 'cover-removed' : 'cover-saved';
+    }
+  } catch (error) { result = error instanceof Error && error.message === 'INVALID_PHOTO_UPLOAD' ? 'invalid-upload' : 'unavailable'; }
+  revalidatePath('/en/account'); revalidatePath('/pt/conta'); revalidatePath('/staff/review');
+  revalidatePath('/en/restaurants', 'layout'); revalidatePath('/pt/restaurantes', 'layout');
+  revalidatePath('/findme');
+  return result;
+}
