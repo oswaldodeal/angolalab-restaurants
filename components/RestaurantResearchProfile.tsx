@@ -172,7 +172,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
             <div className="space-y-6">
               <section className="rounded-xl border border-[#e9e5db] p-6 sm:p-8">
                 <h2 className="text-xl font-semibold">{pt ? '01 · Sobre o restaurante' : '01 · About the restaurant'}</h2>
-                <p className="mt-4 leading-relaxed text-[#555]">
+                <p className="mt-4 whitespace-pre-line leading-relaxed text-[#555]">
                   {restaurant.description || (pt ? 'Mais informações serão adicionadas após análise.' : 'More information will be added after review.')}
                 </p>
               </section>
@@ -285,7 +285,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
             <aside className="space-y-6">
               <section className="rounded-xl border border-[#e9e5db] bg-[#fffdf8] p-6">
                 <h2 className="text-lg font-semibold">{pt ? 'Informação do perfil' : 'Profile information'}</h2>
-                {!isDemo && restaurant.hours && <p className="mt-4 text-sm text-[#555]">{pt ? 'Horário' : 'Hours'}: {restaurant.hours}</p>}
+                {!isDemo && restaurant.hours && <p className="mt-4 whitespace-pre-line text-sm text-[#555]">{pt ? 'Horário' : 'Hours'}: {restaurant.hours}</p>}
                 <p className="mt-4 text-sm text-[#555]">{pt ? 'Cidade' : 'City'}: {city}</p>
                 <p className="mt-2 text-sm text-[#555]">{pt ? 'Cozinha' : 'Cuisine'}: {cuisine}</p>
                 <p className={`mt-4 border-t border-[#e9e5db] pt-4 text-sm font-medium ${verified && !isDemo ? 'text-emerald-700' : 'text-[#866415]'}`}>

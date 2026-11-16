@@ -64,7 +64,9 @@ async function readListings(id?: string) {
 }
 
 export async function getPublishedRestaurants(): Promise<Restaurant[]> {
-  return sqlRows(await readListings()).map(publicRestaurant);
+  const [listings, details] = await Promise.all([readListings(), readProfileDetails()]);
+  const byId = new Map(details.map(item => [item.restaurant_id,item]));
+  return sqlRows(listings).map(row => withProfileDetails(publicRestaurant(row), byId.get(row.id)));
 }
 
 export async function getRestaurantDirectory() {
@@ -73,10 +75,10 @@ export async function getRestaurantDirectory() {
 }
 
 export async function getPublishedRestaurant(id: string) {
-  const result = await readListings(id);
+  const [result, details] = await Promise.all([readListings(id), readProfileDetails(id)]);
   const row = sqlRows(result)[0];
   if (!row) return null;
-  const restaurant = publicRestaurant(row);
+  const restaurant = withProfileDetails(publicRestaurant(row),details[0]);
   restaurant.menuItems = (await getSavedMenu(id, restaurant.status === 'verified')).map(item => ({ ...item, photo: item.photo && restaurant.menuPhotos.includes(item.photo) ? item.photo : null }));
   return restaurant;
 }
@@ -91,4 +93,17 @@ export async function getSavedMenu(id: string, verified: boolean): Promise<Saved
     if (error instanceof Error && error.message === 'TURSO_ITEMS_NOT_MIGRATED') return [];
     throw error;
   }
+}
+
+export async function readProfileDetails(id?: string) {
+  try {
+    return sqlRows(await executePrivateSql(`SELECT d.restaurant_id,d.description,d.opening_hours,d.version
+      FROM restaurant_profile_details d JOIN restaurant_listings l ON l.id=d.restaurant_id ${id ? 'WHERE d.restaurant_id=?' : ''}`, id ? [id] : []));
+  } catch (error) {
+    if (error instanceof Error && error.message === 'TURSO_DETAILS_NOT_MIGRATED') return [];
+    throw error;
+  }
+}
+function withProfileDetails(restaurant: Restaurant, details?: Record<string,string | null>): Restaurant {
+  return details ? {...restaurant,description: details.description ?? '',hours: details.opening_hours ?? ''} : restaurant;
 }
