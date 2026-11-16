@@ -12,10 +12,11 @@ export async function mutateMenuItem(form: FormData, ownerId: string | null): Pr
   const name = String(form.get('name') ?? '').trim();
   const category = String(form.get('category') ?? '');
   const price = String(form.get('price') ?? '').trim();
+  const availability = form.has('availability') ? String(form.get('availability')) : null;
   const photoIndex = String(form.get('photo') ?? '');
   const validId = (s: string) => /^[a-zA-Z0-9-]{1,100}$/.test(s);
   if (!validId(id) || (itemId && !validId(itemId)) || (remove && !itemId)
-    || (!remove && (name.length < 2 || name.length > 100 || !['mains','drinks','desserts'].includes(category)
+    || (!remove && ((availability !== null && !['available','unavailable'].includes(availability)) || name.length < 2 || name.length > 100 || !['mains','drinks','desserts'].includes(category)
       || !/^\d{1,7}(\.\d{1,2})?$/.test(price)))) return 'invalid-item';
   let result = 'stale';
   try {
@@ -38,13 +39,13 @@ export async function mutateMenuItem(form: FormData, ownerId: string | null): Pr
         if (remove) {
           changed = await executePrivateSql(`DELETE FROM restaurant_menu_items WHERE restaurant_id=? AND id=? AND updated_at=? AND ${permission}`, [id,itemId,expected,...permissionArgs]);
         } else if (itemId) {
-          changed = await executePrivateSql(`UPDATE restaurant_menu_items SET name=?,category=?,price=?,photo=?,updated_at=?
+          changed = await executePrivateSql(`UPDATE restaurant_menu_items SET name=?,category=?,price=?,photo=?,availability=COALESCE(?,availability),updated_at=?
             WHERE restaurant_id=? AND id=? AND updated_at=? AND ${permission} AND ${room}`,
-            [name,category,Number(price).toFixed(2),photo!,new Date().toISOString(),id,itemId,expected,...permissionArgs,id,itemId]);
+            [name,category,Number(price).toFixed(2),photo!,availability,new Date(Math.max(Date.now(),(Date.parse(expected) || 0) + 1)).toISOString(),id,itemId,expected,...permissionArgs,id,itemId]);
         } else {
-          changed = await executePrivateSql(`INSERT INTO restaurant_menu_items (id,restaurant_id,name,category,price,photo,updated_at)
-            SELECT ?,?,?,?,?,?,? WHERE ${permission} AND ${room}`,
-            [randomUUID(),id,name,category,Number(price).toFixed(2),photo!,new Date().toISOString(),...permissionArgs,id,'']);
+          changed = await executePrivateSql(`INSERT INTO restaurant_menu_items (id,restaurant_id,name,category,price,photo,availability,updated_at)
+            SELECT ?,?,?,?,?,?,COALESCE(?,'available'),? WHERE ${permission} AND ${room}`,
+            [randomUUID(),id,name,category,Number(price).toFixed(2),photo!,availability,new Date().toISOString(),...permissionArgs,id,'']);
         }
         if (Number(changed.affected_row_count) === 1) result = remove ? 'item-removed' : 'item-saved';
       }

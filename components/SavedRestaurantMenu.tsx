@@ -15,6 +15,9 @@ export default function SavedRestaurantMenu({ items, country, language }: { item
     <div className="mt-5 grid gap-4 sm:grid-cols-2">{visible.map(item => <article key={item.id} className="overflow-hidden rounded-xl border border-[#e9e5db] bg-white">
       {item.photo && <img src={item.photo} alt={item.name} loading="lazy" className="aspect-[4/3] w-full object-cover" />}
       <div className="p-4"><h3 className="font-semibold">{item.name}</h3>
+        <span className={`mt-2 inline-block rounded-full px-3 py-1 text-xs font-semibold ${item.availability === 'unavailable' ? 'bg-gray-100 text-gray-700' : 'bg-emerald-50 text-emerald-800'}`}>
+          {item.availability === 'unavailable' ? (pt ? 'Indisponível' : 'Unavailable') : (pt ? 'Disponível' : 'Available')}
+        </span>
         {item.photo?.startsWith('/demo/') && <p className="mt-1 text-xs text-[#555]">{pt ? 'Imagem ilustrativa' : 'Illustrative image'}</p>}
         <p className="mt-2 text-lg font-semibold text-emerald-800">{new Intl.NumberFormat(pt ? 'pt-PT' : 'en-GB', { style: 'currency', currency }).format(Number(item.price))}</p>
       </div>

@@ -26,6 +26,13 @@ export default function MenuItemForm({ id, currency, verified, photoCount, photo
           <input name="price" type="number" required min="0" max="9999999.99" step="0.01" defaultValue={item?.price} className="mt-1 w-full rounded border bg-white p-2" />
         </label>
       </div>
+      <label className="block">{pt ? 'Disponibilidade' : 'Availability'}
+        <select key={item?.availability ?? 'available'} name="availability" defaultValue={item?.availability ?? 'available'} className="mt-1 w-full rounded border bg-white p-2">
+          <option value="available">{pt ? 'Disponível' : 'Available'}</option>
+          <option value="unavailable">{pt ? 'Indisponível' : 'Unavailable'}</option>
+        </select>
+        <span className="mt-1 block text-xs text-[#555]">{pt ? 'Os itens indisponíveis continuam visíveis na ementa.' : 'Unavailable items remain visible on the menu.'}</span>
+      </label>
       <label className="block">{pt ? 'Fotografia da ementa' : 'Menu photo'}
         <select key={`${photoIndex}:${photoCount}`} name="photo" defaultValue={photoIndex} className="mt-1 w-full rounded border bg-white p-2">
           <option value="">{pt ? 'Sem fotografia' : 'No photo'}</option>

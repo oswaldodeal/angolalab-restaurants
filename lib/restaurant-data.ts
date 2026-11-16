@@ -8,6 +8,11 @@ let preparation: Promise<void> | undefined;
 export async function prepareRestaurantDatabase() {
   if (!preparation) preparation = (async () => {
     for (const statement of restaurantSchema) await executePrivateSql(statement);
+    const menuColumns = sqlRows(await executePrivateSql('PRAGMA table_info(restaurant_menu_items)'));
+    if (!menuColumns.some(column => column.name === 'availability')) {
+      try { await executePrivateSql("ALTER TABLE restaurant_menu_items ADD COLUMN availability TEXT NOT NULL DEFAULT 'available' CHECK(availability IN ('available','unavailable'))"); }
+      catch (error) { if (!(error instanceof Error) || error.message !== 'TURSO_COVER_ALREADY_MIGRATED') throw error; }
+    }
     const detailsColumns = sqlRows(await executePrivateSql('PRAGMA table_info(restaurant_profile_details)'));
     for (const name of ['description_en','opening_hours_en']) {
       if (detailsColumns.some(column => column.name === name)) continue;
@@ -90,11 +95,17 @@ export async function getPublishedRestaurant(id: string, language: 'pt' | 'en' =
 }
 
 export async function getSavedMenu(id: string, verified: boolean): Promise<SavedMenuItem[]> {
+  const tail = `FROM restaurant_menu_items m JOIN restaurant_listings l ON l.id=m.restaurant_id
+    WHERE m.restaurant_id=? ${verified ? '' : "AND m.category='mains'"} ORDER BY m.rowid LIMIT ${verified ? 60 : 2}`;
+  const fields = 'm.id,m.name,m.category,m.price,m.photo,m.updated_at';
   try {
-    const rows = sqlRows(await executePrivateSql(`SELECT m.id,m.name,m.category,m.price,m.photo,m.updated_at
-      FROM restaurant_menu_items m JOIN restaurant_listings l ON l.id=m.restaurant_id
-      WHERE m.restaurant_id=? ${verified ? '' : "AND m.category='mains'"} ORDER BY m.rowid LIMIT ${verified ? 60 : 2}`, [id]));
-    return rows as unknown as SavedMenuItem[];
+    let rows;
+    try { rows = sqlRows(await executePrivateSql(`SELECT ${fields},m.availability ${tail}`,[id])); }
+    catch (error) {
+      if (!(error instanceof Error) || error.message !== 'TURSO_AVAILABILITY_NOT_MIGRATED') throw error;
+      rows = sqlRows(await executePrivateSql(`SELECT ${fields} ${tail}`,[id]));
+    }
+    return rows.map(row => ({...row,availability:row.availability === 'unavailable' ? 'unavailable' : 'available'})) as unknown as SavedMenuItem[];
   } catch (error) {
     if (error instanceof Error && error.message === 'TURSO_ITEMS_NOT_MIGRATED') return [];
     throw error;

@@ -63,7 +63,7 @@ export const restaurantSchema = [
   `CREATE TABLE IF NOT EXISTS restaurant_menu_items (
     id TEXT PRIMARY KEY, restaurant_id TEXT NOT NULL REFERENCES restaurant_listings(id),
     name TEXT NOT NULL, category TEXT NOT NULL CHECK(category IN ('mains','drinks','desserts')),
-    price TEXT NOT NULL, photo TEXT, updated_at TEXT NOT NULL
+    price TEXT NOT NULL, photo TEXT, updated_at TEXT NOT NULL, availability TEXT NOT NULL DEFAULT 'available' CHECK(availability IN ('available','unavailable'))
   )`,
   `CREATE TRIGGER IF NOT EXISTS restaurant_clear_removed_menu_photos
     AFTER UPDATE OF menu_photo_url ON restaurant_pro_plans
