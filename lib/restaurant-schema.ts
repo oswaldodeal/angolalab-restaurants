@@ -57,6 +57,15 @@ export const restaurantSchema = [
     name TEXT NOT NULL, category TEXT NOT NULL CHECK(category IN ('mains','drinks','desserts')),
     price TEXT NOT NULL, photo TEXT, updated_at TEXT NOT NULL
   )`,
+  `CREATE TRIGGER IF NOT EXISTS restaurant_clear_removed_menu_photos
+    AFTER UPDATE OF menu_photo_url ON restaurant_pro_plans
+    WHEN NEW.menu_photo_url IS NOT NULL
+    BEGIN
+      UPDATE restaurant_menu_items SET photo=NULL,updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now')
+      WHERE restaurant_id=NEW.id AND photo IS NOT NULL
+      AND NOT EXISTS (SELECT 1 FROM json_each(CASE WHEN json_valid(NEW.menu_photo_url)
+        THEN NEW.menu_photo_url ELSE json_array(NEW.menu_photo_url) END) j WHERE j.value=restaurant_menu_items.photo);
+    END`,
   `CREATE TRIGGER IF NOT EXISTS restaurant_remove_menu
     BEFORE DELETE ON restaurant_listings
     BEGIN DELETE FROM restaurant_menu_items WHERE restaurant_id = OLD.id; END`,

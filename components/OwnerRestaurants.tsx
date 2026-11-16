@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto';
+import OwnerMenuPhotos from '@/components/OwnerMenuPhotos';
 import Link from 'next/link';
 import { getOwnedRestaurants } from '@/lib/restaurant-owners';
 import { readMenuPhotos } from '@/lib/store';
@@ -19,6 +21,7 @@ export default async function OwnerRestaurants({ userId, language }: { userId: s
         <h3 className="text-lg font-semibold">{restaurant.name}</h3>
         <Link href={`${pt ? '/pt/restaurantes' : '/en/restaurants'}/${restaurant.id}`} className="font-semibold text-emerald-700 underline underline-offset-4">{pt ? 'Ver perfil' : 'View profile'}</Link>
       </div>
+      {restaurant.pro_id && <OwnerMenuPhotos id={restaurant.id!} language={language} photos={readMenuPhotos(restaurant.menu_photo_url,restaurant.cover_photo_url).map(src => ({src, token: createHash('sha256').update(src).digest('hex')}))} />}
       <StaffMenuEditor id={restaurant.id!} country={restaurant.country!} verified={Boolean(restaurant.verified_at)} photos={readMenuPhotos(restaurant.menu_photo_url,restaurant.cover_photo_url)} owner language={language} />
     </article>)}</div>
   </section>;
