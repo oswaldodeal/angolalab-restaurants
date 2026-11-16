@@ -8,6 +8,12 @@ let preparation: Promise<void> | undefined;
 export async function prepareRestaurantDatabase() {
   if (!preparation) preparation = (async () => {
     for (const statement of restaurantSchema) await executePrivateSql(statement);
+    const detailsColumns = sqlRows(await executePrivateSql('PRAGMA table_info(restaurant_profile_details)'));
+    for (const name of ['description_en','opening_hours_en']) {
+      if (detailsColumns.some(column => column.name === name)) continue;
+      try { await executePrivateSql(`ALTER TABLE restaurant_profile_details ADD COLUMN ${name} TEXT`); }
+      catch (error) { if (!(error instanceof Error) || error.message !== 'TURSO_COVER_ALREADY_MIGRATED') throw error; }
+    }
     const columns = sqlRows(await executePrivateSql('PRAGMA table_info(restaurant_pro_plans)'));
     for (const name of ['cover_photo_url', 'menu_photo_url']) {
       if (columns.some(column => column.name === name)) continue;
@@ -74,11 +80,11 @@ export async function getRestaurantDirectory() {
   catch { return { restaurants: initialRestaurants, unavailable: true }; }
 }
 
-export async function getPublishedRestaurant(id: string) {
+export async function getPublishedRestaurant(id: string, language: 'pt' | 'en' = 'pt') {
   const [result, details] = await Promise.all([readListings(id), readProfileDetails(id)]);
   const row = sqlRows(result)[0];
   if (!row) return null;
-  const restaurant = withProfileDetails(publicRestaurant(row),details[0]);
+  const restaurant = withProfileDetails(publicRestaurant(row),details[0],language);
   restaurant.menuItems = (await getSavedMenu(id, restaurant.status === 'verified')).map(item => ({ ...item, photo: item.photo && restaurant.menuPhotos.includes(item.photo) ? item.photo : null }));
   return restaurant;
 }
@@ -96,14 +102,22 @@ export async function getSavedMenu(id: string, verified: boolean): Promise<Saved
 }
 
 export async function readProfileDetails(id?: string) {
+  const tail = `FROM restaurant_profile_details d JOIN restaurant_listings l ON l.id=d.restaurant_id ${id ? 'WHERE d.restaurant_id=?' : ''}`;
+  const args = id ? [id] : [];
   try {
-    return sqlRows(await executePrivateSql(`SELECT d.restaurant_id,d.description,d.opening_hours,d.version
-      FROM restaurant_profile_details d JOIN restaurant_listings l ON l.id=d.restaurant_id ${id ? 'WHERE d.restaurant_id=?' : ''}`, id ? [id] : []));
+    try { return sqlRows(await executePrivateSql(`SELECT d.restaurant_id,d.description,d.opening_hours,d.description_en,d.opening_hours_en,d.version ${tail}`,args)); }
+    catch (error) {
+      if (!(error instanceof Error) || error.message !== 'TURSO_TRANSLATIONS_NOT_MIGRATED') throw error;
+      return sqlRows(await executePrivateSql(`SELECT d.restaurant_id,d.description,d.opening_hours,d.version ${tail}`,args));
+    }
   } catch (error) {
     if (error instanceof Error && error.message === 'TURSO_DETAILS_NOT_MIGRATED') return [];
     throw error;
   }
 }
-function withProfileDetails(restaurant: Restaurant, details?: Record<string,string | null>): Restaurant {
-  return details ? {...restaurant,description: details.description ?? '',hours: details.opening_hours ?? ''} : restaurant;
+function withProfileDetails(restaurant: Restaurant, details?: Record<string,string | null>, language: 'pt' | 'en' = 'pt'): Restaurant {
+  return details ? {...restaurant,
+    description: (language === 'en' && details.description_en?.trim() ? details.description_en : details.description) ?? '',
+    hours: (language === 'en' && details.opening_hours_en?.trim() ? details.opening_hours_en : details.opening_hours) ?? '',
+  } : restaurant;
 }

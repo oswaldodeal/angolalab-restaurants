@@ -17,7 +17,7 @@ export async function getOwnedRestaurants() {
     const byId = new Map(details.map(item => [item.restaurant_id,item]));
     return sqlRows(result).map((restaurant): Record<string,string | null> & {description:string;opening_hours:string | null;details_version:string} => {
       const saved = byId.get(restaurant.id);
-      return {...restaurant,description:saved?.description ?? '',opening_hours:saved ? saved.opening_hours : restaurant.opening_hours,details_version:saved?.version ?? ''};
+      return {...restaurant,description:saved?.description ?? '',description_en:saved?.description_en ?? '',opening_hours_en:saved?.opening_hours_en ?? '',opening_hours:saved ? saved.opening_hours : restaurant.opening_hours,details_version:saved?.version ?? ''};
     });
   } catch (error) {
     if (error instanceof Error && error.message === 'TURSO_OWNERS_NOT_MIGRATED') return [];

@@ -39,7 +39,7 @@ export const restaurantSchema = [
   )`,
   `CREATE TABLE IF NOT EXISTS restaurant_profile_details (
     restaurant_id TEXT PRIMARY KEY REFERENCES restaurant_listings(id),
-    description TEXT NOT NULL, opening_hours TEXT NOT NULL, version TEXT NOT NULL,
+    description TEXT NOT NULL, opening_hours TEXT NOT NULL, description_en TEXT, opening_hours_en TEXT, version TEXT NOT NULL,
     updated_at TEXT NOT NULL, updated_by TEXT NOT NULL
   )`,
   `CREATE TRIGGER IF NOT EXISTS restaurant_remove_profile_details

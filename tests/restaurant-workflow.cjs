@@ -189,6 +189,18 @@ async function action(id, decision, consent = true) {
   assert.equal(changedDetails.status,'verified'); assert.equal(changedDetails.address,'12 Fictional Business Street');
   assert.equal((await data.getPublishedRestaurants()).find(row=>row.id===id).hours,detailsForm.get('hours'));
   assert.equal(await saveDetails(),'stale','A blank version cannot replace saved details');
+  assert.equal((await data.getPublishedRestaurant(id,'en')).description,detailsForm.get('description'),'Missing English translation falls back to original');
+  detailsForm.set('version',(await load('lib/restaurant-owners').getOwnedRestaurants())[0].details_version);
+  detailsForm.set('descriptionEn','Welcome! We serve Angolan and international food.');
+  detailsForm.set('hoursEn','Weekdays: 11:00–23:00; weekends: 11:00–00:00');
+  assert.equal(await saveDetails(),'details-saved');
+  assert.equal((await data.getPublishedRestaurant(id,'en')).description,detailsForm.get('descriptionEn'));
+  assert.equal((await data.getPublishedRestaurant(id,'en')).hours,detailsForm.get('hoursEn'));
+  assert.equal((await data.getPublishedRestaurant(id,'pt')).description,detailsForm.get('description'),'English text does not replace Portuguese');
+  detailsForm.set('version',(await load('lib/restaurant-owners').getOwnedRestaurants())[0].details_version);
+  detailsForm.delete('descriptionEn');detailsForm.delete('hoursEn');
+  assert.equal(await saveDetails(),'details-saved');
+  assert.equal((await data.getPublishedRestaurant(id,'en')).description,'Welcome! We serve Angolan and international food.','Older forms preserve saved translations');
   let ownDetails = (await load('lib/restaurant-owners').getOwnedRestaurants())[0];
   assert.equal(ownDetails.description,detailsForm.get('description'));
   detailsForm.set('version',ownDetails.details_version); detailsForm.set('description','Updated description');
@@ -338,5 +350,5 @@ async function action(id, decision, consent = true) {
   assert.equal(db.prepare("SELECT status FROM restaurant_intake WHERE id='legacy'").get().status, 'pending');
   assert.equal(db.prepare("SELECT status FROM restaurant_submissions WHERE id='legacy'").get().status, 'approved');
   assert.equal((await data.getPublishedRestaurants()).length, 0);
-  console.log('PASS: owner description/hours save, stale edit protection, public rendering data; owner cover add/replace/remove, stale edits, directory sync, menu preservation; owner photo upload/removal, size/type validation, photo reference cleanup; owner session isolation, staff linking/revocation, inline save feedback; menu CRUD, auth, price validation, stale edits, Basic limits; UK registration; validation; unauthorized/consent guards; Basic publication; staff-only Verified contacts; private field isolation; duplicate review; rejection; withdrawal; atomic rollback; legacy preservation.');
+  console.log('PASS: separate PT/EN descriptions and hours, original fallback, older-form translation preservation; owner description/hours save, stale edit protection, public rendering data; owner cover add/replace/remove, stale edits, directory sync, menu preservation; owner photo upload/removal, size/type validation, photo reference cleanup; owner session isolation, staff linking/revocation, inline save feedback; menu CRUD, auth, price validation, stale edits, Basic limits; UK registration; validation; unauthorized/consent guards; Basic publication; staff-only Verified contacts; private field isolation; duplicate review; rejection; withdrawal; atomic rollback; legacy preservation.');
 })().catch(error => { console.error(error); process.exitCode = 1; });

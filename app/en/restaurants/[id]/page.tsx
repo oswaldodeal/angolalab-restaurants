@@ -9,7 +9,7 @@ export default async function RestaurantPage({ params }: Props) {
   const demo = initialRestaurants.find(item => item.id === id);
   let restaurant = demo ?? null;
   if (!demo) {
-    try { restaurant = await getPublishedRestaurant(id); }
+    try { restaurant = await getPublishedRestaurant(id, 'en'); }
     catch {
       return <main className="bg-white px-5 py-16 text-[#242424]"><h1 className="text-2xl font-semibold">Profile temporarily unavailable</h1><p className="mt-4">Please try again later.</p></main>;
     }
