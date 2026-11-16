@@ -27,7 +27,7 @@ export default function MenuItemForm({ id, currency, verified, photoCount, photo
         </label>
       </div>
       <label className="block">{pt ? 'Fotografia da ementa' : 'Menu photo'}
-        <select name="photo" defaultValue={photoIndex} className="mt-1 w-full rounded border bg-white p-2">
+        <select key={`${photoIndex}:${photoCount}`} name="photo" defaultValue={photoIndex} className="mt-1 w-full rounded border bg-white p-2">
           <option value="">{pt ? 'Sem fotografia' : 'No photo'}</option>
           {Array.from({length: photoCount}, (_, index) => <option key={index} value={index}>{pt ? 'Fotografia' : 'Photo'} {index + 1}</option>)}
         </select>
