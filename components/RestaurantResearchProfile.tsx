@@ -282,10 +282,16 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
                   </a>
                 )}
               </section>
-              <section className="rounded-xl border border-[#e9e5db] p-6 sm:p-8">
-                <h2 className="text-xl font-semibold">{pt ? '03 · Comentários' : '03 · Comments'}</h2>
+              <details className="group rounded-xl border border-[#e9e5db] p-4 sm:p-6">
+                <summary className="flex min-h-11 cursor-pointer list-none flex-wrap items-center justify-between gap-3 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-700 [&::-webkit-details-marker]:hidden">
+                  <h2 className="text-xl font-semibold">{pt ? '03 · Comentários' : '03 · Comments'}</h2>
+                  <span className="text-sm font-semibold text-emerald-700">
+                    <span className="group-open:hidden">{pt ? 'Ler mais' : 'Read more'} +</span>
+                    <span className="hidden group-open:inline">{pt ? 'Ler menos' : 'Read less'} −</span>
+                  </span>
+                </summary>
                 <p className="mt-4 text-[#555]">{pt ? 'Os comentários exigirão uma conta verificada. Funcionalidade em desenvolvimento.' : 'Comments will require a verified account. Feature in development.'}</p>
-              </section>
+              </details>
             </div>
 
             <aside className="space-y-6">
