@@ -1,9 +1,9 @@
 'use client';
-import { useState } from 'react';
+import { useMenuCategory } from '@/components/MenuCategoryProvider';
 import type { SavedMenuItem } from '@/lib/store';
 
 export default function SavedRestaurantMenu({ items, country, language }: { items: SavedMenuItem[]; country: string; language: 'en' | 'pt' }) {
-  const [category, setCategory] = useState('all');
+  const { category, setCategory } = useMenuCategory();
   const pt = language === 'pt';
   const currency = country === 'GB' ? 'GBP' : country === 'PT' ? 'EUR' : 'AOA';
   const labels = [['all', pt ? 'Todos' : 'All'], ['mains', pt ? 'Pratos principais' : 'Main courses'], ['drinks', pt ? 'Bebidas' : 'Drinks'], ['desserts', pt ? 'Sobremesas' : 'Desserts']];
