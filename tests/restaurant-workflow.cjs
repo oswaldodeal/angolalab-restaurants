@@ -33,10 +33,10 @@ async function fakeFetch(url, options) {
   } catch { return Response.json({ results: [{ type: 'error' }] }); }
 }
 function load(name) {
-  const full = path.join(root, name + '.ts');
+  const full = path.join(root, name + (fs.existsSync(path.join(root,name + '.ts')) ? '.ts' : '.tsx'));
   if (cache.has(full)) return cache.get(full).exports;
   const module = { exports: {} }; cache.set(full, module);
-  const code = ts.transpileModule(fs.readFileSync(full, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true } }).outputText;
+  const code = ts.transpileModule(fs.readFileSync(full, 'utf8'), { compilerOptions: { jsx: ts.JsxEmit.ReactJSX, module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true } }).outputText;
   const localRequire = id => {
     if (id === '@clerk/nextjs/server') return { auth: async () => ({ userId: clerkUserId }) };
     if (id === 'server-only') return {};
@@ -347,6 +347,32 @@ async function action(id, decision, consent = true) {
   assert.equal(await ownerSave(),'item-saved');
   assert.equal((await data.getPublishedRestaurant(id)).menuItems[0].photo,uploadedCover,'Availability preserves the photo');
   assert.equal((await data.getPublishedRestaurant(id)).menuItems[0].availability,'unavailable');
+  const translationItem=(await data.getPublishedRestaurant(id)).menuItems[0];
+  const translatedDish=new FormData(); translatedDish.set('restaurantId',id);translatedDish.set('itemId',translationItem.id);translatedDish.set('version',translationItem.updated_at);
+  translatedDish.set('name','Moamba de galinha');translatedDish.set('nameEn','Chicken moamba');translatedDish.set('category','mains');translatedDish.set('price',translationItem.price);translatedDish.set('photo','0');translatedDish.set('availability','unavailable');
+  const saveDishTranslation=()=>load('app/staff/review/menu-actions').saveStaffMenuItem('',translatedDish);
+  loggedIn=false;await assert.rejects(saveDishTranslation,error=>error.url==='/staff/review/login');loggedIn=true;
+  translatedDish.set('nameEn','x'.repeat(101));assert.equal(await saveDishTranslation(),'invalid-item');
+  translatedDish.set('nameEn','Chicken moamba');assert.equal(await saveDishTranslation(),'item-saved');
+  let bilingualDish=(await data.getPublishedRestaurant(id)).menuItems[0];
+  assert.equal(bilingualDish.name,'Moamba de galinha');assert.equal(bilingualDish.nameEn,'Chicken moamba');
+  assert.equal(bilingualDish.id,translationItem.id);assert.equal(bilingualDish.price,translationItem.price);assert.equal(bilingualDish.photo,uploadedCover);assert.equal(bilingualDish.availability,'unavailable');
+  const React=require('react');const {renderToStaticMarkup}=require('react-dom/server');
+  const Menu=load('components/SavedRestaurantMenu').default;
+  const englishMenu=renderToStaticMarkup(React.createElement(Menu,{items:[bilingualDish],country:'GB',language:'en'}));
+  const portugueseMenu=renderToStaticMarkup(React.createElement(Menu,{items:[bilingualDish],country:'GB',language:'pt'}));
+  assert(englishMenu.includes('Chicken moamba'));assert(englishMenu.includes('Unavailable'));
+  assert(portugueseMenu.includes('Moamba de galinha'));assert(portugueseMenu.includes('Indisponível'));assert(!portugueseMenu.includes('Chicken moamba'));
+  ownerItem.set('name','Moamba de galinha');ownerItem.set('version',bilingualDish.updated_at);ownerItem.set('nameEn','Forged translation');
+  assert.equal(await ownerSave(),'item-saved');bilingualDish=(await data.getPublishedRestaurant(id)).menuItems[0];
+  assert.equal(bilingualDish.nameEn,'Chicken moamba','Owner submissions cannot alter staff English names');
+  ownerItem.set('version',bilingualDish.updated_at);ownerItem.set('name','Peixe grelhado');assert.equal(await ownerSave(),'item-saved');
+  bilingualDish=(await data.getPublishedRestaurant(id)).menuItems[0];
+  assert.equal(bilingualDish.nameEn,'','Changing the original name clears an outdated translation');assert.equal(bilingualDish.photo,uploadedCover);
+  const fallbackMenu=renderToStaticMarkup(React.createElement(Menu,{items:[bilingualDish],country:'GB',language:'en'}));
+  assert(fallbackMenu.includes('Peixe grelhado'));
+  assert.equal(await saveDishTranslation(),'stale','Old staff translation cannot overwrite owner name changes');
+
   ownerPhoto.set('intent','remove'); ownerPhoto.set('photoToken',require('node:crypto').createHash('sha256').update(uploadedCover).digest('hex'));
   clerkUserId = 'user_intruder123456789'; assert.equal(await saveOwnerPhoto(), 'stale');
   clerkUserId = 'user_owner123456789'; assert.equal(await saveOwnerPhoto(), 'menu-removed');
@@ -438,5 +464,5 @@ async function action(id, decision, consent = true) {
   assert.equal(db.prepare("SELECT status FROM restaurant_intake WHERE id='legacy'").get().status, 'pending');
   assert.equal(db.prepare("SELECT status FROM restaurant_submissions WHERE id='legacy'").get().status, 'approved');
   assert.equal((await data.getPublishedRestaurants()).length, 0);
-  console.log('PASS: staff-reviewed English, source preservation, staff auth and stale source protection; logo add/replace/remove, owner isolation, file validation and media preservation; menu availability toggle, public status, photo/price preservation, owner isolation and stale edit protection; separate PT/EN descriptions and hours, original fallback, older-form translation preservation; owner description/hours save, stale edit protection, public rendering data; owner cover add/replace/remove, stale edits, directory sync, menu preservation; owner photo upload/removal, size/type validation, photo reference cleanup; owner session isolation, staff linking/revocation, inline save feedback; menu CRUD, auth, price validation, stale edits, Basic limits; UK registration; validation; unauthorized/consent guards; Basic publication; staff-only Verified contacts; private field isolation; duplicate review; rejection; withdrawal; atomic rollback; legacy preservation.');
+  console.log('PASS: staff menu names in PT/EN rendered HTML, language fallback, source rename invalidation and media preservation; staff-reviewed English, source preservation, staff auth and stale source protection; logo add/replace/remove, owner isolation, file validation and media preservation; menu availability toggle, public status, photo/price preservation, owner isolation and stale edit protection; separate PT/EN descriptions and hours, original fallback, older-form translation preservation; owner description/hours save, stale edit protection, public rendering data; owner cover add/replace/remove, stale edits, directory sync, menu preservation; owner photo upload/removal, size/type validation, photo reference cleanup; owner session isolation, staff linking/revocation, inline save feedback; menu CRUD, auth, price validation, stale edits, Basic limits; UK registration; validation; unauthorized/consent guards; Basic publication; staff-only Verified contacts; private field isolation; duplicate review; rejection; withdrawal; atomic rollback; legacy preservation.');
 })().catch(error => { console.error(error); process.exitCode = 1; });

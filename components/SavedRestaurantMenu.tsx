@@ -13,8 +13,8 @@ export default function SavedRestaurantMenu({ items, country, language }: { item
       {labels.map(([key,label]) => <button key={key} type="button" aria-pressed={category === key} onClick={() => setCategory(key)} className={`border-b-2 px-1 pb-3 text-sm font-semibold ${category === key ? 'border-emerald-700 text-emerald-700' : 'border-transparent text-[#555]'}`}>{label}</button>)}
     </div>
     <div className="mt-5 grid gap-4 sm:grid-cols-2">{visible.map(item => <article key={item.id} className="overflow-hidden rounded-xl border border-[#e9e5db] bg-white">
-      {item.photo && <img src={item.photo} alt={item.name} loading="lazy" className="aspect-[4/3] w-full object-cover" />}
-      <div className="p-4"><h3 className="font-semibold">{item.name}</h3>
+      {item.photo && <img src={item.photo} alt={language === 'en' && item.nameEn ? item.nameEn : item.name} loading="lazy" className="aspect-[4/3] w-full object-cover" />}
+      <div className="p-4"><h3 className="font-semibold">{language === 'en' && item.nameEn ? item.nameEn : item.name}</h3>
         <span className={`mt-2 inline-block rounded-full px-3 py-1 text-xs font-semibold ${item.availability === 'unavailable' ? 'bg-gray-100 text-gray-700' : 'bg-emerald-50 text-emerald-800'}`}>
           {item.availability === 'unavailable' ? (pt ? 'Indisponível' : 'Unavailable') : (pt ? 'Disponível' : 'Available')}
         </span>

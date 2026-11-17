@@ -69,7 +69,7 @@ export const restaurantSchema = [
       VALUES (OLD.restaurant_id,'owner-linked','owner-unlinked','Owner access revoked','shared-pilot-staff',strftime('%Y-%m-%dT%H:%M:%fZ','now')); END`,
   `CREATE TABLE IF NOT EXISTS restaurant_menu_items (
     id TEXT PRIMARY KEY, restaurant_id TEXT NOT NULL REFERENCES restaurant_listings(id),
-    name TEXT NOT NULL, category TEXT NOT NULL CHECK(category IN ('mains','drinks','desserts')),
+    name TEXT NOT NULL, name_en TEXT, category TEXT NOT NULL CHECK(category IN ('mains','drinks','desserts')),
     price TEXT NOT NULL, photo TEXT, updated_at TEXT NOT NULL, availability TEXT NOT NULL DEFAULT 'available' CHECK(availability IN ('available','unavailable'))
   )`,
   `CREATE TRIGGER IF NOT EXISTS restaurant_clear_removed_menu_photos

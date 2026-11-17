@@ -2,8 +2,8 @@
 import { useActionState, useState } from 'react';
 import type { SavedMenuItem } from '@/lib/store';
 
-type Props = { id: string; currency: string; verified: boolean; photoCount: number; photoIndex: string; item?: Omit<SavedMenuItem, 'photo'>; language: 'en' | 'pt'; action: (previous: string, form: FormData) => Promise<string> };
-export default function MenuItemForm({ id, currency, verified, photoCount, photoIndex, item, language, action }: Props) {
+type Props = { id: string; currency: string; verified: boolean; photoCount: number; photoIndex: string; item?: Omit<SavedMenuItem, 'photo'>; language: 'en' | 'pt'; allowTranslation?: boolean; action: (previous: string, form: FormData) => Promise<string> };
+export default function MenuItemForm({ id, currency, verified, photoCount, photoIndex, item, language, allowTranslation = false, action }: Props) {
   const [result, formAction, pending] = useActionState(action, '');
   const [dirty, setDirty] = useState(false);
   const pt = language === 'pt';
@@ -12,9 +12,14 @@ export default function MenuItemForm({ id, currency, verified, photoCount, photo
   return <form action={formAction} onChange={() => setDirty(true)} onSubmit={() => setDirty(false)} className="space-y-3 rounded-lg bg-[#faf9f6] p-4 text-sm">
     <input type="hidden" name="restaurantId" value={id} /><input type="hidden" name="itemId" value={item?.id ?? ''} /><input type="hidden" name="version" value={item?.updated_at ?? ''} />
     <fieldset disabled={pending} className="space-y-3">
-      <label className="block">{pt ? 'Prato ou bebida' : 'Dish or drink'}
+      <label className="block">{allowTranslation ? 'Dish or drink · Portuguese original' : (pt ? 'Prato ou bebida' : 'Dish or drink')}
         <input name="name" required minLength={2} maxLength={100} defaultValue={item?.name} className="mt-1 w-full rounded border bg-white p-2" />
       </label>
+      {allowTranslation && <label className="block">English name · staff reviewed
+        <input lang="en" name="nameEn" maxLength={100} defaultValue={item?.nameEn ?? ''} className="mt-1 w-full rounded border bg-white p-2" />
+        <span className="mt-1 block text-xs text-[#555]">Check the English name against the Portuguese original. If blank, the original name is shown.</span>
+      </label>}
+      {!allowTranslation && <p className="text-xs text-[#555]">{pt ? 'Se alterar o nome do prato, a equipa poderá preparar uma nova tradução inglesa.' : 'If you change the item name, staff can prepare a new English translation.'}</p>}
       <div className="grid gap-3 sm:grid-cols-2">
         <label>{pt ? 'Categoria' : 'Category'}
           <select name="category" defaultValue={item?.category ?? 'mains'} className="mt-1 w-full rounded border bg-white p-2">
