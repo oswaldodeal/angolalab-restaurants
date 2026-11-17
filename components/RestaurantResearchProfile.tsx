@@ -22,6 +22,9 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
   const illustrativePhoto = photo === SAMPLE_RESTAURANT_COVER;
   const isDemo = restaurant.ownerId === 'demo';
   const isPro = verified && !isDemo && restaurant.profilePlan === 'pro';
+  const textMenuItems = (restaurant.menuItems ?? []).filter(item => !item.photo);
+  const menuCurrency = restaurant.country === 'GB' ? 'GBP' : restaurant.country === 'PT' ? 'EUR' : 'AOA';
+  const textMenuCategories = [['mains', pt ? 'Pratos principais' : 'Main courses'], ['drinks', pt ? 'Bebidas' : 'Drinks'], ['desserts', pt ? 'Sobremesas' : 'Desserts']];
   const mapPinIcon = (
     <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4 shrink-0">
       <path d="M20 10c0 6-8 11-8 11S4 16 4 10a8 8 0 1 1 16 0Z" />
@@ -307,6 +310,29 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
                       : (pt ? 'Perfil básico / em análise' : 'Basic / under review')}
                 </p>
               </section>
+              {!isDemo && <section className="rounded-xl border border-[#e9e5db] bg-[#fffdf8] p-6">
+                <h2 className="text-lg font-semibold">{pt ? 'Ementa · Comida e bebidas' : 'Menu · Food & drinks'}</h2>
+                {textMenuItems.length === 0 && <p className="mt-4 text-sm text-[#555]">{pt ? 'Ainda não há itens sem fotografia.' : 'No items without photos yet.'}</p>}
+                <div className="divide-y divide-[#e9e5db]">
+                  {textMenuCategories.map(([key,label]) => {
+                    const entries = textMenuItems.filter(item => item.category === key);
+                    if (!entries.length) return null;
+                    return <section key={key} className="mt-4 pt-4">
+                      <h3 className="font-semibold">{label}</h3>
+                      <ul className="mt-3 space-y-4">
+                        {entries.map(item => <li key={item.id}>
+                          <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 text-sm">
+                            <span className="min-w-0 break-words font-medium">{!pt && item.nameEn ? item.nameEn : item.name}</span>
+                            <span className="shrink-0 text-emerald-800">{new Intl.NumberFormat(pt ? 'pt-PT' : 'en-GB', { style: 'currency', currency: menuCurrency }).format(Number(item.price))}</span>
+                          </div>
+                          {item.referenceCode && <p className="mt-1 text-xs text-[#555]"><code>{item.referenceCode}</code></p>}
+                          {item.availability === 'unavailable' && <p className="mt-1 text-xs text-[#555]">{pt ? 'Indisponível' : 'Unavailable'}</p>}
+                        </li>)}
+                      </ul>
+                    </section>;
+                  })}
+                </div>
+              </section>}
             </aside>
           </div>
         </div>
