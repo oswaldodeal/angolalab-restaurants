@@ -1,3 +1,4 @@
+import StaffTranslationForm from '@/components/StaffTranslationForm';
 import OwnerAccessForm from '@/components/OwnerAccessForm';
 import StaffMenuEditor from '@/components/StaffMenuEditor';
 import StaffPhotoInput from '@/components/StaffPhotoInput';
@@ -122,6 +123,7 @@ export default async function StaffReview({ searchParams }: { searchParams: Prom
                 )}
               </section>
             )}
+            {item.status === 'approved' && <StaffTranslationForm id={item.id} description={item.description} hours={item.public_hours} descriptionEn={item.description_en} hoursEn={item.opening_hours_en} version={item.details_version} lastEditor={item.details_updated_by} lastSaved={item.details_updated_at} />}
             {item.status === 'approved' && <OwnerAccessForm id={item.id} />}
             {item.status === 'approved' && <StaffMenuEditor id={item.id} country={item.country} verified={Boolean(item.verified_at)} photos={item.menuPhotos} />}
             {item.pro_id && (
