@@ -1,9 +1,10 @@
-import { getSavedMenu } from '@/lib/restaurant-data';
+import { getSavedMenu, prepareRestaurantDatabase } from '@/lib/restaurant-data';
 import { saveStaffMenuItem } from '@/app/staff/review/menu-actions';
 import { saveOwnerMenuItem } from '@/app/owner/menu-actions';
 import MenuItemForm from '@/components/MenuItemForm';
 
 export default async function StaffMenuEditor({ id, country, verified, photos, owner = false, language = 'en' }: { id: string; country: string; verified: boolean; photos: string[]; owner?: boolean; language?: 'en' | 'pt' }) {
+  await prepareRestaurantDatabase();
   const items = await getSavedMenu(id, verified);
   const currency = country === 'GB' ? 'GBP' : country === 'PT' ? 'EUR' : 'AOA';
   const action = owner ? saveOwnerMenuItem : saveStaffMenuItem;

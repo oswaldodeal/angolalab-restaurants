@@ -15,7 +15,7 @@ export function readMenuPhotos(value: string | null | undefined, cover: string |
   }
 }
 
-export type SavedMenuItem = { nameEn?: string; availability: 'available' | 'unavailable'; id: string; name: string; category: 'mains' | 'drinks' | 'desserts'; price: string; photo: string | null; updated_at: string };
+export type SavedMenuItem = { referenceCode?: string; nameEn?: string; availability: 'available' | 'unavailable'; id: string; name: string; category: 'mains' | 'drinks' | 'desserts'; price: string; photo: string | null; updated_at: string };
 
 export type Restaurant = {
   id: string;

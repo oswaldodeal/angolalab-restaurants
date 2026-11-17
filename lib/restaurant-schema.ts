@@ -72,6 +72,17 @@ export const restaurantSchema = [
     name TEXT NOT NULL, name_en TEXT, category TEXT NOT NULL CHECK(category IN ('mains','drinks','desserts')),
     price TEXT NOT NULL, photo TEXT, updated_at TEXT NOT NULL, availability TEXT NOT NULL DEFAULT 'available' CHECK(availability IN ('available','unavailable'))
   )`,
+  // Reserve reference numbers permanently, including after an item is deleted.
+  `CREATE TABLE IF NOT EXISTS restaurant_menu_references (
+    number INTEGER PRIMARY KEY AUTOINCREMENT, item_id TEXT NOT NULL UNIQUE
+  )`,
+  `CREATE TRIGGER IF NOT EXISTS restaurant_assign_menu_reference
+    AFTER INSERT ON restaurant_menu_items
+    BEGIN INSERT OR IGNORE INTO restaurant_menu_references (item_id) VALUES (NEW.id); END`,
+  `INSERT OR IGNORE INTO restaurant_menu_references (item_id)
+    SELECT m.id FROM restaurant_menu_items m
+    WHERE NOT EXISTS (SELECT 1 FROM restaurant_menu_references r WHERE r.item_id=m.id)
+    ORDER BY m.rowid`,
   `CREATE TRIGGER IF NOT EXISTS restaurant_clear_removed_menu_photos
     AFTER UPDATE OF menu_photo_url ON restaurant_pro_plans
     WHEN NEW.menu_photo_url IS NOT NULL

@@ -11,6 +11,8 @@ export default function MenuItemForm({ id, currency, verified, photoCount, photo
   const error = !dirty && result && !['item-saved','item-removed'].includes(result);
   return <form action={formAction} onChange={() => setDirty(true)} onSubmit={() => setDirty(false)} className="space-y-3 rounded-lg bg-[#faf9f6] p-4 text-sm">
     <input type="hidden" name="restaurantId" value={id} /><input type="hidden" name="itemId" value={item?.id ?? ''} /><input type="hidden" name="version" value={item?.updated_at ?? ''} />
+    {item?.referenceCode && <p className="text-sm text-[#555]">{pt ? 'Referência' : 'Reference'}: <code className="font-semibold tracking-wide text-[#242424]">{item.referenceCode}</code></p>}
+    {!item && <p className="text-xs text-[#555]">{pt ? 'A referência será atribuída ao guardar o novo item.' : 'A reference will be assigned when the new item is saved.'}</p>}
     <fieldset disabled={pending} className="space-y-3">
       <label className="block">{allowTranslation ? 'Dish or drink · Portuguese original' : (pt ? 'Prato ou bebida' : 'Dish or drink')}
         <input name="name" required minLength={2} maxLength={100} defaultValue={item?.name} className="mt-1 w-full rounded border bg-white p-2" />

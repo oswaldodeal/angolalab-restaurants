@@ -25,6 +25,7 @@ export async function executePrivateSql(sql: string, values: Array<string | null
     const detail = first?.error?.message ?? '';
     if (/no such table:\s*(?:main\.)?restaurant_profile_details\b/i.test(detail)) throw new Error('TURSO_DETAILS_NOT_MIGRATED');
     if (/no such table:\s*(?:main\.)?restaurant_logos\b/i.test(detail)) throw new Error('TURSO_LOGOS_NOT_MIGRATED');
+    if (/no such table:\s*(?:main\.)?restaurant_menu_references\b/i.test(detail)) throw new Error('TURSO_REFERENCES_NOT_MIGRATED');
     if (/no such table:\s*(?:main\.)?restaurant_owners\b/i.test(detail)) throw new Error('TURSO_OWNERS_NOT_MIGRATED');
     if (/no such table:\s*(?:main\.)?restaurant_menu_items\b/i.test(detail)) throw new Error('TURSO_ITEMS_NOT_MIGRATED');
     if (/readonly|read.only|not authorized|SQLITE_AUTH/i.test(detail)) throw new Error('TURSO_WRITE_DENIED');

@@ -89,6 +89,21 @@ async function action(id, decision, consent = true) {
   assert.equal(db.prepare('SELECT count(*) AS n FROM restaurant_review_history').get().n, 1);
   assert.equal(await action(id, 'approved'), '/staff/review?result=stale', 'Duplicate approval does not duplicate listing/audit');
   assert.equal(db.prepare('SELECT count(*) AS n FROM restaurant_review_history').get().n, 1);
+  // Simulate an item created before reference assignment existed.
+  db.exec('DROP TRIGGER restaurant_assign_menu_reference');
+  db.prepare("INSERT INTO restaurant_menu_items (id,restaurant_id,name,category,price,updated_at) VALUES (?,?,?,'mains','5.00',?)").run('legacy-menu-ref',id,'Legacy dish',new Date().toISOString());
+  assert.equal((await data.getPublishedRestaurant(id)).menuItems[0].referenceCode,undefined);
+  cache.delete(path.join(root,'lib/restaurant-data.ts'));
+  await load('lib/restaurant-data').prepareRestaurantDatabase();
+  const legacyReference=(await data.getPublishedRestaurant(id)).menuItems[0].referenceCode;
+  assert.match(legacyReference,/^AL-\d{6,}$/,'Existing menu items receive a readable permanent reference');
+  const reservedBefore=db.prepare('SELECT max(number) AS n FROM restaurant_menu_references').get().n;
+  cache.delete(path.join(root,'lib/restaurant-data.ts'));
+  await load('lib/restaurant-data').prepareRestaurantDatabase();
+  assert.equal((await data.getPublishedRestaurant(id)).menuItems[0].referenceCode,legacyReference,'Repeated preparation preserves existing codes');
+  assert.equal(db.prepare('SELECT max(number) AS n FROM restaurant_menu_references').get().n,reservedBefore,'Backfill does not allocate fresh numbers for existing mappings');
+  db.prepare('DELETE FROM restaurant_menu_items WHERE id=?').run('legacy-menu-ref');
+  assert.equal(db.prepare('SELECT count(*) AS n FROM restaurant_menu_references WHERE item_id=?').get('legacy-menu-ref').n,1,'Deleted codes remain reserved');
   const basicItem = new FormData();
   basicItem.set('restaurantId', id); basicItem.set('name', 'Main dish'); basicItem.set('category', 'drinks'); basicItem.set('price', '5.00');
   const basicSave = () => load('app/staff/review/menu-actions').saveMenuItem(basicItem);
@@ -98,6 +113,8 @@ async function action(id, decision, consent = true) {
   await assert.rejects(basicSave, error => error.url.endsWith('item-saved'));
   await assert.rejects(basicSave, error => error.url.endsWith('stale'));
   assert.equal((await data.getPublishedRestaurant(id)).menuItems.length, 2);
+  const basicCodes=(await data.getPublishedRestaurant(id)).menuItems.map(item=>item.referenceCode);
+  assert.equal(new Set(basicCodes).size,2);assert(!basicCodes.includes(legacyReference),'Deleted references are not reassigned');
   db.prepare('DELETE FROM restaurant_menu_items WHERE restaurant_id=?').run(id);
   const verifiedForm = new FormData();
   verifiedForm.set('id', id);
@@ -163,6 +180,7 @@ async function action(id, decision, consent = true) {
   assert.equal(await ownerSave(), 'item-saved');
   let ownDish = (await data.getPublishedRestaurant(id)).menuItems[0];
   assert.equal(ownDish.availability,'available','Existing and new items default to available');
+  const ownerReference=ownDish.referenceCode;assert.match(ownerReference,/^AL-\d{6,}$/);ownerItem.set('referenceCode','AL-999999');
   ownerItem.set('itemId',ownDish.id); ownerItem.set('version',ownDish.updated_at); ownerItem.set('availability','unavailable');
   assert.equal(await ownerSave(),'item-saved');
   let pausedDish=(await data.getPublishedRestaurant(id)).menuItems[0];
@@ -180,11 +198,13 @@ async function action(id, decision, consent = true) {
   ownerItem.set('availability','available');assert.equal(await ownerSave(),'item-saved');
   ownDish=(await data.getPublishedRestaurant(id)).menuItems[0];
   assert.equal(ownDish.availability,'available','An unavailable item can be restored without recreation');
+  assert.equal(ownDish.referenceCode,ownerReference,'Availability and forged form fields cannot change a reference');
   ownerItem.set('itemId', ownDish.id); ownerItem.set('version', ownDish.updated_at); ownerItem.set('intent', 'remove');
   clerkUserId = 'user_intruder123456789';
   assert.equal(await ownerSave(), 'stale', 'Another account cannot remove an owner item');
   clerkUserId = 'user_owner123456789';
   assert.equal(await ownerSave(), 'item-removed');
+  assert.equal(db.prepare('SELECT count(*) AS n FROM restaurant_menu_references WHERE item_id=?').get(ownDish.id).n,1);
   ownerForm.set('intent', 'remove');
   await assert.rejects(linkOwner, error => error.url.endsWith('owner-unlinked'));
   assert.equal(await ownerSave(), 'stale', 'Revoked owner cannot mutate');
@@ -290,6 +310,7 @@ async function action(id, decision, consent = true) {
   assert.equal((await data.getPublishedRestaurant(id,'pt')).description,'');
   const inlineItem = new FormData(); inlineItem.set('restaurantId', id); inlineItem.set('name', 'Staff inline'); inlineItem.set('price', '2.50'); inlineItem.set('category', 'drinks');
   assert.equal(await load('app/staff/review/menu-actions').saveStaffMenuItem('', inlineItem), 'item-saved');
+  assert.notEqual((await data.getPublishedRestaurant(id)).menuItems[0].referenceCode,ownerReference);
   db.prepare('DELETE FROM restaurant_menu_items WHERE restaurant_id=?').run(id);
   const proForm = new FormData();
   proForm.set('id', id);
@@ -356,11 +377,13 @@ async function action(id, decision, consent = true) {
   translatedDish.set('nameEn','Chicken moamba');assert.equal(await saveDishTranslation(),'item-saved');
   let bilingualDish=(await data.getPublishedRestaurant(id)).menuItems[0];
   assert.equal(bilingualDish.name,'Moamba de galinha');assert.equal(bilingualDish.nameEn,'Chicken moamba');
+  assert.equal(bilingualDish.referenceCode,translationItem.referenceCode,'Translation preserves the reference');
   assert.equal(bilingualDish.id,translationItem.id);assert.equal(bilingualDish.price,translationItem.price);assert.equal(bilingualDish.photo,uploadedCover);assert.equal(bilingualDish.availability,'unavailable');
   const React=require('react');const {renderToStaticMarkup}=require('react-dom/server');
   const Menu=load('components/SavedRestaurantMenu').default;
   const englishMenu=renderToStaticMarkup(React.createElement(Menu,{items:[bilingualDish],country:'GB',language:'en'}));
   const portugueseMenu=renderToStaticMarkup(React.createElement(Menu,{items:[bilingualDish],country:'GB',language:'pt'}));
+  assert(englishMenu.includes(bilingualDish.referenceCode));assert(portugueseMenu.includes(bilingualDish.referenceCode),'PT and EN render the same reference');
   assert(englishMenu.includes('Chicken moamba'));assert(englishMenu.includes('Unavailable'));
   assert(portugueseMenu.includes('Moamba de galinha'));assert(portugueseMenu.includes('Indisponível'));assert(!portugueseMenu.includes('Chicken moamba'));
   ownerItem.set('name','Moamba de galinha');ownerItem.set('version',bilingualDish.updated_at);ownerItem.set('nameEn','Forged translation');
@@ -368,6 +391,7 @@ async function action(id, decision, consent = true) {
   assert.equal(bilingualDish.nameEn,'Chicken moamba','Owner submissions cannot alter staff English names');
   ownerItem.set('version',bilingualDish.updated_at);ownerItem.set('name','Peixe grelhado');assert.equal(await ownerSave(),'item-saved');
   bilingualDish=(await data.getPublishedRestaurant(id)).menuItems[0];
+  assert.equal(bilingualDish.referenceCode,translationItem.referenceCode,'Source renaming preserves the menu reference');
   assert.equal(bilingualDish.nameEn,'','Changing the original name clears an outdated translation');assert.equal(bilingualDish.photo,uploadedCover);
   const fallbackMenu=renderToStaticMarkup(React.createElement(Menu,{items:[bilingualDish],country:'GB',language:'en'}));
   assert(fallbackMenu.includes('Peixe grelhado'));
@@ -464,5 +488,5 @@ async function action(id, decision, consent = true) {
   assert.equal(db.prepare("SELECT status FROM restaurant_intake WHERE id='legacy'").get().status, 'pending');
   assert.equal(db.prepare("SELECT status FROM restaurant_submissions WHERE id='legacy'").get().status, 'approved');
   assert.equal((await data.getPublishedRestaurants()).length, 0);
-  console.log('PASS: staff menu names in PT/EN rendered HTML, language fallback, source rename invalidation and media preservation; staff-reviewed English, source preservation, staff auth and stale source protection; logo add/replace/remove, owner isolation, file validation and media preservation; menu availability toggle, public status, photo/price preservation, owner isolation and stale edit protection; separate PT/EN descriptions and hours, original fallback, older-form translation preservation; owner description/hours save, stale edit protection, public rendering data; owner cover add/replace/remove, stale edits, directory sync, menu preservation; owner photo upload/removal, size/type validation, photo reference cleanup; owner session isolation, staff linking/revocation, inline save feedback; menu CRUD, auth, price validation, stale edits, Basic limits; UK registration; validation; unauthorized/consent guards; Basic publication; staff-only Verified contacts; private field isolation; duplicate review; rejection; withdrawal; atomic rollback; legacy preservation.');
+  console.log('PASS: stable menu references, existing-item backfill, no reuse after deletion, PT/EN reference rendering; staff menu names in PT/EN rendered HTML, language fallback, source rename invalidation and media preservation; staff-reviewed English, source preservation, staff auth and stale source protection; logo add/replace/remove, owner isolation, file validation and media preservation; menu availability toggle, public status, photo/price preservation, owner isolation and stale edit protection; separate PT/EN descriptions and hours, original fallback, older-form translation preservation; owner description/hours save, stale edit protection, public rendering data; owner cover add/replace/remove, stale edits, directory sync, menu preservation; owner photo upload/removal, size/type validation, photo reference cleanup; owner session isolation, staff linking/revocation, inline save feedback; menu CRUD, auth, price validation, stale edits, Basic limits; UK registration; validation; unauthorized/consent guards; Basic publication; staff-only Verified contacts; private field isolation; duplicate review; rejection; withdrawal; atomic rollback; legacy preservation.');
 })().catch(error => { console.error(error); process.exitCode = 1; });

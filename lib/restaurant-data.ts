@@ -4,7 +4,7 @@ import { restaurantSchema } from '@/lib/restaurant-schema';
 import { initialRestaurants, readMenuPhotos, type Restaurant, type SavedMenuItem } from '@/lib/store';
 
 let preparation: Promise<void> | undefined;
-// Used by intake/staff only. Public reads never migrate or publish records.
+// Used by intake and authenticated staff/owner flows. Public listing reads never migrate or publish records.
 export async function prepareRestaurantDatabase() {
   if (!preparation) preparation = (async () => {
     for (const statement of restaurantSchema) await executePrivateSql(statement);
@@ -119,7 +119,9 @@ export async function getSavedMenu(id: string, verified: boolean): Promise<Saved
         rows = sqlRows(await executePrivateSql(`SELECT ${fields} ${tail}`,[id]));
       }
     }
-    return rows.map(row => ({...row,nameEn:row.name_en ?? '',availability:row.availability === 'unavailable' ? 'unavailable' : 'available'})) as unknown as SavedMenuItem[];
+    const references = rows.length ? await readMenuReferences(id) : [];
+    const byItemId = new Map(references.map(reference => [reference.item_id,reference.number]));
+    return rows.map(row => ({...row,referenceCode:byItemId.get(row.id) ? `AL-${byItemId.get(row.id)!.padStart(6,'0')}` : undefined,nameEn:row.name_en ?? '',availability:row.availability === 'unavailable' ? 'unavailable' : 'available'})) as unknown as SavedMenuItem[];
   } catch (error) {
     if (error instanceof Error && error.message === 'TURSO_ITEMS_NOT_MIGRATED') return [];
     throw error;
@@ -153,6 +155,16 @@ export async function readRestaurantLogos(id?: string) {
       JOIN restaurant_listings l ON l.id=g.restaurant_id ${id ? 'WHERE g.restaurant_id=?' : ''}`,id ? [id] : []));
   } catch (error) {
     if (error instanceof Error && error.message === 'TURSO_LOGOS_NOT_MIGRATED') return [];
+    throw error;
+  }
+}
+
+async function readMenuReferences(id: string) {
+  try {
+    return sqlRows(await executePrivateSql(`SELECT r.item_id,r.number FROM restaurant_menu_references r
+      JOIN restaurant_menu_items m ON m.id=r.item_id JOIN restaurant_listings l ON l.id=m.restaurant_id WHERE l.id=?`,[id]));
+  } catch (error) {
+    if (error instanceof Error && error.message === 'TURSO_REFERENCES_NOT_MIGRATED') return [];
     throw error;
   }
 }
