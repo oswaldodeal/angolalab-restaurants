@@ -23,6 +23,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
   const isDemo = restaurant.ownerId === 'demo';
   const isPro = verified && !isDemo && restaurant.profilePlan === 'pro';
   const textMenuItems = (restaurant.menuItems ?? []).filter(item => !item.photo);
+  const photoMenuItems = isDemo ? (restaurant.menuItems ?? []) : (restaurant.menuItems ?? []).filter(item => !!item.photo);
   const menuCurrency = restaurant.country === 'GB' ? 'GBP' : restaurant.country === 'PT' ? 'EUR' : 'AOA';
   const textMenuCategories = [['mains', pt ? 'Pratos principais' : 'Main courses'], ['drinks', pt ? 'Bebidas' : 'Drinks'], ['desserts', pt ? 'Sobremesas' : 'Desserts']];
   const mapPinIcon = (
@@ -189,7 +190,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
                     ? (pt ? 'A ementa ainda não foi adicionada.' : 'The menu has not been added yet.')
                     : null}
                 </p>
-                {!!restaurant.menuItems?.length && <SavedRestaurantMenu items={restaurant.menuItems} country={restaurant.country} language={language} />}
+                {photoMenuItems.length > 0 && <SavedRestaurantMenu items={photoMenuItems} country={restaurant.country} language={language} />}
                 {restaurant.menuPhotos.includes(SAMPLE_MENU_PHOTO) && !restaurant.menuItems?.some(item => item.photo === SAMPLE_MENU_PHOTO) && (
                   <figure className="mt-5 overflow-hidden rounded-xl border border-[#e9e5db] bg-white">
                     {/* Bundled sample, displayed only when staff select the demo cover. */}
