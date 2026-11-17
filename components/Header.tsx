@@ -92,30 +92,25 @@ function HeaderNavigation({ path, lang, findMeQuery }: { path: string; lang: 'pt
   const headerWidth = isHome || isRestaurantDirectory || isRestaurantProfile
     ? 'page-rail' : 'w-full max-w-7xl px-4 sm:px-6 lg:pl-8 lg:pr-12';
 
+  const languageOptionClass = (target: 'pt' | 'en') =>
+    `flex min-h-11 items-center justify-center rounded-lg border px-3 py-2 font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] ${lang === target ? 'border-[#d4af37] bg-[#d4af37] text-[#171717]' : 'border-[#b28b29] text-[#F2C94C] hover:bg-white/10'}`;
+
   const languageMenu = (
     <details ref={languageRef} className="group relative">
       <summary aria-label={lang === 'pt' ? 'Escolher idioma' : 'Choose language'}
-        className={`flex min-h-10 cursor-pointer list-none items-center gap-2 rounded-lg text-[#F2C94C] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] [&::-webkit-details-marker]:hidden ${isHome ? 'px-2 py-2 group-open:bg-white/10' : 'px-1 py-2'}`}>
+        className="flex min-h-10 cursor-pointer list-none items-center gap-2 rounded-lg px-2 py-2 text-[#F2C94C] hover:text-white group-open:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] [&::-webkit-details-marker]:hidden">
         <span aria-hidden="true">🌐</span><span>{lang.toUpperCase()}</span><span aria-hidden="true" className="text-xs transition-transform group-open:rotate-180">▾</span>
       </summary>
-      <div className={isHome
-        ? 'absolute right-0 top-full z-[70] mt-2 w-48 rounded-xl border border-[#b28b29] bg-[#22262D] p-3 text-sm shadow-2xl'
-        : 'absolute right-0 top-full z-[70] mt-2 min-w-40 rounded-xl border border-[#e4d5a6] bg-white p-2 text-sm text-[#242424] shadow-xl'}>
-        {isHome && <p className="mb-2 text-xs font-semibold text-[#d8c68d]">{lang === 'pt' ? 'Idioma' : 'Language'}</p>}
-        <div className={isHome ? 'grid grid-cols-2 gap-2' : ''}>
-          <Link href={languagePath('pt')} hrefLang="pt" lang="pt" aria-current={lang === 'pt' ? 'page' : undefined}
-            onClick={switchLanguage}
-            className={isHome
-              ? `flex min-h-11 items-center justify-center rounded-lg border px-2 py-2 font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] ${lang === 'pt' ? 'border-[#d4af37] bg-[#d4af37] text-[#171717]' : 'border-[#b28b29] text-[#F2C94C] hover:bg-white/10'}`
-              : 'block rounded-lg px-3 py-2.5 hover:bg-[#fbf7ed] focus-visible:outline-2 focus-visible:outline-[#b18a23]'}>
-            {isHome ? `PT ${lang === 'pt' ? '✓' : ''}` : `🇵🇹 Português ${lang === 'pt' ? '✓' : ''}`}
+      <div className="absolute right-0 top-full z-[70] mt-2 w-48 rounded-xl border border-[#b28b29] bg-[#22262D] p-3 text-sm shadow-2xl">
+        <p className="mb-2 text-xs font-semibold text-[#d8c68d]">{lang === 'pt' ? 'Idioma' : 'Language'}</p>
+        <div className="grid grid-cols-2 gap-2">
+          <Link href={languagePath('pt')} hrefLang="pt" lang="pt" aria-label="Português" aria-current={lang === 'pt' ? 'page' : undefined}
+            onClick={switchLanguage} className={languageOptionClass('pt')}>
+            PT {lang === 'pt' ? '✓' : ''}
           </Link>
-          <Link href={languagePath('en')} hrefLang="en" lang="en" aria-current={lang === 'en' ? 'page' : undefined}
-            onClick={switchLanguage}
-            className={isHome
-              ? `flex min-h-11 items-center justify-center rounded-lg border px-2 py-2 font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C] ${lang === 'en' ? 'border-[#d4af37] bg-[#d4af37] text-[#171717]' : 'border-[#b28b29] text-[#F2C94C] hover:bg-white/10'}`
-              : 'block rounded-lg px-3 py-2.5 hover:bg-[#fbf7ed] focus-visible:outline-2 focus-visible:outline-[#b18a23]'}>
-            {isHome ? `EN ${lang === 'en' ? '✓' : ''}` : `🇬🇧 English ${lang === 'en' ? '✓' : ''}`}
+          <Link href={languagePath('en')} hrefLang="en" lang="en" aria-label="English" aria-current={lang === 'en' ? 'page' : undefined}
+            onClick={switchLanguage} className={languageOptionClass('en')}>
+            EN {lang === 'en' ? '✓' : ''}
           </Link>
         </div>
       </div>
@@ -183,11 +178,11 @@ function HeaderNavigation({ path, lang, findMeQuery }: { path: string; lang: 'pt
               <Link href={lang === 'pt' ? '/pt/sobre' : '/en/about'} className="rounded-lg px-3 py-3 text-[#F2C94C] hover:bg-white/10">{lang === 'pt' ? 'Sobre Nós' : 'About Us'}</Link>
               <div className="my-1 border-t border-[#585047]" />
               <p className="px-3 pt-2 text-xs font-semibold text-[#d8c68d]">{lang === 'pt' ? 'Idioma' : 'Language'}</p>
-              <div className="flex flex-wrap gap-2 px-3 py-2">
+              <div className="grid grid-cols-2 gap-2 px-3 py-2">
                 <Link href={languagePath('pt')} hrefLang="pt" lang="pt" onClick={switchLanguage}
-                  aria-current={lang === 'pt' ? 'page' : undefined} className="rounded-lg border border-[#73633a] px-3 py-2 text-[#F2C94C]">PT {lang === 'pt' ? '✓' : ''}</Link>
+                  aria-label="Português" aria-current={lang === 'pt' ? 'page' : undefined} className={languageOptionClass('pt')}>PT {lang === 'pt' ? '✓' : ''}</Link>
                 <Link href={languagePath('en')} hrefLang="en" lang="en" onClick={switchLanguage}
-                  aria-current={lang === 'en' ? 'page' : undefined} className="rounded-lg border border-[#73633a] px-3 py-2 text-[#F2C94C]">EN {lang === 'en' ? '✓' : ''}</Link>
+                  aria-label="English" aria-current={lang === 'en' ? 'page' : undefined} className={languageOptionClass('en')}>EN {lang === 'en' ? '✓' : ''}</Link>
               </div>
               <div className="my-1 border-t border-[#585047]" />
               <Link href={lang === 'pt' ? '/pt/entrar' : '/en/signin'} className="rounded-lg px-3 py-3 text-[#F2C94C] hover:bg-white/10">{lang === 'pt' ? 'Entrar' : 'Sign In'}</Link>
