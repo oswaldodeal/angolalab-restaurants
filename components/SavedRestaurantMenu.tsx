@@ -8,7 +8,7 @@ export default function SavedRestaurantMenu({ items, country, language }: { item
   const currency = country === 'GB' ? 'GBP' : country === 'PT' ? 'EUR' : 'AOA';
   const labels = [['all', pt ? 'Todos' : 'All'], ['mains', pt ? 'Pratos principais' : 'Main courses'], ['drinks', pt ? 'Bebidas' : 'Drinks'], ['desserts', pt ? 'Sobremesas' : 'Desserts']];
   const visible = items.filter(item => category === 'all' || item.category === category);
-  return <div className="mt-5">
+  return <div className="mt-5 rounded-xl border border-[#e9e5db] bg-white p-4 sm:p-6">
     <div role="group" aria-label={pt ? 'Categorias da ementa' : 'Menu categories'} className="flex flex-wrap gap-4 border-b border-[#e9e5db]">
       {labels.map(([key,label]) => <button key={key} type="button" aria-pressed={category === key} onClick={() => setCategory(key)} className={`border-b-2 px-1 pb-3 text-sm font-semibold ${category === key ? 'border-emerald-700 text-emerald-700' : 'border-transparent text-[#555]'}`}>{label}</button>)}
     </div>
