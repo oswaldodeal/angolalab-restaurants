@@ -5,7 +5,7 @@ import StaffMenuEditor from '@/components/StaffMenuEditor';
 import StaffPhotoInput from '@/components/StaffPhotoInput';
 import { MENU_PHOTO_LIMIT, SAMPLE_RESTAURANT_COVER } from '@/lib/store';
 import StaffReviewForm from '@/components/StaffReviewForm';
-import { enableProPlan, publishVerifiedContacts, removeCoverPhoto, signOutStaff, updateMenuPhoto } from './actions';
+import { saveCoverPhoto, setProfileTier, publishVerifiedContacts, removeCoverPhoto, signOutStaff, updateMenuPhoto } from './actions';
 import { redirect } from 'next/navigation';
 import { staffAuthorized } from '@/lib/staff-auth';
 import { getStaffSubmissions } from '@/lib/staff-submissions';
@@ -47,7 +47,7 @@ export default async function StaffReview({ searchParams }: { searchParams: Prom
         Pilot reviews use one shared staff identity; review notes and timestamps are recorded.
       </p>
       <form action={signOutStaff}><button className="mt-5 rounded-lg border border-[#ded8c5] px-4 py-2">Sign out / Sair</button></form>
-      {result && <p role="status" className="mt-5 rounded-lg bg-[#fffaf0] p-4">{result === 'owner-linked' ? 'Owner account connected / Conta do proprietário ligada.' : result === 'owner-unlinked' ? 'Owner access removed / Acesso removido.' : result === 'invalid-owner' ? 'Check the account ID, permission and review note.' : result === 'item-saved' ? 'Menu item saved / Prato guardado.' : result === 'item-removed' ? 'Menu item removed / Prato removido.' : result === 'invalid-item' ? 'Check the item name, category, price and photo. Basic profiles allow two main dishes; Verified profiles allow 60 items.' : result === 'menu-duplicate' ? 'This image is already on the menu. / Esta imagem já está na ementa.' : result === 'menu-limit' ? 'Remove an image before adding another. / Remova uma imagem antes de adicionar outra.' : result === 'invalid-upload' ? 'Choose a JPG, PNG or WebP image up to 250 KB.' : result === 'menu-saved' ? 'Menu image saved / Imagem da ementa guardada.' : result === 'menu-removed' ? 'Menu image removed / Imagem da ementa removida.' : result === 'cover-removed' ? 'Cover photo removed / Fotografia de capa removida.' : result === 'invalid-cover' ? 'Enter a direct HTTPS image URL for the approved cover photo.' : result === 'verified' ? 'Verified profile published / Perfil verificado publicado.' : result === 'invalid-verification' ? 'Enter a valid business address and public phone, record the evidence, and confirm permission to publish.' : result === 'saved' ? 'Decision saved. Directory updated / Decisão guardada.' : result === 'stale' ? 'This record has changed or already been reviewed. Reload it and try again.' : result === 'invalid' ? 'Add a review note of 20–2000 characters. Publication also requires the identity and permission check.' : 'Unable to save. No publication decision was confirmed. Try again later.'}</p>}
+      {result && <p role="status" className="mt-5 rounded-lg bg-[#fffaf0] p-4">{result === 'tier-saved' ? 'Profile tier saved. Photos and business verification preserved.' : result === 'invalid-tier' ? 'Choose a profile tier and confirm the change.' : result === 'owner-linked' ? 'Owner account connected / Conta do proprietário ligada.' : result === 'owner-unlinked' ? 'Owner access removed / Acesso removido.' : result === 'invalid-owner' ? 'Check the account ID, permission and review note.' : result === 'item-saved' ? 'Menu item saved / Prato guardado.' : result === 'item-removed' ? 'Menu item removed / Prato removido.' : result === 'invalid-item' ? 'Check the item name, category, price and photo. Basic profiles allow two main dishes; Verified profiles allow 60 items.' : result === 'menu-duplicate' ? 'This image is already on the menu. / Esta imagem já está na ementa.' : result === 'menu-limit' ? 'Remove an image before adding another. / Remova uma imagem antes de adicionar outra.' : result === 'invalid-upload' ? 'Choose a JPG, PNG or WebP image up to 250 KB.' : result === 'menu-saved' ? 'Menu image saved / Imagem da ementa guardada.' : result === 'menu-removed' ? 'Menu image removed / Imagem da ementa removida.' : result === 'cover-removed' ? 'Cover photo removed / Fotografia de capa removida.' : result === 'invalid-cover' ? 'Enter a direct HTTPS image URL for the approved cover photo.' : result === 'verified' ? 'Verified profile published / Perfil verificado publicado.' : result === 'invalid-verification' ? 'Enter a valid business address and public phone, record the evidence, and confirm permission to publish.' : result === 'saved' ? 'Decision saved. Directory updated / Decisão guardada.' : result === 'stale' ? 'This record has changed or already been reviewed. Reload it and try again.' : result === 'invalid' ? 'Add a review note of 20–2000 characters. Publication also requires the identity and permission check.' : 'Unable to save. No publication decision was confirmed. Try again later.'}</p>}
       <StaffComments />
       {submissions.length === 0 ? <p className="mt-8">No submissions yet.</p> :
         <div className="mt-8 space-y-5">{submissions.map((item, index) =>
@@ -93,7 +93,7 @@ export default async function StaffReview({ searchParams }: { searchParams: Prom
             {item.status === 'approved' && item.verified_at && (
               <section className="mt-6 rounded-lg border border-[#ded8c5] p-4">
                 <h3 className="font-semibold">Cover photo / Fotografia de capa</h3>
-                <form action={enableProPlan} className="mt-4 space-y-3">
+                <form action={saveCoverPhoto} className="mt-4 space-y-3">
                   <input type="hidden" name="id" value={item.id} />
                   <div className="block text-sm font-medium">
                     Choose a new cover file / Escolher nova fotografia de capa
@@ -105,7 +105,7 @@ export default async function StaffReview({ searchParams }: { searchParams: Prom
                     <input type="url" name="coverPhotoUrl" maxLength={2000} defaultValue={item.cover_photo_url?.startsWith('https://') ? item.cover_photo_url : ''} className="mt-1 w-full rounded border border-[#ded8c5] p-2" />
                   </label>
                   <button type="submit" className="rounded-lg bg-[#252a32] px-4 py-2 text-sm font-semibold text-white">
-                    {item.pro_id ? (item.cover_photo_url ? 'Replace cover / Substituir capa' : 'Add cover / Adicionar capa') : 'Enable Pro Verified / Ativar Pro Verificado'}
+                    {item.cover_photo_url ? 'Replace cover / Substituir capa' : 'Add cover / Adicionar capa'}
                   </button>
                   <button type="submit" name="sampleCover" value="yes" formNoValidate className="ml-3 rounded-lg border border-[#ded8c5] px-4 py-2 text-sm font-semibold text-emerald-700">
                     Use sample cover / Usar capa de demonstração
@@ -125,10 +125,18 @@ export default async function StaffReview({ searchParams }: { searchParams: Prom
                 )}
               </section>
             )}
+            {item.status === 'approved' && item.verified_at && <form action={setProfileTier} className="mt-6 space-y-3 rounded-lg border border-[#ded8c5] p-4 text-sm">
+              <h3 className="font-semibold">Website profile tier / Tipo de perfil</h3>
+              <p className="text-[#555]">Adding or replacing photos does not change this tier. Returning to Verified keeps all photos and business verification.</p>
+              <input type="hidden" name="id" value={item.id}/><input type="hidden" name="expectedTier" value={item.pro_id ? item.profile_tier ?? 'pro' : 'none'}/>
+              <label className="block">Profile tier / Tipo de perfil<select name="tier" defaultValue={item.pro_id && item.profile_tier !== 'verified' ? 'pro' : 'verified'} className="mt-1 w-full rounded border bg-white p-2"><option value="verified">Verified / Verificado</option><option value="pro">Pro Verified / Pro Verificado</option></select></label>
+              <label className="flex gap-2"><input type="checkbox" name="confirmed" required/>I confirm this profile tier change / Confirmo esta alteração de perfil.</label>
+              <button className="rounded-lg bg-[#252a32] px-4 py-2 font-semibold text-white">Save profile tier / Guardar tipo de perfil</button>
+            </form>}
             {item.status === 'approved' && <StaffTranslationForm id={item.id} description={item.description} hours={item.public_hours} descriptionEn={item.description_en} hoursEn={item.opening_hours_en} version={item.details_version} lastEditor={item.details_updated_by} lastSaved={item.details_updated_at} />}
             {item.status === 'approved' && <OwnerAccessForm id={item.id} />}
             {item.status === 'approved' && <StaffMenuEditor id={item.id} country={item.country} verified={Boolean(item.verified_at)} photos={item.menuPhotos} />}
-            {item.pro_id && (
+            {item.verified_at && (
               <section className="mt-6 rounded-lg border border-[#ded8c5] p-4">
                 <h3 className="font-semibold">Menu images / Imagens da ementa ({item.menuPhotos.length}/{MENU_PHOTO_LIMIT})</h3>
                 <ul className="mt-3 grid gap-3 sm:grid-cols-2">

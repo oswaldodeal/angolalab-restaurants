@@ -35,7 +35,8 @@ export const restaurantSchema = [
   )`,
   `CREATE TABLE IF NOT EXISTS restaurant_pro_plans (
     id TEXT PRIMARY KEY REFERENCES restaurant_verified_contacts(id),
-    activated_at TEXT NOT NULL, cover_photo_url TEXT, menu_photo_url TEXT
+    activated_at TEXT NOT NULL, cover_photo_url TEXT, menu_photo_url TEXT,
+    profile_tier TEXT NOT NULL DEFAULT 'pro' CHECK(profile_tier IN ('verified','pro'))
   )`,
   `CREATE TABLE IF NOT EXISTS restaurant_profile_details (
     restaurant_id TEXT PRIMARY KEY REFERENCES restaurant_listings(id),

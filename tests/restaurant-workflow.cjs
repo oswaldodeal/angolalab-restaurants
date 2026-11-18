@@ -30,7 +30,7 @@ async function fakeFetch(url, options) {
     if (cols.length) rows = stmt.all(...values).map(row => cols.map(col => row[col.name] == null ? { type: 'null' } : { type: 'text', value: String(row[col.name]) }));
     else { const result = stmt.run(...values); affected_row_count = Number(result.changes); writes.push(sql); }
     return Response.json({ results: [{ type: 'ok', response: { result: { cols, rows, affected_row_count } } }] });
-  } catch { return Response.json({ results: [{ type: 'error' }] }); }
+  } catch (error) { return Response.json({ results: [{ type: 'error', error: { message: error.message } }] }); }
 }
 function load(name) {
   const full = path.join(root, name + (fs.existsSync(path.join(root,name + '.ts')) ? '.ts' : '.tsx'));
@@ -84,6 +84,8 @@ async function action(id, decision, consent = true) {
   const list = await data.getPublishedRestaurants(); assert.equal(list.length, 1);
   assert.equal(list[0].country, 'GB', 'UK intake survives the schema');
   assert.equal(list[0].status, 'basic'); assert.equal(list[0].verifiedAt, undefined);
+  const blockedTier=new FormData();blockedTier.set('id',id);blockedTier.set('tier','pro');blockedTier.set('expectedTier','none');blockedTier.set('confirmed','on');
+  await assert.rejects(()=>load('app/staff/review/actions').setProfileTier(blockedTier),error=>error.url.endsWith('result=stale'),'Tier changes cannot bypass business verification');
   assert.equal(list[0].hours, payload.openingHours);
   assert(!JSON.stringify(list).includes('PRIVATE_')); assert(!JSON.stringify(list).includes('private@example'));
   assert.equal(db.prepare('SELECT count(*) AS n FROM restaurant_review_history').get().n, 1);
@@ -355,7 +357,7 @@ async function action(id, decision, consent = true) {
   proForm.set('id', id);
   const enablePro = () => load('app/staff/review/actions').enableProPlan(proForm);
   const noProCover = new FormData(); noProCover.set('id',id);
-  assert.equal(await load('app/owner/photo-actions').updateOwnerCoverPhoto('',noProCover), 'stale', 'Owner cannot enable Pro through a cover upload');
+  assert.equal(await load('app/owner/photo-actions').updateOwnerCoverPhoto('',noProCover), 'invalid-upload', 'Verified cover form rejects a missing photo');
   loggedIn = false;
   await assert.rejects(enablePro, error => error.url === '/staff/review/login');
   loggedIn = true;
@@ -363,11 +365,37 @@ async function action(id, decision, consent = true) {
   await assert.rejects(enablePro, error => error.url.endsWith('invalid-cover'));
   assert.equal((await data.getPublishedRestaurant(id)).profilePlan, 'verified');
   proForm.set('coverPhotoUrl', 'https://images.example/restaurant.jpg');
+  await assert.rejects(()=>load('app/staff/review/actions').saveCoverPhoto(proForm),error=>error.url.endsWith('result=saved'));
+  assert.equal((await data.getPublishedRestaurant(id)).profilePlan,'verified','Saving a staff cover never activates Pro');
+  assert.equal((await data.getPublishedRestaurant(id)).photos[0],'https://images.example/restaurant.jpg');
+  const verifiedOwnerCover=new FormData();verifiedOwnerCover.set('id',id);
+  verifiedOwnerCover.set('coverToken',require('node:crypto').createHash('sha256').update('https://images.example/restaurant.jpg').digest('hex'));
+  verifiedOwnerCover.set('photoFile',new File([fs.readFileSync(path.join(root,'public/demo/grilled-fish-with-funge.webp'))],'verified.webp',{type:'image/webp'}));
+  assert.equal(await load('app/owner/photo-actions').updateOwnerCoverPhoto('',verifiedOwnerCover),'cover-saved');
+  assert.equal((await data.getPublishedRestaurant(id)).profilePlan,'verified','Owner cover changes also preserve Verified');
   await assert.rejects(enablePro, error => error.url.endsWith('result=saved'));
+
   const proProfile = await data.getPublishedRestaurant(id);
   assert.equal(proProfile.status, 'verified');
   assert.equal(proProfile.profilePlan, 'pro');
   assert.equal(proProfile.photos[0], 'https://images.example/restaurant.jpg');
+  const tierForm=new FormData();tierForm.set('id',id);tierForm.set('tier','verified');tierForm.set('expectedTier','pro');
+  const changeTier=()=>load('app/staff/review/actions').setProfileTier(tierForm);
+  loggedIn=false;await assert.rejects(changeTier,error=>error.url==='/staff/review/login');loggedIn=true;
+  await assert.rejects(changeTier,error=>error.url.endsWith('result=invalid-tier'));
+  tierForm.set('confirmed','on');await assert.rejects(changeTier,error=>error.url.endsWith('result=tier-saved'));
+  const downgraded=await data.getPublishedRestaurant(id);assert.equal(downgraded.profilePlan,'verified');assert.equal(downgraded.photos[0],proProfile.photos[0],'Returning to Verified preserves cover');assert.equal(downgraded.address,proProfile.address);
+  assert.equal((await data.getPublishedRestaurants()).find(r=>r.id===id).profilePlan,'verified','Directory follows explicit tier');
+  await assert.rejects(changeTier,error=>error.url.endsWith('result=stale'),'Outdated tier form cannot overwrite a newer tier');
+  await assert.rejects(()=>load('app/staff/review/actions').saveCoverPhoto(proForm),error=>error.url.endsWith('result=saved'));
+  assert.equal((await data.getPublishedRestaurant(id)).profilePlan,'verified','Subsequent photo saves do not upgrade');
+  tierForm.set('expectedTier','verified');tierForm.set('tier','pro');await assert.rejects(changeTier,error=>error.url.endsWith('result=tier-saved'));
+  // A pre-existing Pro media row remains Pro during additive migration; public reads do not migrate.
+  db.exec('DROP TRIGGER restaurant_audit_profile_tier');db.exec('ALTER TABLE restaurant_pro_plans DROP COLUMN profile_tier');
+  assert.equal((await data.getPublishedRestaurant(id)).profilePlan,'pro','Legacy public read falls back safely');
+  cache.delete(path.join(root,'lib/restaurant-data.ts'));await load('lib/restaurant-data').prepareRestaurantDatabase();
+  assert.equal((await data.getPublishedRestaurant(id)).profilePlan,'pro','Migration preserves existing Pro profiles');
+
   const removeForm = new FormData();
   removeForm.set('id', id);
   removeForm.set('expectedCover', proProfile.photos[0]);
@@ -538,5 +566,5 @@ async function action(id, decision, consent = true) {
   assert.equal(db.prepare("SELECT status FROM restaurant_intake WHERE id='legacy'").get().status, 'pending');
   assert.equal(db.prepare("SELECT status FROM restaurant_submissions WHERE id='legacy'").get().status, 'approved');
   assert.equal((await data.getPublishedRestaurants()).length, 0);
-  console.log('PASS: Basic and Verified restaurant comments, staff-only commenter verification and moderation, pending/private projection, menu reference checks, duplicate limit, author removal, owner self-review block, revocation, withdrawal and audit; stable menu references, existing-item backfill, no reuse after deletion, PT/EN reference rendering; staff menu names in PT/EN rendered HTML, language fallback, source rename invalidation and media preservation; staff-reviewed English, source preservation, staff auth and stale source protection; logo add/replace/remove, owner isolation, file validation and media preservation; menu availability toggle, public status, photo/price preservation, owner isolation and stale edit protection; separate PT/EN descriptions and hours, original fallback, older-form translation preservation; owner description/hours save, stale edit protection, public rendering data; owner cover add/replace/remove, stale edits, directory sync, menu preservation; owner photo upload/removal, size/type validation, photo reference cleanup; owner session isolation, staff linking/revocation, inline save feedback; menu CRUD, auth, price validation, stale edits, Basic limits; UK registration; validation; unauthorized/consent guards; Basic publication; staff-only Verified contacts; private field isolation; duplicate review; rejection; withdrawal; atomic rollback; legacy preservation.');
+  console.log('PASS: Verified cover uploads preserve tier, explicit staff tier change preserves photos and contacts, Basic verification cannot be bypassed, stale tier forms rejected, legacy Pro migration preserved; Basic and Verified restaurant comments, staff-only commenter verification and moderation, pending/private projection, menu reference checks, duplicate limit, author removal, owner self-review block, revocation, withdrawal and audit; stable menu references, existing-item backfill, no reuse after deletion, PT/EN reference rendering; staff menu names in PT/EN rendered HTML, language fallback, source rename invalidation and media preservation; staff-reviewed English, source preservation, staff auth and stale source protection; logo add/replace/remove, owner isolation, file validation and media preservation; menu availability toggle, public status, photo/price preservation, owner isolation and stale edit protection; separate PT/EN descriptions and hours, original fallback, older-form translation preservation; owner description/hours save, stale edit protection, public rendering data; owner cover add/replace/remove, stale edits, directory sync, menu preservation; owner photo upload/removal, size/type validation, photo reference cleanup; owner session isolation, staff linking/revocation, inline save feedback; menu CRUD, auth, price validation, stale edits, Basic limits; UK registration; validation; unauthorized/consent guards; Basic publication; staff-only Verified contacts; private field isolation; duplicate review; rejection; withdrawal; atomic rollback; legacy preservation.');
 })().catch(error => { console.error(error); process.exitCode = 1; });

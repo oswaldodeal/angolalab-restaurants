@@ -78,6 +78,14 @@ async function uploadedPhoto(form: FormData, invalidResult: string) {
 }
 
 export async function enableProPlan(form: FormData) {
+  return saveProfileCover(form, 'pro');
+}
+
+export async function saveCoverPhoto(form: FormData) {
+  return saveProfileCover(form, null);
+}
+
+async function saveProfileCover(form: FormData, requestedTier: string | null) {
   if (!(await staffAuthorized())) redirect('/staff/review/login');
   const id = String(form.get('id') ?? '');
   if (!/^[a-zA-Z0-9-]{1,100}$/.test(id)) redirect('/staff/review?result=invalid');
@@ -94,15 +102,15 @@ export async function enableProPlan(form: FormData) {
   let result = 'saved';
   try {
     await prepareRestaurantDatabase();
-    const updated = await executePrivateSql(`INSERT INTO restaurant_pro_plans (id,activated_at,cover_photo_url)
-      SELECT v.id,?,? FROM restaurant_verified_contacts v
+    const updated = await executePrivateSql(`INSERT INTO restaurant_pro_plans (id,activated_at,cover_photo_url,profile_tier)
+      SELECT v.id,?,?,COALESCE(?,'verified') FROM restaurant_verified_contacts v
       JOIN restaurant_listings l ON l.id = v.id
       JOIN restaurant_intake i ON i.id = v.id
-      WHERE v.id = ? AND i.status = 'approved' ON CONFLICT(id) DO UPDATE SET cover_photo_url = excluded.cover_photo_url,
+      WHERE v.id = ? AND i.status = 'approved' ON CONFLICT(id) DO UPDATE SET profile_tier = COALESCE(?,restaurant_pro_plans.profile_tier), cover_photo_url = COALESCE(excluded.cover_photo_url,restaurant_pro_plans.cover_photo_url),
       menu_photo_url = COALESCE(restaurant_pro_plans.menu_photo_url,
         CASE WHEN restaurant_pro_plans.cover_photo_url = ? THEN ? END)
-      WHERE excluded.cover_photo_url IS NOT NULL`,
-    [new Date().toISOString(), coverPhotoUrl || null, id, SAMPLE_RESTAURANT_COVER, SAMPLE_MENU_PHOTO]);
+      WHERE excluded.cover_photo_url IS NOT NULL OR ? IS NOT NULL`,
+    [new Date().toISOString(), coverPhotoUrl || null, requestedTier, id, requestedTier, SAMPLE_RESTAURANT_COVER, SAMPLE_MENU_PHOTO, requestedTier]);
     if (Number(updated.affected_row_count) !== 1) result = 'stale';
   } catch { result = 'unavailable'; }
   revalidatePath('/staff/review');
@@ -149,6 +157,7 @@ export async function updateMenuPhoto(form: FormData) {
   let result = 'stale';
   try {
     await prepareRestaurantDatabase();
+    await executePrivateSql(`INSERT INTO restaurant_pro_plans(id,activated_at,profile_tier) SELECT v.id,?,'verified' FROM restaurant_verified_contacts v JOIN restaurant_listings l ON l.id=v.id WHERE v.id=? ON CONFLICT(id) DO NOTHING`,[new Date().toISOString(),id]);
     const [row] = sqlRows(await executePrivateSql(
       'SELECT menu_photo_url,cover_photo_url FROM restaurant_pro_plans WHERE id = ?', [id],
     ));
@@ -171,4 +180,22 @@ export async function updateMenuPhoto(form: FormData) {
   revalidatePath('/en/restaurants', 'layout');
   revalidatePath('/pt/restaurantes', 'layout');
   redirect('/staff/review?result=' + result);
+}
+
+export async function setProfileTier(form: FormData) {
+  if (!(await staffAuthorized())) redirect('/staff/review/login');
+  const id=String(form.get('id')??''), tier=String(form.get('tier')??''), expected=String(form.get('expectedTier')??'');
+  if (!/^[a-zA-Z0-9-]{1,100}$/.test(id) || !['verified','pro'].includes(tier) || !['none','verified','pro'].includes(expected) || form.get('confirmed')!=='on') redirect('/staff/review?result=invalid-tier');
+  let result='stale';
+  try {
+    await prepareRestaurantDatabase();
+    const changed=await executePrivateSql(`INSERT INTO restaurant_pro_plans(id,activated_at,profile_tier)
+      SELECT v.id,?,? FROM restaurant_verified_contacts v JOIN restaurant_listings l ON l.id=v.id
+      WHERE v.id=? AND COALESCE((SELECT p.profile_tier FROM restaurant_pro_plans p WHERE p.id=v.id),'none')=?
+      ON CONFLICT(id) DO UPDATE SET profile_tier=excluded.profile_tier`,[new Date().toISOString(),tier,id,expected]);
+    if (Number(changed.affected_row_count)===1) result='tier-saved';
+  } catch {result='unavailable';}
+  for (const path of ['/staff/review','/en/account','/pt/conta','/findme']) revalidatePath(path);
+  revalidatePath('/en/restaurants','layout'); revalidatePath('/pt/restaurantes','layout');
+  redirect('/staff/review?result='+result);
 }

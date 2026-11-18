@@ -24,6 +24,12 @@ export async function prepareRestaurantDatabase() {
       catch (error) { if (!(error instanceof Error) || error.message !== 'TURSO_COVER_ALREADY_MIGRATED') throw error; }
     }
     const columns = sqlRows(await executePrivateSql('PRAGMA table_info(restaurant_pro_plans)'));
+    if (!columns.some(column => column.name === 'profile_tier')) {
+      try { await executePrivateSql("ALTER TABLE restaurant_pro_plans ADD COLUMN profile_tier TEXT NOT NULL DEFAULT 'pro' CHECK(profile_tier IN ('verified','pro'))"); }
+      catch (error) { if (!(error instanceof Error) || error.message !== 'TURSO_COVER_ALREADY_MIGRATED') throw error; }
+    }
+    await executePrivateSql(`CREATE TRIGGER IF NOT EXISTS restaurant_audit_profile_tier AFTER UPDATE OF profile_tier ON restaurant_pro_plans WHEN OLD.profile_tier<>NEW.profile_tier BEGIN INSERT INTO restaurant_review_history(submission_id,from_status,to_status,note,reviewer,reviewed_at) VALUES(NEW.id,OLD.profile_tier,NEW.profile_tier,'Staff changed website profile tier; business verification unchanged','shared-pilot-staff',strftime('%Y-%m-%dT%H:%M:%fZ','now')); END`);
+
     for (const name of ['cover_photo_url', 'menu_photo_url']) {
       if (columns.some(column => column.name === name)) continue;
       try {
@@ -44,7 +50,7 @@ export function publicRestaurant(row: Record<string, string | null>): Restaurant
     city: row.city!, cuisine: row.cuisine!, neighbourhood: '', address: verified ? row.public_address! : '',
     phone: verified ? row.public_phone! : undefined,
     lat: null, lng: null, hours: row.opening_hours ?? undefined,
-    status: verified ? 'verified' : 'basic', profilePlan: verified ? (row.pro_id ? 'pro' : 'verified') : 'basic',
+    status: verified ? 'verified' : 'basic', profilePlan: verified ? (row.pro_id && row.profile_tier !== 'verified' ? 'pro' : 'verified') : 'basic',
     verifiedAt: verified ? row.verified_at! : undefined, submittedAt: row.published_at!,
     photos: verified && row.pro_id && row.cover_photo_url ? [row.cover_photo_url] : [], menuPhotos: verified && row.pro_id ? readMenuPhotos(row.menu_photo_url, row.cover_photo_url) : [], isPremium: false,
   };
@@ -60,7 +66,12 @@ async function readListings(id?: string) {
     try {
       const proListings = `${verifiedListings} LEFT JOIN restaurant_pro_plans p ON p.id = v.id ${tail}`;
       try {
-        return await executePrivateSql(`SELECT ${verifiedColumns},p.id AS pro_id,p.cover_photo_url,p.menu_photo_url ${proListings}`, args);
+        try {
+          return await executePrivateSql(`SELECT ${verifiedColumns},p.id AS pro_id,p.profile_tier,p.cover_photo_url,p.menu_photo_url ${proListings}`, args);
+        } catch (error) {
+          if (!(error instanceof Error) || error.message !== 'TURSO_PLAN_NOT_MIGRATED') throw error;
+          return await executePrivateSql(`SELECT ${verifiedColumns},p.id AS pro_id,p.cover_photo_url,p.menu_photo_url ${proListings}`, args);
+        }
       } catch (error) {
         if (error instanceof Error && error.message === 'TURSO_MENU_NOT_MIGRATED') {
           return await executePrivateSql(`SELECT ${verifiedColumns},p.id AS pro_id,p.cover_photo_url ${proListings}`, args);
