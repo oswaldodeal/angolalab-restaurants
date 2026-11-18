@@ -51,7 +51,7 @@ export async function publishVerifiedContacts(form: FormData) {
     || address.length < 5 || address.length > 300
     || !/^\+?[\d() .-]+$/.test(phone) || phone.length > 35 || digits.length < 7 || digits.length > 15
     || note.length < 20 || note.length > 2000
-    || form.get('verifiedConsent') !== 'on') {
+    || form.get('verifiedConsent') !== 'on' || form.get('verificationIntent') !== 'verified') {
     redirect('/staff/review?result=invalid-verification');
   }
   let result = 'verified';
@@ -62,7 +62,8 @@ export async function publishVerifiedContacts(form: FormData) {
       SELECT l.id,?,?,?,?,? FROM restaurant_listings l
       JOIN restaurant_intake i ON i.id = l.id
       WHERE l.id = ? AND i.status = 'approved'
-      AND NOT EXISTS (SELECT 1 FROM restaurant_verified_contacts v WHERE v.id = l.id)`,
+      AND NOT EXISTS (SELECT 1 FROM restaurant_verified_contacts v WHERE v.id = l.id AND v.is_active=1)
+      ON CONFLICT(id) DO UPDATE SET public_address=excluded.public_address,public_phone=excluded.public_phone,note=excluded.note,reviewer=excluded.reviewer,verified_at=excluded.verified_at,is_active=1 WHERE restaurant_verified_contacts.is_active=0`,
     [address, phone, note, 'shared-pilot-staff', new Date().toISOString(), id]);
     if (Number(updated.affected_row_count) !== 1) result = 'stale';
   } catch { result = 'unavailable'; }
@@ -106,7 +107,7 @@ async function saveProfileCover(form: FormData, requestedTier: string | null) {
       SELECT v.id,?,?,COALESCE(?,'verified') FROM restaurant_verified_contacts v
       JOIN restaurant_listings l ON l.id = v.id
       JOIN restaurant_intake i ON i.id = v.id
-      WHERE v.id = ? AND i.status = 'approved' ON CONFLICT(id) DO UPDATE SET profile_tier = COALESCE(?,restaurant_pro_plans.profile_tier), cover_photo_url = COALESCE(excluded.cover_photo_url,restaurant_pro_plans.cover_photo_url),
+      WHERE v.id = ? AND v.is_active=1 AND i.status = 'approved' ON CONFLICT(id) DO UPDATE SET profile_tier = COALESCE(?,restaurant_pro_plans.profile_tier), cover_photo_url = COALESCE(excluded.cover_photo_url,restaurant_pro_plans.cover_photo_url),
       menu_photo_url = COALESCE(restaurant_pro_plans.menu_photo_url,
         CASE WHEN restaurant_pro_plans.cover_photo_url = ? THEN ? END)
       WHERE excluded.cover_photo_url IS NOT NULL OR ? IS NOT NULL`,
@@ -157,9 +158,9 @@ export async function updateMenuPhoto(form: FormData) {
   let result = 'stale';
   try {
     await prepareRestaurantDatabase();
-    await executePrivateSql(`INSERT INTO restaurant_pro_plans(id,activated_at,profile_tier) SELECT v.id,?,'verified' FROM restaurant_verified_contacts v JOIN restaurant_listings l ON l.id=v.id WHERE v.id=? ON CONFLICT(id) DO NOTHING`,[new Date().toISOString(),id]);
+    await executePrivateSql(`INSERT INTO restaurant_pro_plans(id,activated_at,profile_tier) SELECT v.id,?,'verified' FROM restaurant_verified_contacts v JOIN restaurant_listings l ON l.id=v.id WHERE v.id=? AND v.is_active=1 ON CONFLICT(id) DO NOTHING`,[new Date().toISOString(),id]);
     const [row] = sqlRows(await executePrivateSql(
-      'SELECT menu_photo_url,cover_photo_url FROM restaurant_pro_plans WHERE id = ?', [id],
+      'SELECT menu_photo_url,cover_photo_url FROM restaurant_pro_plans WHERE id = ? AND EXISTS(SELECT 1 FROM restaurant_verified_contacts v WHERE v.id=restaurant_pro_plans.id AND v.is_active=1)', [id],
     ));
     if (row) {
       const photos = readMenuPhotos(row.menu_photo_url, row.cover_photo_url);
@@ -170,7 +171,7 @@ export async function updateMenuPhoto(form: FormData) {
       } else if (!remove || photos.includes(expected)) {
         const next = remove ? photos.filter(item => item !== expected) : [...photos, photo];
         const updated = await executePrivateSql(`UPDATE restaurant_pro_plans SET menu_photo_url = ?
-          WHERE id = ? AND menu_photo_url IS ? AND (menu_photo_url IS NOT NULL OR cover_photo_url IS ?)`,
+          WHERE id = ? AND menu_photo_url IS ? AND (menu_photo_url IS NOT NULL OR cover_photo_url IS ?) AND EXISTS(SELECT 1 FROM restaurant_verified_contacts v WHERE v.id=restaurant_pro_plans.id AND v.is_active=1)`,
         [JSON.stringify(next), id, row.menu_photo_url, row.cover_photo_url]);
         if (Number(updated.affected_row_count) === 1) result = remove ? 'menu-removed' : 'menu-saved';
       }
@@ -191,11 +192,26 @@ export async function setProfileTier(form: FormData) {
     await prepareRestaurantDatabase();
     const changed=await executePrivateSql(`INSERT INTO restaurant_pro_plans(id,activated_at,profile_tier)
       SELECT v.id,?,? FROM restaurant_verified_contacts v JOIN restaurant_listings l ON l.id=v.id
-      WHERE v.id=? AND COALESCE((SELECT p.profile_tier FROM restaurant_pro_plans p WHERE p.id=v.id),'none')=?
+      WHERE v.id=? AND v.is_active=1 AND COALESCE((SELECT p.profile_tier FROM restaurant_pro_plans p WHERE p.id=v.id),'none')=?
       ON CONFLICT(id) DO UPDATE SET profile_tier=excluded.profile_tier`,[new Date().toISOString(),tier,id,expected]);
     if (Number(changed.affected_row_count)===1) result='tier-saved';
   } catch {result='unavailable';}
   for (const path of ['/staff/review','/en/account','/pt/conta','/findme']) revalidatePath(path);
   revalidatePath('/en/restaurants','layout'); revalidatePath('/pt/restaurantes','layout');
+  redirect('/staff/review?result='+result);
+}
+
+export async function returnToBasic(form: FormData) {
+  if (!(await staffAuthorized())) redirect('/staff/review/login');
+  const id=String(form.get('id')??''), expected=String(form.get('expectedVerifiedAt')??'');
+  if (!/^[a-zA-Z0-9-]{1,100}$/.test(id) || !expected || expected.length>100 || form.get('confirmed')!=='on') redirect('/staff/review?result=invalid-basic');
+  let result='stale';
+  try {
+    await prepareRestaurantDatabase();
+    const changed=await executePrivateSql(`UPDATE restaurant_verified_contacts SET is_active=0 WHERE id=? AND verified_at=? AND is_active=1 AND EXISTS(SELECT 1 FROM restaurant_listings l WHERE l.id=restaurant_verified_contacts.id)`,[id,expected]);
+    if(Number(changed.affected_row_count)===1) result='basic-restored';
+  } catch { result='unavailable'; }
+  for(const path of ['/staff/review','/en/account','/pt/conta','/findme']) revalidatePath(path);
+  revalidatePath('/en/restaurants','layout');revalidatePath('/pt/restaurantes','layout');
   redirect('/staff/review?result='+result);
 }

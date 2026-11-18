@@ -18,10 +18,10 @@ export async function updateOwnerMenuPhoto(_previous: string, form: FormData): P
   try {
     await prepareRestaurantDatabase();
     await executePrivateSql(`INSERT INTO restaurant_pro_plans(id,activated_at,profile_tier)
-      SELECT l.id,?,'verified' FROM restaurant_listings l JOIN restaurant_verified_contacts v ON v.id=l.id JOIN restaurant_owners o ON o.restaurant_id=l.id WHERE l.id=? AND o.clerk_user_id=? ON CONFLICT(id) DO NOTHING`,[new Date().toISOString(),id,userId]);
+      SELECT l.id,?,'verified' FROM restaurant_listings l JOIN restaurant_verified_contacts v ON v.id=l.id AND v.is_active=1 JOIN restaurant_owners o ON o.restaurant_id=l.id WHERE l.id=? AND o.clerk_user_id=? ON CONFLICT(id) DO NOTHING`,[new Date().toISOString(),id,userId]);
 
     const access = `EXISTS (SELECT 1 FROM restaurant_owners o JOIN restaurant_listings l ON l.id=o.restaurant_id
-      JOIN restaurant_verified_contacts v ON v.id=l.id WHERE o.restaurant_id=restaurant_pro_plans.id AND o.clerk_user_id=?)`;
+      JOIN restaurant_verified_contacts v ON v.id=l.id AND v.is_active=1 WHERE o.restaurant_id=restaurant_pro_plans.id AND o.clerk_user_id=?)`;
     const row = sqlRows(await executePrivateSql(`SELECT menu_photo_url,cover_photo_url FROM restaurant_pro_plans WHERE id=? AND ${access}`, [id,userId]))[0];
     if (row) {
       const photos = readMenuPhotos(row.menu_photo_url,row.cover_photo_url);
@@ -52,10 +52,10 @@ export async function updateOwnerCoverPhoto(_previous: string, form: FormData): 
   try {
     await prepareRestaurantDatabase();
     await executePrivateSql(`INSERT INTO restaurant_pro_plans(id,activated_at,profile_tier)
-      SELECT l.id,?,'verified' FROM restaurant_listings l JOIN restaurant_verified_contacts v ON v.id=l.id JOIN restaurant_owners o ON o.restaurant_id=l.id WHERE l.id=? AND o.clerk_user_id=? ON CONFLICT(id) DO NOTHING`,[new Date().toISOString(),id,userId]);
+      SELECT l.id,?,'verified' FROM restaurant_listings l JOIN restaurant_verified_contacts v ON v.id=l.id AND v.is_active=1 JOIN restaurant_owners o ON o.restaurant_id=l.id WHERE l.id=? AND o.clerk_user_id=? ON CONFLICT(id) DO NOTHING`,[new Date().toISOString(),id,userId]);
 
     const access = `EXISTS (SELECT 1 FROM restaurant_owners o JOIN restaurant_listings l ON l.id=o.restaurant_id
-      JOIN restaurant_verified_contacts v ON v.id=l.id WHERE o.restaurant_id=restaurant_pro_plans.id AND o.clerk_user_id=?)`;
+      JOIN restaurant_verified_contacts v ON v.id=l.id AND v.is_active=1 WHERE o.restaurant_id=restaurant_pro_plans.id AND o.clerk_user_id=?)`;
     const row = sqlRows(await executePrivateSql(`SELECT cover_photo_url,menu_photo_url FROM restaurant_pro_plans WHERE id=? AND ${access}`, [id,userId]))[0];
     if (row) {
       const currentToken = row.cover_photo_url ? createHash('sha256').update(row.cover_photo_url).digest('hex') : '';

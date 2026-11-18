@@ -24,7 +24,7 @@ export async function mutateMenuItem(form: FormData, ownerId: string | null): Pr
     await prepareRestaurantDatabase();
     const ownerGuard = ownerId ? ' AND EXISTS (SELECT 1 FROM restaurant_owners o WHERE o.restaurant_id=l.id AND o.clerk_user_id=?)' : '';
     const row = sqlRows(await executePrivateSql(`SELECT l.id,v.verified_at,p.menu_photo_url,p.cover_photo_url
-      FROM restaurant_listings l LEFT JOIN restaurant_verified_contacts v ON v.id=l.id
+      FROM restaurant_listings l LEFT JOIN restaurant_verified_contacts v ON v.id=l.id AND v.is_active=1
       LEFT JOIN restaurant_pro_plans p ON p.id=v.id WHERE l.id=?${ownerGuard}`, ownerId ? [id,ownerId] : [id]))[0];
     if (row) {
       const photos = readMenuPhotos(row.menu_photo_url, row.cover_photo_url);
@@ -33,7 +33,8 @@ export async function mutateMenuItem(form: FormData, ownerId: string | null): Pr
         result = 'invalid-item';
       } else {
         const limit = row.verified_at ? '60' : '2';
-        const permission = `EXISTS (SELECT 1 FROM restaurant_listings l WHERE l.id=?${ownerGuard})`;
+        const tierGuard = row.verified_at ? ' AND EXISTS(SELECT 1 FROM restaurant_verified_contacts v WHERE v.id=l.id AND v.is_active=1)' : '';
+        const permission = `EXISTS (SELECT 1 FROM restaurant_listings l WHERE l.id=?${ownerGuard}${tierGuard})`;
         const permissionArgs = ownerId ? [id,ownerId] : [id];
         const room = `(SELECT count(*) FROM restaurant_menu_items WHERE restaurant_id=? AND id!=?) < ${limit}`;
         let changed;

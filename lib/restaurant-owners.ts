@@ -1,14 +1,15 @@
 import 'server-only';
 import { auth } from '@clerk/nextjs/server';
 import { executePrivateSql, sqlRows } from '@/lib/turso';
-import { readProfileDetails, readRestaurantLogos } from '@/lib/restaurant-data';
+import { prepareRestaurantDatabase, readProfileDetails, readRestaurantLogos } from '@/lib/restaurant-data';
 
 export async function getOwnedRestaurants() {
   const { userId } = await auth();
   if (!userId) return [];
   try {
+    await prepareRestaurantDatabase();
     const [result,details,logos] = await Promise.all([
-      executePrivateSql(`SELECT l.id,l.name,l.country,l.opening_hours,v.verified_at,p.id AS pro_id,p.menu_photo_url,p.cover_photo_url
+      executePrivateSql(`SELECT l.id,l.name,l.country,l.opening_hours,CASE WHEN v.is_active=1 THEN v.verified_at END AS verified_at,p.id AS pro_id,p.menu_photo_url,p.cover_photo_url
         FROM restaurant_owners o JOIN restaurant_listings l ON l.id=o.restaurant_id
         LEFT JOIN restaurant_verified_contacts v ON v.id=l.id LEFT JOIN restaurant_pro_plans p ON p.id=v.id
         WHERE o.clerk_user_id=? ORDER BY l.name LIMIT 100`, [userId]),

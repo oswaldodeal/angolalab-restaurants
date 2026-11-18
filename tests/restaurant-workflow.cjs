@@ -74,8 +74,9 @@ async function action(id, decision, consent = true) {
   assert.equal((await api.POST(request({ ...payload, ownerEmail: 'bad' }))).status, 400);
   assert.equal((await api.POST(request({ ...payload, website: 'spam' }))).status, 400);
   assert.equal((await api.POST(request({ ...payload, ownerName: 'x'.repeat(9000) }))).status, 413);
-  const result = await api.POST(request(payload)); assert.equal(result.status, 201);
-  const { id } = await result.json();
+  const result = await api.POST(request({...payload,status:'verified',profilePlan:'pro'})); assert.equal(result.status, 201);
+  const registration = await result.json(); assert.equal(registration.status,'pending','Registration cannot choose its own publication/verification tier');
+  const { id } = registration;
   assert.equal((await data.getPublishedRestaurants()).length, 0, 'Pending is private');
   loggedIn = true;
   assert.equal(await action(id, 'approved', false), '/staff/review?result=invalid');
@@ -164,6 +165,8 @@ async function action(id, decision, consent = true) {
   loggedIn = true;
   await assert.rejects(publishVerified, error => error.url.endsWith('invalid-verification'));
   verifiedForm.set('verifiedConsent', 'on');
+  await assert.rejects(publishVerified,error=>error.url.endsWith('result=invalid-verification'),'Separate upgrade intent is required');
+  verifiedForm.set('verificationIntent','verified');
   await assert.rejects(publishVerified, error => error.url.endsWith('result=verified'));
   const verifiedProfile = await data.getPublishedRestaurant(id);
   assert.equal(verifiedProfile.status, 'verified');
@@ -391,10 +394,15 @@ async function action(id, decision, consent = true) {
   assert.equal((await data.getPublishedRestaurant(id)).profilePlan,'verified','Subsequent photo saves do not upgrade');
   tierForm.set('expectedTier','verified');tierForm.set('tier','pro');await assert.rejects(changeTier,error=>error.url.endsWith('result=tier-saved'));
   // A pre-existing Pro media row remains Pro during additive migration; public reads do not migrate.
-  db.exec('DROP TRIGGER restaurant_audit_profile_tier');db.exec('ALTER TABLE restaurant_pro_plans DROP COLUMN profile_tier');
+  db.exec('DROP TRIGGER restaurant_audit_profile_tier');db.exec('DROP TRIGGER restaurant_pause_verification');db.exec('ALTER TABLE restaurant_pro_plans DROP COLUMN profile_tier');
   assert.equal((await data.getPublishedRestaurant(id)).profilePlan,'pro','Legacy public read falls back safely');
   cache.delete(path.join(root,'lib/restaurant-data.ts'));await load('lib/restaurant-data').prepareRestaurantDatabase();
   assert.equal((await data.getPublishedRestaurant(id)).profilePlan,'pro','Migration preserves existing Pro profiles');
+  db.exec('DROP TRIGGER restaurant_pause_verification');db.exec('DROP TRIGGER restaurant_resume_verification');db.exec('ALTER TABLE restaurant_verified_contacts DROP COLUMN is_active');
+  const beforeLegacyRead=writes.length;assert.equal((await data.getPublishedRestaurant(id)).status,'verified','Legacy verification reads remain available before migration');assert.equal(writes.length,beforeLegacyRead,'Public legacy reads never migrate');
+  cache.delete(path.join(root,'lib/restaurant-data.ts'));await load('lib/restaurant-data').prepareRestaurantDatabase();
+  assert.equal((await data.getPublishedRestaurant(id)).profilePlan,'pro','Adding verification state preserves existing tiers');
+
 
   const removeForm = new FormData();
   removeForm.set('id', id);
@@ -533,6 +541,23 @@ async function action(id, decision, consent = true) {
   db.prepare("UPDATE restaurant_comments SET created_at='2020-01-01T00:00:00.000Z' WHERE user_id=?").run(clerkUserId);
   assert.equal(await postComment(),'comment-pending','Verified restaurant also accepts verified commenters');
   clerkUserId='user_owner123456789';
+  const beforeBasic=await data.getPublishedRestaurant(id);
+  const basicForm=new FormData();basicForm.set('id',id);basicForm.set('expectedVerifiedAt',beforeBasic.verifiedAt);
+  const returnBasic=()=>load('app/staff/review/actions').returnToBasic(basicForm);
+  loggedIn=false;await assert.rejects(returnBasic,error=>error.url==='/staff/review/login');loggedIn=true;
+  await assert.rejects(returnBasic,error=>error.url.endsWith('result=invalid-basic'));
+  basicForm.set('confirmed','on');await assert.rejects(returnBasic,error=>error.url.endsWith('result=basic-restored'));
+  const nowBasic=await data.getPublishedRestaurant(id);assert.equal(nowBasic.status,'basic');assert.equal(nowBasic.profilePlan,'basic');assert.equal(nowBasic.address,'');assert.equal(nowBasic.phone,undefined);assert.deepEqual(nowBasic.photos,[]);assert.deepEqual(nowBasic.menuPhotos,[]);
+  assert.equal(db.prepare('SELECT count(*) n FROM restaurant_pro_plans WHERE id=?').get(id).n,1,'Returning to Basic preserves private media');
+  assert.equal(db.prepare('SELECT profile_tier FROM restaurant_pro_plans WHERE id=?').get(id).profile_tier,'verified','Reactivation cannot silently restore Pro');
+  assert.equal(db.prepare('SELECT public_address FROM restaurant_verified_contacts WHERE id=?').get(id).public_address,beforeBasic.address,'Original approved contacts preserved privately');
+  assert.equal((await load('lib/restaurant-owners').getOwnedRestaurants())[0].verified_at,null,'Owner tools follow current Basic status');
+  assert.equal(await saveOwnerCover(),'stale','Basic owner cannot upload through old Verified photo form');
+  assert.equal(await ownerSave(),'invalid-item','Basic cannot save drink items via a stale Verified form');
+  await assert.rejects(changeTier,error=>error.url.endsWith('result=stale'),'Pro activation cannot bypass paused verification');
+  await assert.rejects(returnBasic,error=>error.url.endsWith('result=stale'));
+  await assert.rejects(publishVerified,error=>error.url.endsWith('result=verified'),'A fresh explicit business review reactivates verification');
+  const reverified=await data.getPublishedRestaurant(id);assert.equal(reverified.status,'verified');assert.equal(reverified.profilePlan,'verified');assert.deepEqual(reverified.photos,beforeBasic.photos);assert.deepEqual(reverified.menuPhotos,beforeBasic.menuPhotos);
   assert.equal(await action(id, 'withdrawn'), '/staff/review?result=saved');
   assert.equal(await saveLogo(),'stale','Withdrawal blocks logo changes');
   assert.deepEqual(await commentData.publicComments(id),[],'Withdrawn listings have no public comments');
@@ -566,5 +591,5 @@ async function action(id, decision, consent = true) {
   assert.equal(db.prepare("SELECT status FROM restaurant_intake WHERE id='legacy'").get().status, 'pending');
   assert.equal(db.prepare("SELECT status FROM restaurant_submissions WHERE id='legacy'").get().status, 'approved');
   assert.equal((await data.getPublishedRestaurants()).length, 0);
-  console.log('PASS: Verified cover uploads preserve tier, explicit staff tier change preserves photos and contacts, Basic verification cannot be bypassed, stale tier forms rejected, legacy Pro migration preserved; Basic and Verified restaurant comments, staff-only commenter verification and moderation, pending/private projection, menu reference checks, duplicate limit, author removal, owner self-review block, revocation, withdrawal and audit; stable menu references, existing-item backfill, no reuse after deletion, PT/EN reference rendering; staff menu names in PT/EN rendered HTML, language fallback, source rename invalidation and media preservation; staff-reviewed English, source preservation, staff auth and stale source protection; logo add/replace/remove, owner isolation, file validation and media preservation; menu availability toggle, public status, photo/price preservation, owner isolation and stale edit protection; separate PT/EN descriptions and hours, original fallback, older-form translation preservation; owner description/hours save, stale edit protection, public rendering data; owner cover add/replace/remove, stale edits, directory sync, menu preservation; owner photo upload/removal, size/type validation, photo reference cleanup; owner session isolation, staff linking/revocation, inline save feedback; menu CRUD, auth, price validation, stale edits, Basic limits; UK registration; validation; unauthorized/consent guards; Basic publication; staff-only Verified contacts; private field isolation; duplicate review; rejection; withdrawal; atomic rollback; legacy preservation.');
+  console.log('PASS: explicit Basic publication and separate verification intent, reversible Return to Basic hides contacts and media, retains private evidence and assets, blocks stale Verified uploads and Pro activation, fresh re-verification restores Verified only, legacy verification migration is read-safe; Verified cover uploads preserve tier, explicit staff tier change preserves photos and contacts, Basic verification cannot be bypassed, stale tier forms rejected, legacy Pro migration preserved; Basic and Verified restaurant comments, staff-only commenter verification and moderation, pending/private projection, menu reference checks, duplicate limit, author removal, owner self-review block, revocation, withdrawal and audit; stable menu references, existing-item backfill, no reuse after deletion, PT/EN reference rendering; staff menu names in PT/EN rendered HTML, language fallback, source rename invalidation and media preservation; staff-reviewed English, source preservation, staff auth and stale source protection; logo add/replace/remove, owner isolation, file validation and media preservation; menu availability toggle, public status, photo/price preservation, owner isolation and stale edit protection; separate PT/EN descriptions and hours, original fallback, older-form translation preservation; owner description/hours save, stale edit protection, public rendering data; owner cover add/replace/remove, stale edits, directory sync, menu preservation; owner photo upload/removal, size/type validation, photo reference cleanup; owner session isolation, staff linking/revocation, inline save feedback; menu CRUD, auth, price validation, stale edits, Basic limits; UK registration; validation; unauthorized/consent guards; Basic publication; staff-only Verified contacts; private field isolation; duplicate review; rejection; withdrawal; atomic rollback; legacy preservation.');
 })().catch(error => { console.error(error); process.exitCode = 1; });

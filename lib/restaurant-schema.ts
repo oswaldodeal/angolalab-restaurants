@@ -31,7 +31,8 @@ export const restaurantSchema = [
   `CREATE TABLE IF NOT EXISTS restaurant_verified_contacts (
     id TEXT PRIMARY KEY REFERENCES restaurant_listings(id),
     public_address TEXT NOT NULL, public_phone TEXT NOT NULL,
-    note TEXT NOT NULL, reviewer TEXT NOT NULL, verified_at TEXT NOT NULL
+    note TEXT NOT NULL, reviewer TEXT NOT NULL, verified_at TEXT NOT NULL,
+    is_active INTEGER NOT NULL DEFAULT 1 CHECK(is_active IN (0,1))
   )`,
   `CREATE TABLE IF NOT EXISTS restaurant_pro_plans (
     id TEXT PRIMARY KEY REFERENCES restaurant_verified_contacts(id),

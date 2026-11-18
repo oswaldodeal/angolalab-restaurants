@@ -5,7 +5,7 @@ import StaffMenuEditor from '@/components/StaffMenuEditor';
 import StaffPhotoInput from '@/components/StaffPhotoInput';
 import { MENU_PHOTO_LIMIT, SAMPLE_RESTAURANT_COVER } from '@/lib/store';
 import StaffReviewForm from '@/components/StaffReviewForm';
-import { saveCoverPhoto, setProfileTier, publishVerifiedContacts, removeCoverPhoto, signOutStaff, updateMenuPhoto } from './actions';
+import { returnToBasic, saveCoverPhoto, setProfileTier, publishVerifiedContacts, removeCoverPhoto, signOutStaff, updateMenuPhoto } from './actions';
 import { redirect } from 'next/navigation';
 import { staffAuthorized } from '@/lib/staff-auth';
 import { getStaffSubmissions } from '@/lib/staff-submissions';
@@ -47,13 +47,15 @@ export default async function StaffReview({ searchParams }: { searchParams: Prom
         Pilot reviews use one shared staff identity; review notes and timestamps are recorded.
       </p>
       <form action={signOutStaff}><button className="mt-5 rounded-lg border border-[#ded8c5] px-4 py-2">Sign out / Sair</button></form>
-      {result && <p role="status" className="mt-5 rounded-lg bg-[#fffaf0] p-4">{result === 'tier-saved' ? 'Profile tier saved. Photos and business verification preserved.' : result === 'invalid-tier' ? 'Choose a profile tier and confirm the change.' : result === 'owner-linked' ? 'Owner account connected / Conta do proprietário ligada.' : result === 'owner-unlinked' ? 'Owner access removed / Acesso removido.' : result === 'invalid-owner' ? 'Check the account ID, permission and review note.' : result === 'item-saved' ? 'Menu item saved / Prato guardado.' : result === 'item-removed' ? 'Menu item removed / Prato removido.' : result === 'invalid-item' ? 'Check the item name, category, price and photo. Basic profiles allow two main dishes; Verified profiles allow 60 items.' : result === 'menu-duplicate' ? 'This image is already on the menu. / Esta imagem já está na ementa.' : result === 'menu-limit' ? 'Remove an image before adding another. / Remova uma imagem antes de adicionar outra.' : result === 'invalid-upload' ? 'Choose a JPG, PNG or WebP image up to 250 KB.' : result === 'menu-saved' ? 'Menu image saved / Imagem da ementa guardada.' : result === 'menu-removed' ? 'Menu image removed / Imagem da ementa removida.' : result === 'cover-removed' ? 'Cover photo removed / Fotografia de capa removida.' : result === 'invalid-cover' ? 'Enter a direct HTTPS image URL for the approved cover photo.' : result === 'verified' ? 'Verified profile published / Perfil verificado publicado.' : result === 'invalid-verification' ? 'Enter a valid business address and public phone, record the evidence, and confirm permission to publish.' : result === 'saved' ? 'Decision saved. Directory updated / Decisão guardada.' : result === 'stale' ? 'This record has changed or already been reviewed. Reload it and try again.' : result === 'invalid' ? 'Add a review note of 20–2000 characters. Publication also requires the identity and permission check.' : 'Unable to save. No publication decision was confirmed. Try again later.'}</p>}
+      {result && <p role="status" className="mt-5 rounded-lg bg-[#fffaf0] p-4">{result === 'basic-restored' ? 'Basic profile restored. Contacts and verification are hidden; evidence and photos remain saved privately.' : result === 'invalid-basic' ? 'Confirm the return to Basic and refresh the record.' : result === 'tier-saved' ? 'Profile tier saved. Photos and business verification preserved.' : result === 'invalid-tier' ? 'Choose a profile tier and confirm the change.' : result === 'owner-linked' ? 'Owner account connected / Conta do proprietário ligada.' : result === 'owner-unlinked' ? 'Owner access removed / Acesso removido.' : result === 'invalid-owner' ? 'Check the account ID, permission and review note.' : result === 'item-saved' ? 'Menu item saved / Prato guardado.' : result === 'item-removed' ? 'Menu item removed / Prato removido.' : result === 'invalid-item' ? 'Check the item name, category, price and photo. Basic profiles allow two main dishes; Verified profiles allow 60 items.' : result === 'menu-duplicate' ? 'This image is already on the menu. / Esta imagem já está na ementa.' : result === 'menu-limit' ? 'Remove an image before adding another. / Remova uma imagem antes de adicionar outra.' : result === 'invalid-upload' ? 'Choose a JPG, PNG or WebP image up to 250 KB.' : result === 'menu-saved' ? 'Menu image saved / Imagem da ementa guardada.' : result === 'menu-removed' ? 'Menu image removed / Imagem da ementa removida.' : result === 'cover-removed' ? 'Cover photo removed / Fotografia de capa removida.' : result === 'invalid-cover' ? 'Enter a direct HTTPS image URL for the approved cover photo.' : result === 'verified' ? 'Verified profile published / Perfil verificado publicado.' : result === 'invalid-verification' ? 'Enter a valid business address and public phone, record the evidence, and confirm permission to publish.' : result === 'saved' ? 'Decision saved. Directory updated / Decisão guardada.' : result === 'stale' ? 'This record has changed or already been reviewed. Reload it and try again.' : result === 'invalid' ? 'Add a review note of 20–2000 characters. Publication also requires the identity and permission check.' : 'Unable to save. No publication decision was confirmed. Try again later.'}</p>}
       <StaffComments />
       {submissions.length === 0 ? <p className="mt-8">No submissions yet.</p> :
         <div className="mt-8 space-y-5">{submissions.map((item, index) =>
           <article key={item.id} className="rounded-xl border border-[#ded8c5] p-6">
             <p className="text-sm font-semibold text-[#987515]">{String(index + 1).padStart(2, '0')} · {item.status.toUpperCase()}</p>
             <h2 className="mt-2 text-2xl font-semibold">{item.restaurant_name}</h2>
+            {item.status==='approved' && <p className="mt-2 text-sm font-semibold text-emerald-800">{item.verified_at ? (item.profile_tier==='pro'?'Current public profile: Pro Verified':'Current public profile: Verified') : 'Current public profile: Basic · Publication complete'}</p>}
+
             <p className="mt-2 text-[#555]">{item.city}, {item.country} · {item.cuisine}</p>
             <p className="mt-1 text-sm text-[#555]">{item.address}</p>
             {item.opening_hours && <p className="mt-1 text-sm">Hours: {item.opening_hours}</p>}
@@ -67,8 +69,10 @@ export default async function StaffReview({ searchParams }: { searchParams: Prom
             {item.review_note && <p className="mt-4 rounded-lg bg-[#fffaf0] p-4 text-sm">Latest review: {item.review_note} · {item.reviewed_by} · {item.reviewed_at}</p>}
             {(item.status === 'pending' || item.status === 'approved') && <StaffReviewForm id={item.id} published={item.status === 'approved'} />}
             {item.status === 'approved' && !item.verified_at && (
+              <details className="mt-6 rounded-lg border border-[#ded8c5] p-4"><summary className="cursor-pointer font-semibold">Optional step 2 · Upgrade Basic to Verified / Verificar negócio</summary>
+              <p className="mt-3 text-sm text-[#555]">This restaurant is already published as Basic. Stop here to keep Basic. The separate verification below makes approved business contacts public.</p>
               <form action={publishVerifiedContacts} className="mt-6 space-y-4 rounded-lg border border-[#ded8c5] bg-[#fffaf0] p-4">
-                <h3 className="font-semibold">Publish Verified profile / Publicar perfil verificado</h3>
+                <h3 className="font-semibold">Separate business verification / Verificação do negócio</h3>
                 <p className="text-sm text-[#555]">Enter the business details approved for publication. Owner contacts above are private.</p>
                 <input type="hidden" name="id" value={item.id} />
                 <label className="block text-sm font-medium">
@@ -87,8 +91,9 @@ export default async function StaffReview({ searchParams }: { searchParams: Prom
                   <input type="checkbox" name="verifiedConsent" required className="mt-1" />
                   <span>I checked the business evidence and have permission to publish this address and phone number.</span>
                 </label>
+                <label className="block text-sm font-medium">Explicit verification action / Ação de verificação<select required name="verificationIntent" defaultValue="" className="mt-1 w-full rounded border bg-white p-2"><option value="">Keep Basic unless deliberately upgrading / Manter Básico</option><option value="verified">Upgrade this Basic listing to Verified / Publicar como Verificado</option></select></label>
                 <button type="submit" className="rounded-lg bg-[#252a32] px-4 py-3 font-semibold text-white">Publish Verified / Publicar verificado</button>
-              </form>
+              </form></details>
             )}
             {item.status === 'approved' && item.verified_at && (
               <section className="mt-6 rounded-lg border border-[#ded8c5] p-4">
@@ -133,6 +138,7 @@ export default async function StaffReview({ searchParams }: { searchParams: Prom
               <label className="flex gap-2"><input type="checkbox" name="confirmed" required/>I confirm this profile tier change / Confirmo esta alteração de perfil.</label>
               <button className="rounded-lg bg-[#252a32] px-4 py-2 font-semibold text-white">Save profile tier / Guardar tipo de perfil</button>
             </form>}
+            {item.status==='approved' && item.verified_at && <details className="mt-4 rounded-lg border border-[#ded8c5] p-4"><summary className="cursor-pointer font-semibold">Return to Basic / Voltar ao Básico</summary><form action={returnToBasic} className="mt-3 space-y-3 text-sm"><input type="hidden" name="id" value={item.id}/><input type="hidden" name="expectedVerifiedAt" value={item.verified_at}/><p>Hide the verified badge, public address, phone, map and Pro features. Keep the listing, owner connection, logo and saved photos. Reactivation requires a separate verification review.</p><label className="flex gap-2"><input type="checkbox" required name="confirmed"/>Return this listing to Basic / Voltar ao Básico.</label><button className="rounded-lg border border-[#ded8c5] px-4 py-2 font-semibold">Return to Basic / Voltar ao Básico</button></form></details>}
             {item.status === 'approved' && <StaffTranslationForm id={item.id} description={item.description} hours={item.public_hours} descriptionEn={item.description_en} hoursEn={item.opening_hours_en} version={item.details_version} lastEditor={item.details_updated_by} lastSaved={item.details_updated_at} />}
             {item.status === 'approved' && <OwnerAccessForm id={item.id} />}
             {item.status === 'approved' && <StaffMenuEditor id={item.id} country={item.country} verified={Boolean(item.verified_at)} photos={item.menuPhotos} />}

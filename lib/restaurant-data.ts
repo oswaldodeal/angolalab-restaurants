@@ -8,6 +8,11 @@ let preparation: Promise<void> | undefined;
 export async function prepareRestaurantDatabase() {
   if (!preparation) preparation = (async () => {
     for (const statement of restaurantSchema) await executePrivateSql(statement);
+    const verificationColumns=sqlRows(await executePrivateSql('PRAGMA table_info(restaurant_verified_contacts)'));
+    if (!verificationColumns.some(column=>column.name==='is_active')) {
+      try { await executePrivateSql('ALTER TABLE restaurant_verified_contacts ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1 CHECK(is_active IN (0,1))'); }
+      catch(error) { if (!(error instanceof Error) || error.message!=='TURSO_COVER_ALREADY_MIGRATED') throw error; }
+    }
     const menuColumns = sqlRows(await executePrivateSql('PRAGMA table_info(restaurant_menu_items)'));
     if (!menuColumns.some(column => column.name === 'availability')) {
       try { await executePrivateSql("ALTER TABLE restaurant_menu_items ADD COLUMN availability TEXT NOT NULL DEFAULT 'available' CHECK(availability IN ('available','unavailable'))"); }
@@ -30,6 +35,11 @@ export async function prepareRestaurantDatabase() {
     }
     await executePrivateSql(`CREATE TRIGGER IF NOT EXISTS restaurant_audit_profile_tier AFTER UPDATE OF profile_tier ON restaurant_pro_plans WHEN OLD.profile_tier<>NEW.profile_tier BEGIN INSERT INTO restaurant_review_history(submission_id,from_status,to_status,note,reviewer,reviewed_at) VALUES(NEW.id,OLD.profile_tier,NEW.profile_tier,'Staff changed website profile tier; business verification unchanged','shared-pilot-staff',strftime('%Y-%m-%dT%H:%M:%fZ','now')); END`);
 
+    await executePrivateSql(`CREATE TRIGGER IF NOT EXISTS restaurant_pause_verification AFTER UPDATE OF is_active ON restaurant_verified_contacts WHEN OLD.is_active=1 AND NEW.is_active=0 BEGIN
+      UPDATE restaurant_pro_plans SET profile_tier='verified' WHERE id=NEW.id;
+      INSERT INTO restaurant_review_history(submission_id,from_status,to_status,note,reviewer,reviewed_at) VALUES(NEW.id,'verified','basic',json_object('reason','Staff returned listing to Basic; verification evidence and media retained privately','previous_verified_at',OLD.verified_at,'evidence',OLD.note),'shared-pilot-staff',strftime('%Y-%m-%dT%H:%M:%fZ','now'));
+    END`);
+    await executePrivateSql(`CREATE TRIGGER IF NOT EXISTS restaurant_resume_verification AFTER UPDATE OF is_active ON restaurant_verified_contacts WHEN OLD.is_active=0 AND NEW.is_active=1 BEGIN INSERT INTO restaurant_review_history(submission_id,from_status,to_status,note,reviewer,reviewed_at) VALUES(NEW.id,'basic','verified',NEW.note,NEW.reviewer,NEW.verified_at); END`);
     for (const name of ['cover_photo_url', 'menu_photo_url']) {
       if (columns.some(column => column.name === name)) continue;
       try {
@@ -44,7 +54,7 @@ export async function prepareRestaurantDatabase() {
 
 export function publicRestaurant(row: Record<string, string | null>): Restaurant {
   // Only separately approved business contact fields can cross this boundary.
-  const verified = Boolean(row.verified_at && row.public_address && row.public_phone);
+  const verified = Boolean(row.verification_active !== '0' && row.verified_at && row.public_address && row.public_phone);
   return {
     id: row.id!, ownerId: 'staff-reviewed', name: row.name!, country: row.country!,
     city: row.city!, cuisine: row.cuisine!, neighbourhood: '', address: verified ? row.public_address! : '',
@@ -56,12 +66,12 @@ export function publicRestaurant(row: Record<string, string | null>): Restaurant
   };
 }
 
-async function readListings(id?: string) {
+async function readListings(id?: string, legacyActive = false): Promise<import('@/lib/turso').SqlResult> {
   const columns = 'l.id,l.name,l.country,l.city,l.cuisine,l.opening_hours,l.published_at';
   const tail = id === undefined ? 'ORDER BY l.published_at DESC' : 'WHERE l.id = ?';
   const args = id === undefined ? [] : [id];
   const verifiedListings = `FROM restaurant_listings l LEFT JOIN restaurant_verified_contacts v ON v.id = l.id`;
-  const verifiedColumns = `${columns},v.public_address,v.public_phone,v.verified_at`;
+  const verifiedColumns = `${columns},v.public_address,v.public_phone,v.verified_at${legacyActive ? '' : ',v.is_active AS verification_active'}`;
   try {
     try {
       const proListings = `${verifiedListings} LEFT JOIN restaurant_pro_plans p ON p.id = v.id ${tail}`;
@@ -84,6 +94,7 @@ async function readListings(id?: string) {
       return await executePrivateSql(`SELECT ${verifiedColumns} ${verifiedListings} ${tail}`, args);
     }
   } catch (error) {
+    if (error instanceof Error && error.message === 'TURSO_VERIFICATION_ACTIVE_NOT_MIGRATED' && !legacyActive) return readListings(id,true);
     if (!(error instanceof Error) || error.message !== 'TURSO_VERIFIED_CONTACTS_NOT_MIGRATED') throw error;
     return executePrivateSql(`SELECT ${columns} FROM restaurant_listings l ${tail}`, args);
   }
