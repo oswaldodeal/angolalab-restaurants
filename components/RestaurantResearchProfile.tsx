@@ -76,11 +76,11 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
             </span>
           </div>
         )}
-        {brandedIdentity && <HospitalityVenueNavigation language={language} />}
+        {brandedIdentity && <HospitalityVenueNavigation language={language} showDemo={isDemo} />}
         {/* Mobile cover follows the identity header inside the shared page width. */}
         <section className={brandedIdentity ? 'mt-6 sm:hidden' : 'sm:hidden'} aria-label={pt ? 'Fotografia do restaurante' : 'Restaurant photograph'}>
-          <div className="relative h-[290px] w-full overflow-hidden bg-gradient-to-br from-[#ad8b50] to-[#252a32]">
-            {!photo && !isDemo && <div className="flex h-full items-center justify-center px-6 text-center text-sm font-semibold text-white">{pt ? 'Fotografia ainda não adicionada' : 'Photograph not yet added'}</div>}
+          <div className={photo || isDemo ? "relative h-[290px] w-full overflow-hidden rounded-xl bg-gradient-to-br from-[#ad8b50] to-[#252a32]" : "flex min-h-28 items-center justify-center rounded-xl border border-[#e9e5db] bg-[#fffdf8] p-6"}>
+            {!photo && !isDemo && <div className="text-center text-sm text-[#555]">{pt ? 'Fotografia ainda não adicionada' : 'Photograph not yet added'}</div>}
             {photo && (
               // Temporary illustrative imagery; not a photo of a verified business.
               // eslint-disable-next-line @next/next/no-img-element
@@ -99,12 +99,12 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
           </p>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-5xl">{restaurant.name}</h1>
           <p className="mt-3 text-base text-[#555]">{cuisine} · {city}, {country}</p>
-          <HospitalityVenueNavigation language={language} />
+          <HospitalityVenueNavigation language={language} showDemo={isDemo} />
           <div className="mt-7 h-[2px] w-full bg-[#D2AC37]" aria-hidden="true" />
         </div>
         <section className="hidden pt-7 sm:block" aria-label={pt ? 'Fotografia do restaurante' : 'Restaurant photograph'}>
-          <div className="relative h-[390px] overflow-hidden rounded-xl border border-[#e9e5db] bg-gradient-to-br from-[#ad8b50] to-[#252a32] lg:h-[510px]">
-            {!photo && !isDemo && <div className="flex h-full items-center justify-center px-6 text-center text-sm font-semibold text-white">{pt ? 'Fotografia ainda não adicionada' : 'Photograph not yet added'}</div>}
+          <div className={photo || isDemo ? "relative h-[390px] overflow-hidden rounded-xl border border-[#e9e5db] bg-gradient-to-br from-[#ad8b50] to-[#252a32] lg:h-[510px]" : "flex min-h-28 items-center justify-center rounded-xl border border-[#e9e5db] bg-[#fffdf8] p-6"}>
+            {!photo && !isDemo && <div className="text-center text-sm text-[#555]">{pt ? 'Fotografia ainda não adicionada' : 'Photograph not yet added'}</div>}
             {photo && (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={photo} alt={isDemo || illustrativePhoto ? (pt ? 'Fotografia ilustrativa de restaurante' : 'Illustrative restaurant photograph') : (pt ? `Fotografia de capa de ${restaurant.name}` : `${restaurant.name} cover photo`)} referrerPolicy="no-referrer" className="h-full w-full object-cover" />
@@ -127,7 +127,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
           <div className={brandedIdentity ? 'hidden' : 'mb-7 sm:hidden'}>
             <h1 className="text-3xl font-semibold tracking-tight">{restaurant.name}</h1>
             <p className="mt-3 text-base text-[#555]">{cuisine} · {city}, {country}</p>
-          <HospitalityVenueNavigation language={language} />
+          <HospitalityVenueNavigation language={language} showDemo={isDemo} />
             <div className="mt-6 h-[2px] w-full bg-[#D2AC37]" aria-hidden="true" />
           </div>
 
@@ -180,7 +180,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
               <section className="rounded-xl border border-[#e9e5db] p-6 sm:p-8">
                 <h2 className="text-xl font-semibold">{pt ? '01 · Sobre o restaurante' : '01 · About the restaurant'}</h2>
                 <p className="mt-4 whitespace-pre-line leading-relaxed text-[#555]">
-                  {restaurant.description || (pt ? 'Mais informações serão adicionadas após análise.' : 'More information will be added after review.')}
+                  {restaurant.description || (pt ? 'A descrição do restaurante ainda não foi adicionada.' : 'The restaurant description has not been added yet.')}
                 </p>
               </section>
               <section className="rounded-xl border border-[#e9e5db] p-6 sm:p-8">
@@ -305,7 +305,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
                           {isPro ? (pt ? 'Pro Verificado' : 'Pro Verified') : (pt ? 'Perfil verificado' : 'Verified profile')}
                         </Link>
                       )
-                      : (pt ? 'Perfil básico / em análise' : 'Basic / under review')}
+                      : (pt ? 'Perfil Básico' : 'Basic profile')}
                 </p>
               </section>
               {!isDemo && <TextRestaurantMenu items={textMenuItems} country={restaurant.country} language={language} />}
