@@ -1,3 +1,4 @@
+import { readRestaurantMedia, withRestaurantMedia } from '@/lib/restaurant-media';
 import 'server-only';
 import { executePrivateSql, sqlRows } from '@/lib/turso';
 import { restaurantSchema } from '@/lib/restaurant-schema';
@@ -48,6 +49,10 @@ export async function prepareRestaurantDatabase() {
         if (!(error instanceof Error) || error.message !== 'TURSO_COVER_ALREADY_MIGRATED') throw error;
       }
     }
+    // Backfill legacy photo references once per listing. Existing media rows, including removals, win.
+    await executePrivateSql(`INSERT OR IGNORE INTO restaurant_profile_media(id,cover_photo_url,menu_photo_url)
+      SELECT p.id,p.cover_photo_url,COALESCE(p.menu_photo_url,CASE WHEN p.cover_photo_url='/demo/luanda-restaurant-cover.webp' THEN json_array('/demo/grilled-fish-with-funge.webp') ELSE '[]' END)
+      FROM restaurant_pro_plans p JOIN restaurant_listings l ON l.id=p.id WHERE p.cover_photo_url IS NOT NULL OR p.menu_photo_url IS NOT NULL`);
   })().catch(error => { preparation = undefined; throw error; });
   return preparation;
 }
@@ -101,10 +106,11 @@ async function readListings(id?: string, legacyActive = false): Promise<import('
 }
 
 export async function getPublishedRestaurants(): Promise<Restaurant[]> {
-  const [listings, details, logos] = await Promise.all([readListings(), readProfileDetails(), readRestaurantLogos()]);
+  const [listings, details, logos, media] = await Promise.all([readListings(), readProfileDetails(), readRestaurantLogos(), readRestaurantMedia()]);
+  const mediaById = new Map(media.map(item=>[item.id,item]));
   const byId = new Map(details.map(item => [item.restaurant_id,item]));
   const logoById = new Map(logos.map(item => [item.restaurant_id,item.photo_url]));
-  return sqlRows(listings).map(row => ({...withProfileDetails(publicRestaurant(row), byId.get(row.id)),logoUrl:logoById.get(row.id) ?? undefined}));
+  return sqlRows(listings).map(row => ({...withRestaurantMedia(withProfileDetails(publicRestaurant(row), byId.get(row.id)),mediaById.get(row.id)),logoUrl:logoById.get(row.id) ?? undefined}));
 }
 
 export async function getRestaurantDirectory() {
@@ -113,10 +119,10 @@ export async function getRestaurantDirectory() {
 }
 
 export async function getPublishedRestaurant(id: string, language: 'pt' | 'en' = 'pt') {
-  const [result, details, logos] = await Promise.all([readListings(id), readProfileDetails(id), readRestaurantLogos(id)]);
+  const [result, details, logos, media] = await Promise.all([readListings(id), readProfileDetails(id), readRestaurantLogos(id), readRestaurantMedia(id)]);
   const row = sqlRows(result)[0];
   if (!row) return null;
-  const restaurant = withProfileDetails(publicRestaurant(row),details[0],language);
+  const restaurant = withRestaurantMedia(withProfileDetails(publicRestaurant(row),details[0],language),media[0]);
   restaurant.logoUrl = logos[0]?.photo_url ?? undefined;
   restaurant.menuItems = (await getSavedMenu(id, restaurant.status === 'verified')).map(item => ({ ...item, photo: item.photo && restaurant.menuPhotos.includes(item.photo) ? item.photo : null }));
   return restaurant;
@@ -124,7 +130,7 @@ export async function getPublishedRestaurant(id: string, language: 'pt' | 'en' =
 
 export async function getSavedMenu(id: string, verified: boolean): Promise<SavedMenuItem[]> {
   const tail = `FROM restaurant_menu_items m JOIN restaurant_listings l ON l.id=m.restaurant_id
-    WHERE m.restaurant_id=? ${verified ? '' : "AND m.category='mains'"} ORDER BY m.rowid LIMIT ${verified ? 60 : 2}`;
+    WHERE m.restaurant_id=? ${verified ? '' : "AND m.category IN ('mains','drinks')"} ORDER BY m.rowid LIMIT ${verified ? 60 : 2}`;
   const fields = 'm.id,m.name,m.category,m.price,m.photo,m.updated_at';
   try {
     let rows;

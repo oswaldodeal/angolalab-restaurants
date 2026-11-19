@@ -26,8 +26,8 @@ export default async function OwnerRestaurants({ userId, language }: { userId: s
       </div>
       <OwnerLogoForm id={restaurant.id!} language={language} src={restaurant.logo_url} token={restaurant.logo_url ? createHash('sha256').update(restaurant.logo_url).digest('hex') : ''} />
       <OwnerDetailsForm id={restaurant.id!} language={language} description={restaurant.description ?? ''} hours={restaurant.opening_hours ?? ''} version={restaurant.details_version ?? ''} />
-      {restaurant.verified_at && <OwnerCoverPhoto id={restaurant.id!} language={language} src={restaurant.cover_photo_url} token={restaurant.cover_photo_url ? createHash('sha256').update(restaurant.cover_photo_url).digest('hex') : ''} />}
-      {restaurant.verified_at && <OwnerMenuPhotos id={restaurant.id!} language={language} photos={readMenuPhotos(restaurant.menu_photo_url,restaurant.cover_photo_url).map(src => ({src, token: createHash('sha256').update(src).digest('hex')}))} />}
+      <OwnerCoverPhoto id={restaurant.id!} language={language} src={restaurant.cover_photo_url} token={restaurant.cover_photo_url ? createHash('sha256').update(restaurant.cover_photo_url).digest('hex') : ''} />
+      <OwnerMenuPhotos id={restaurant.id!} language={language} limit={restaurant.verified_at ? 6 : 2} photos={readMenuPhotos(restaurant.menu_photo_url,restaurant.cover_photo_url).map(src => ({src, token: createHash('sha256').update(src).digest('hex')}))} />
       <StaffMenuEditor id={restaurant.id!} country={restaurant.country!} verified={Boolean(restaurant.verified_at)} photos={readMenuPhotos(restaurant.menu_photo_url,restaurant.cover_photo_url)} owner language={language} />
     </article>)}</div>
   </section>;

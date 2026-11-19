@@ -103,16 +103,17 @@ async function saveProfileCover(form: FormData, requestedTier: string | null) {
   let result = 'saved';
   try {
     await prepareRestaurantDatabase();
-    const updated = await executePrivateSql(`INSERT INTO restaurant_pro_plans (id,activated_at,cover_photo_url,profile_tier)
-      SELECT v.id,?,?,COALESCE(?,'verified') FROM restaurant_verified_contacts v
-      JOIN restaurant_listings l ON l.id = v.id
-      JOIN restaurant_intake i ON i.id = v.id
-      WHERE v.id = ? AND v.is_active=1 AND i.status = 'approved' ON CONFLICT(id) DO UPDATE SET profile_tier = COALESCE(?,restaurant_pro_plans.profile_tier), cover_photo_url = COALESCE(excluded.cover_photo_url,restaurant_pro_plans.cover_photo_url),
-      menu_photo_url = COALESCE(restaurant_pro_plans.menu_photo_url,
-        CASE WHEN restaurant_pro_plans.cover_photo_url = ? THEN ? END)
-      WHERE excluded.cover_photo_url IS NOT NULL OR ? IS NOT NULL`,
-    [new Date().toISOString(), coverPhotoUrl || null, requestedTier, id, requestedTier, SAMPLE_RESTAURANT_COVER, SAMPLE_MENU_PHOTO, requestedTier]);
+    if (requestedTier === 'pro') {
+      const plan = await executePrivateSql(`INSERT INTO restaurant_pro_plans(id,activated_at,profile_tier) SELECT v.id,?,'pro' FROM restaurant_verified_contacts v JOIN restaurant_listings l ON l.id=v.id WHERE v.id=? AND v.is_active=1 ON CONFLICT(id) DO UPDATE SET profile_tier='pro'`,[new Date().toISOString(),id]);
+      if(Number(plan.affected_row_count)!==1) result='stale';
+    }
+    if(result!=='stale') {
+    const updated = await executePrivateSql(`INSERT INTO restaurant_profile_media(id,cover_photo_url,menu_photo_url)
+      SELECT l.id,?,CASE WHEN ?=? THEN ? ELSE '[]' END FROM restaurant_listings l JOIN restaurant_intake i ON i.id=l.id WHERE l.id=? AND i.status='approved'
+      ON CONFLICT(id) DO UPDATE SET cover_photo_url=COALESCE(excluded.cover_photo_url,restaurant_profile_media.cover_photo_url) WHERE excluded.cover_photo_url IS NOT NULL`,
+      [coverPhotoUrl || null,coverPhotoUrl,SAMPLE_RESTAURANT_COVER,JSON.stringify([SAMPLE_MENU_PHOTO]),id]);
     if (Number(updated.affected_row_count) !== 1) result = 'stale';
+    }
   } catch { result = 'unavailable'; }
   revalidatePath('/staff/review');
   revalidatePath('/en/restaurants', 'layout');
@@ -132,7 +133,7 @@ export async function removeCoverPhoto(form: FormData) {
   try {
     await prepareRestaurantDatabase();
     const updated = await executePrivateSql(
-      `UPDATE restaurant_pro_plans SET cover_photo_url = NULL,
+      `UPDATE restaurant_profile_media SET cover_photo_url = NULL,
         menu_photo_url = COALESCE(menu_photo_url, CASE WHEN cover_photo_url = ? THEN ? END)
         WHERE id = ? AND cover_photo_url = ?`,
       [SAMPLE_RESTAURANT_COVER, SAMPLE_MENU_PHOTO, id, expectedCover],
@@ -158,20 +159,20 @@ export async function updateMenuPhoto(form: FormData) {
   let result = 'stale';
   try {
     await prepareRestaurantDatabase();
-    await executePrivateSql(`INSERT INTO restaurant_pro_plans(id,activated_at,profile_tier) SELECT v.id,?,'verified' FROM restaurant_verified_contacts v JOIN restaurant_listings l ON l.id=v.id WHERE v.id=? AND v.is_active=1 ON CONFLICT(id) DO NOTHING`,[new Date().toISOString(),id]);
+    await executePrivateSql(`INSERT INTO restaurant_profile_media(id,menu_photo_url) SELECT l.id,'[]' FROM restaurant_listings l WHERE l.id=? ON CONFLICT(id) DO NOTHING`,[id]);
     const [row] = sqlRows(await executePrivateSql(
-      'SELECT menu_photo_url,cover_photo_url FROM restaurant_pro_plans WHERE id = ? AND EXISTS(SELECT 1 FROM restaurant_verified_contacts v WHERE v.id=restaurant_pro_plans.id AND v.is_active=1)', [id],
+      'SELECT menu_photo_url,cover_photo_url,(SELECT verified_at FROM restaurant_verified_contacts v WHERE v.id=restaurant_profile_media.id AND v.is_active=1) AS verified_at FROM restaurant_profile_media WHERE id = ?', [id],
     ));
     if (row) {
       const photos = readMenuPhotos(row.menu_photo_url, row.cover_photo_url);
       if (!remove && photos.includes(photo)) {
         result = 'menu-duplicate';
-      } else if (!remove && photos.length >= MENU_PHOTO_LIMIT) {
+      } else if (!remove && photos.length >= (row.verified_at ? MENU_PHOTO_LIMIT : 2)) {
         result = 'menu-limit';
       } else if (!remove || photos.includes(expected)) {
         const next = remove ? photos.filter(item => item !== expected) : [...photos, photo];
-        const updated = await executePrivateSql(`UPDATE restaurant_pro_plans SET menu_photo_url = ?
-          WHERE id = ? AND menu_photo_url IS ? AND (menu_photo_url IS NOT NULL OR cover_photo_url IS ?) AND EXISTS(SELECT 1 FROM restaurant_verified_contacts v WHERE v.id=restaurant_pro_plans.id AND v.is_active=1)`,
+        const updated = await executePrivateSql(`UPDATE restaurant_profile_media SET menu_photo_url = ?
+          WHERE id = ? AND menu_photo_url IS ? AND (menu_photo_url IS NOT NULL OR cover_photo_url IS ?) AND (${remove ? 1 : 0}=1 OR ${next.length}<=2 OR EXISTS(SELECT 1 FROM restaurant_verified_contacts v WHERE v.id=restaurant_profile_media.id AND v.is_active=1))`,
         [JSON.stringify(next), id, row.menu_photo_url, row.cover_photo_url]);
         if (Number(updated.affected_row_count) === 1) result = remove ? 'menu-removed' : 'menu-saved';
       }

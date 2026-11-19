@@ -13,7 +13,7 @@ function RemovePhoto({ id, photo, index, pt }: { id: string; photo: Photo; index
     {result && result !== 'menu-removed' && <p role="alert" className="text-sm text-red-700">{pt ? 'Não foi possível remover. Atualize a página e tente novamente.' : 'Could not remove. Refresh the page and try again.'}</p>}
   </form>;
 }
-export default function OwnerMenuPhotos({ id, photos, language }: { id: string; photos: Photo[]; language: 'en' | 'pt' }) {
+export default function OwnerMenuPhotos({ id, photos, language, limit = MENU_PHOTO_LIMIT }: { id: string; photos: Photo[]; limit?: number; language: 'en' | 'pt' }) {
   const pt = language === 'pt';
   const [result, action, pending] = useActionState(updateOwnerMenuPhoto,'');
   const [filename,setFilename] = useState('');
@@ -26,12 +26,13 @@ export default function OwnerMenuPhotos({ id, photos, language }: { id: string; 
     : result === 'menu-limit' ? (pt ? 'Remova uma fotografia antes de adicionar outra.' : 'Remove a photo before adding another.')
     : result ? (pt ? 'Não foi possível guardar. Atualize a página e tente novamente.' : 'Could not save. Refresh the page and try again.') : '';
   return <section className="mt-6 rounded-lg border border-[#ded8c5] p-4">
-    <h3 className="font-semibold">{pt ? 'Fotografias da ementa' : 'Menu photos'} ({photos.length}/{MENU_PHOTO_LIMIT})</h3>
+    <h3 className="font-semibold">{pt ? 'Fotografias da ementa' : 'Menu photos'} ({photos.length}/{limit})</h3>
     <p className="mt-2 text-sm text-[#555]">{pt ? 'As fotografias guardadas aparecem no perfil público. Ao remover uma fotografia, ela também deixa de aparecer nos pratos associados.' : 'Saved photos appear on the public profile. Removing a photo also removes it from linked menu items.'}</p>
+    {limit === 2 && <p className="mt-2 text-xs text-[#555]">{pt ? 'O Perfil Básico apresenta até duas fotografias de pratos ou bebidas. A fotografia de capa e o logótipo são separados.' : 'Basic profiles show up to two food or drink photos. The cover photo and logo are separate.'}</p>}
     <div className="mt-4 grid gap-4 sm:grid-cols-2">{photos.map((photo,index) => <RemovePhoto key={photo.token} id={id} photo={photo} index={index} pt={pt} />)}</div>
     <form action={action} onReset={() => {setFilename('');setTooLarge(false);input.current?.setCustomValidity('');}} className="mt-4 space-y-3">
       <input type="hidden" name="id" value={id} />
-      {photos.length < MENU_PHOTO_LIMIT && <>
+      {photos.length < limit && <>
         <label htmlFor={inputId} className="block text-sm font-medium">{pt ? 'Escolher fotografia da ementa' : 'Choose a menu photo'}</label>
         <div className="flex flex-wrap items-center gap-3">
           <button type="button" disabled={pending} onClick={() => input.current?.click()} className="rounded-lg border border-[#ded8c5] px-4 py-2 font-semibold text-emerald-700">{pt ? 'Fotografia' : 'Photo'}</button>

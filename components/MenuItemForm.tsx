@@ -26,7 +26,8 @@ export default function MenuItemForm({ id, currency, verified, photoCount, photo
         <label>{pt ? 'Categoria' : 'Category'}
           <select name="category" defaultValue={item?.category ?? 'mains'} className="mt-1 w-full rounded border bg-white p-2">
             <option value="mains">{pt ? 'Pratos principais' : 'Main courses'}</option>
-            {verified && <><option value="drinks">{pt ? 'Bebidas' : 'Drinks'}</option><option value="desserts">{pt ? 'Sobremesas' : 'Desserts'}</option></>}
+            <option value="drinks">{pt ? 'Bebidas' : 'Drinks'}</option>
+            {verified && <option value="desserts">{pt ? 'Sobremesas' : 'Desserts'}</option>}
           </select>
         </label>
         <label>{pt ? 'Preço' : 'Price'} ({currency})

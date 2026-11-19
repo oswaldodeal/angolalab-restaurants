@@ -143,7 +143,7 @@ async function action(id, decision, consent = true) {
   db.prepare('DELETE FROM restaurant_menu_items WHERE id=?').run('legacy-menu-ref');
   assert.equal(db.prepare('SELECT count(*) AS n FROM restaurant_menu_references WHERE item_id=?').get('legacy-menu-ref').n,1,'Deleted codes remain reserved');
   const basicItem = new FormData();
-  basicItem.set('restaurantId', id); basicItem.set('name', 'Main dish'); basicItem.set('category', 'drinks'); basicItem.set('price', '5.00');
+  basicItem.set('restaurantId', id); basicItem.set('name', 'Main dish'); basicItem.set('category', 'desserts'); basicItem.set('price', '5.00');
   const basicSave = () => load('app/staff/review/menu-actions').saveMenuItem(basicItem);
   await assert.rejects(basicSave, error => error.url.endsWith('invalid-item'));
   basicItem.set('category', 'mains');
@@ -154,6 +154,38 @@ async function action(id, decision, consent = true) {
   const basicCodes=(await data.getPublishedRestaurant(id)).menuItems.map(item=>item.referenceCode);
   assert.equal(new Set(basicCodes).size,2);assert(!basicCodes.includes(legacyReference),'Deleted references are not reassigned');
   db.prepare('DELETE FROM restaurant_menu_items WHERE restaurant_id=?').run(id);
+  // A fresh Basic owner gets media tools without a verification record or Pro plan.
+  db.prepare("INSERT INTO restaurant_owners(restaurant_id,clerk_user_id,note,reviewer,linked_at) VALUES(?,?,'Basic owner permission checked','shared-pilot-staff',?)").run(id,'user_basicowner123456',new Date().toISOString());
+  const basicOwnerPhotos=load('app/owner/photo-actions');
+  const basicCover=new FormData();basicCover.set('id',id);basicCover.set('coverToken','');
+  const basicCoverFile=new File([fs.readFileSync(path.join(root,'public/demo/sabor-cover.webp'))],'cover.webp',{type:'image/webp'});
+  const basicDishFile=new File([fs.readFileSync(path.join(root,'public/demo/grilled-fish-with-funge.webp'))],'dish.webp',{type:'image/webp'});
+  basicCover.set('photoFile',basicCoverFile);
+  clerkUserId=null;assert.equal(await basicOwnerPhotos.updateOwnerCoverPhoto('',basicCover),'signed-out');
+  clerkUserId='user_intruder123456789';assert.equal(await basicOwnerPhotos.updateOwnerCoverPhoto('',basicCover),'stale');
+  clerkUserId='user_basicowner123456';assert.equal(await basicOwnerPhotos.updateOwnerCoverPhoto('',basicCover),'cover-saved');
+  let basicPublic=await data.getPublishedRestaurant(id);
+  assert.equal(basicPublic.profilePlan,'basic');assert.equal(basicPublic.address,'');assert.equal(basicPublic.phone,undefined);assert.equal(basicPublic.photos.length,1);
+  assert.equal(db.prepare('SELECT count(*) n FROM restaurant_verified_contacts WHERE id=?').get(id).n,0,'Basic photos do not create business verification');
+  assert.equal(db.prepare('SELECT count(*) n FROM restaurant_pro_plans WHERE id=?').get(id).n,0,'Basic photos do not create Pro plans');
+  assert.equal((await data.getPublishedRestaurants()).find(r=>r.id===id).photos[0],basicPublic.photos[0],'Directory uses Basic cover');
+  const basicPhoto=new FormData();basicPhoto.set('id',id);basicPhoto.set('photoFile',basicDishFile);
+  assert.equal(await basicOwnerPhotos.updateOwnerMenuPhoto('',basicPhoto),'menu-saved');assert.equal(await basicOwnerPhotos.updateOwnerMenuPhoto('',basicPhoto),'menu-duplicate');
+  basicPhoto.set('photoFile',basicCoverFile);assert.equal(await basicOwnerPhotos.updateOwnerMenuPhoto('',basicPhoto),'menu-saved');
+  basicPhoto.set('photoFile',new File([Buffer.concat([fs.readFileSync(path.join(root,'public/demo/grilled-fish-with-funge.webp')),Buffer.from([0])])],'third.webp',{type:'image/webp'}));
+  assert.equal(await basicOwnerPhotos.updateOwnerMenuPhoto('',basicPhoto),'menu-limit','Basic accepts two menu photos');
+  const basicMenu=new FormData();basicMenu.set('restaurantId',id);basicMenu.set('name','Prato da casa');basicMenu.set('category','mains');basicMenu.set('price','5.00');basicMenu.set('photo','0');
+  const saveBasicMenu=()=>load('app/owner/menu-actions').saveOwnerMenuItem('',basicMenu);
+  assert.equal(await saveBasicMenu(),'item-saved');basicMenu.set('name','Sumo natural');basicMenu.set('category','drinks');basicMenu.set('photo','1');assert.equal(await saveBasicMenu(),'item-saved');
+  assert.equal(await saveBasicMenu(),'stale','Basic limit counts food and drinks together');
+  basicPublic=await data.getPublishedRestaurant(id);assert.deepEqual(basicPublic.menuItems.map(i=>i.category),['mains','drinks']);assert(basicPublic.menuItems.every(i=>i.photo&&i.referenceCode));
+  const removedPhoto=basicPublic.menuPhotos[0];basicPhoto.set('intent','remove');basicPhoto.set('photoToken',require('node:crypto').createHash('sha256').update(removedPhoto).digest('hex'));
+  assert.equal(await basicOwnerPhotos.updateOwnerMenuPhoto('',basicPhoto),'menu-removed');basicPublic=await data.getPublishedRestaurant(id);assert.equal(basicPublic.menuItems[0].photo,null,'Removing a Basic menu photo clears the linked item photo');assert.equal(basicPublic.menuItems[1].category,'drinks');
+  basicCover.set('coverToken',require('node:crypto').createHash('sha256').update(basicPublic.photos[0]).digest('hex'));basicCover.set('photoFile',basicDishFile);
+  assert.equal(await basicOwnerPhotos.updateOwnerCoverPhoto('',basicCover),'cover-saved');assert.equal(await basicOwnerPhotos.updateOwnerCoverPhoto('',basicCover),'stale');
+  basicPublic=await data.getPublishedRestaurant(id);basicCover.set('coverToken',require('node:crypto').createHash('sha256').update(basicPublic.photos[0]).digest('hex'));basicCover.set('intent','remove');assert.equal(await basicOwnerPhotos.updateOwnerCoverPhoto('',basicCover),'cover-removed');
+  assert.equal((await data.getPublishedRestaurant(id)).photos.length,0);assert.equal((await data.getPublishedRestaurant(id)).profilePlan,'basic');
+  db.prepare('DELETE FROM restaurant_menu_items WHERE restaurant_id=?').run(id);db.prepare('DELETE FROM restaurant_profile_media WHERE id=?').run(id);db.prepare('DELETE FROM restaurant_owners WHERE restaurant_id=?').run(id);clerkUserId=null;
   const verifiedForm = new FormData();
   verifiedForm.set('id', id);
   verifiedForm.set('publicAddress', '12 Fictional Business Street');
@@ -404,6 +436,10 @@ async function action(id, decision, consent = true) {
   assert.equal((await data.getPublishedRestaurant(id)).profilePlan,'pro','Adding verification state preserves existing tiers');
 
 
+  const legacyMedia=db.prepare('SELECT cover_photo_url,menu_photo_url FROM restaurant_profile_media WHERE id=?').get(id);
+  db.prepare('UPDATE restaurant_pro_plans SET cover_photo_url=?,menu_photo_url=? WHERE id=?').run(legacyMedia.cover_photo_url,legacyMedia.menu_photo_url,id);db.prepare('DELETE FROM restaurant_profile_media WHERE id=?').run(id);
+  cache.delete(path.join(root,'lib/restaurant-data.ts'));await load('lib/restaurant-data').prepareRestaurantDatabase();
+  assert.equal((await data.getPublishedRestaurant(id)).photos[0],legacyMedia.cover_photo_url,'Legacy photo migration preserves existing cover');
   const removeForm = new FormData();
   removeForm.set('id', id);
   removeForm.set('expectedCover', proProfile.photos[0]);
@@ -547,13 +583,13 @@ async function action(id, decision, consent = true) {
   loggedIn=false;await assert.rejects(returnBasic,error=>error.url==='/staff/review/login');loggedIn=true;
   await assert.rejects(returnBasic,error=>error.url.endsWith('result=invalid-basic'));
   basicForm.set('confirmed','on');await assert.rejects(returnBasic,error=>error.url.endsWith('result=basic-restored'));
-  const nowBasic=await data.getPublishedRestaurant(id);assert.equal(nowBasic.status,'basic');assert.equal(nowBasic.profilePlan,'basic');assert.equal(nowBasic.address,'');assert.equal(nowBasic.phone,undefined);assert.deepEqual(nowBasic.photos,[]);assert.deepEqual(nowBasic.menuPhotos,[]);
+  const nowBasic=await data.getPublishedRestaurant(id);assert.equal(nowBasic.status,'basic');assert.equal(nowBasic.profilePlan,'basic');assert.equal(nowBasic.address,'');assert.equal(nowBasic.phone,undefined);assert.deepEqual(nowBasic.photos,beforeBasic.photos,'Photos do not determine verification');assert.deepEqual(nowBasic.menuPhotos,beforeBasic.menuPhotos.slice(0,2));
   assert.equal(db.prepare('SELECT count(*) n FROM restaurant_pro_plans WHERE id=?').get(id).n,1,'Returning to Basic preserves private media');
   assert.equal(db.prepare('SELECT profile_tier FROM restaurant_pro_plans WHERE id=?').get(id).profile_tier,'verified','Reactivation cannot silently restore Pro');
   assert.equal(db.prepare('SELECT public_address FROM restaurant_verified_contacts WHERE id=?').get(id).public_address,beforeBasic.address,'Original approved contacts preserved privately');
   assert.equal((await load('lib/restaurant-owners').getOwnedRestaurants())[0].verified_at,null,'Owner tools follow current Basic status');
-  assert.equal(await saveOwnerCover(),'stale','Basic owner cannot upload through old Verified photo form');
-  assert.equal(await ownerSave(),'invalid-item','Basic cannot save drink items via a stale Verified form');
+  assert.equal(await saveOwnerCover(),'invalid-upload','Basic owner cover control remains available but validates files');
+  assert.equal(await ownerSave(),'stale','Outdated menu versions remain blocked on Basic');
   await assert.rejects(changeTier,error=>error.url.endsWith('result=stale'),'Pro activation cannot bypass paused verification');
   await assert.rejects(returnBasic,error=>error.url.endsWith('result=stale'));
   await assert.rejects(publishVerified,error=>error.url.endsWith('result=verified'),'A fresh explicit business review reactivates verification');
@@ -591,5 +627,5 @@ async function action(id, decision, consent = true) {
   assert.equal(db.prepare("SELECT status FROM restaurant_intake WHERE id='legacy'").get().status, 'pending');
   assert.equal(db.prepare("SELECT status FROM restaurant_submissions WHERE id='legacy'").get().status, 'approved');
   assert.equal((await data.getPublishedRestaurants()).length, 0);
-  console.log('PASS: explicit Basic publication and separate verification intent, reversible Return to Basic hides contacts and media, retains private evidence and assets, blocks stale Verified uploads and Pro activation, fresh re-verification restores Verified only, legacy verification migration is read-safe; Verified cover uploads preserve tier, explicit staff tier change preserves photos and contacts, Basic verification cannot be bypassed, stale tier forms rejected, legacy Pro migration preserved; Basic and Verified restaurant comments, staff-only commenter verification and moderation, pending/private projection, menu reference checks, duplicate limit, author removal, owner self-review block, revocation, withdrawal and audit; stable menu references, existing-item backfill, no reuse after deletion, PT/EN reference rendering; staff menu names in PT/EN rendered HTML, language fallback, source rename invalidation and media preservation; staff-reviewed English, source preservation, staff auth and stale source protection; logo add/replace/remove, owner isolation, file validation and media preservation; menu availability toggle, public status, photo/price preservation, owner isolation and stale edit protection; separate PT/EN descriptions and hours, original fallback, older-form translation preservation; owner description/hours save, stale edit protection, public rendering data; owner cover add/replace/remove, stale edits, directory sync, menu preservation; owner photo upload/removal, size/type validation, photo reference cleanup; owner session isolation, staff linking/revocation, inline save feedback; menu CRUD, auth, price validation, stale edits, Basic limits; UK registration; validation; unauthorized/consent guards; Basic publication; staff-only Verified contacts; private field isolation; duplicate review; rejection; withdrawal; atomic rollback; legacy preservation.');
+  console.log('PASS: Basic owner cover add/replace/remove and directory sync, two food/drink items with optional photos, Basic menu photo limit, reference preservation and photo removal, no contact or Pro activation, legacy media migration; explicit Basic publication and separate verification intent, reversible Return to Basic hides contacts and media, retains private evidence and assets, blocks stale Verified uploads and Pro activation, fresh re-verification restores Verified only, legacy verification migration is read-safe; Verified cover uploads preserve tier, explicit staff tier change preserves photos and contacts, Basic verification cannot be bypassed, stale tier forms rejected, legacy Pro migration preserved; Basic and Verified restaurant comments, staff-only commenter verification and moderation, pending/private projection, menu reference checks, duplicate limit, author removal, owner self-review block, revocation, withdrawal and audit; stable menu references, existing-item backfill, no reuse after deletion, PT/EN reference rendering; staff menu names in PT/EN rendered HTML, language fallback, source rename invalidation and media preservation; staff-reviewed English, source preservation, staff auth and stale source protection; logo add/replace/remove, owner isolation, file validation and media preservation; menu availability toggle, public status, photo/price preservation, owner isolation and stale edit protection; separate PT/EN descriptions and hours, original fallback, older-form translation preservation; owner description/hours save, stale edit protection, public rendering data; owner cover add/replace/remove, stale edits, directory sync, menu preservation; owner photo upload/removal, size/type validation, photo reference cleanup; owner session isolation, staff linking/revocation, inline save feedback; menu CRUD, auth, price validation, stale edits, Basic limits; UK registration; validation; unauthorized/consent guards; Basic publication; staff-only Verified contacts; private field isolation; duplicate review; rejection; withdrawal; atomic rollback; legacy preservation.');
 })().catch(error => { console.error(error); process.exitCode = 1; });

@@ -28,6 +28,10 @@ export const restaurantSchema = [
     from_status TEXT NOT NULL, to_status TEXT NOT NULL,
     note TEXT NOT NULL, reviewer TEXT NOT NULL, reviewed_at TEXT NOT NULL
   )`,
+  `CREATE TABLE IF NOT EXISTS restaurant_profile_media (
+    id TEXT PRIMARY KEY REFERENCES restaurant_listings(id),cover_photo_url TEXT,menu_photo_url TEXT
+  )`,
+  `CREATE TRIGGER IF NOT EXISTS restaurant_remove_profile_media BEFORE DELETE ON restaurant_listings BEGIN DELETE FROM restaurant_profile_media WHERE id=OLD.id; END`,
   `CREATE TABLE IF NOT EXISTS restaurant_verified_contacts (
     id TEXT PRIMARY KEY REFERENCES restaurant_listings(id),
     public_address TEXT NOT NULL, public_phone TEXT NOT NULL,
@@ -94,6 +98,9 @@ export const restaurantSchema = [
       AND NOT EXISTS (SELECT 1 FROM json_each(CASE WHEN json_valid(NEW.menu_photo_url)
         THEN NEW.menu_photo_url ELSE json_array(NEW.menu_photo_url) END) j WHERE j.value=restaurant_menu_items.photo);
     END`,
+  `CREATE TRIGGER IF NOT EXISTS restaurant_clear_removed_profile_photos AFTER UPDATE OF menu_photo_url ON restaurant_profile_media WHEN NEW.menu_photo_url IS NOT NULL BEGIN
+    UPDATE restaurant_menu_items SET photo=NULL,updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE restaurant_id=NEW.id AND photo IS NOT NULL AND NOT EXISTS(SELECT 1 FROM json_each(CASE WHEN json_valid(NEW.menu_photo_url) THEN NEW.menu_photo_url ELSE json_array(NEW.menu_photo_url) END) j WHERE j.value=restaurant_menu_items.photo);
+  END`,
   `CREATE TRIGGER IF NOT EXISTS restaurant_remove_menu
     BEFORE DELETE ON restaurant_listings
     BEGIN DELETE FROM restaurant_menu_items WHERE restaurant_id = OLD.id; END`,
