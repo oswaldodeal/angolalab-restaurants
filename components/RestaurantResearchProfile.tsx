@@ -186,12 +186,12 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
               <section className="rounded-xl border border-[#e9e5db] p-6 sm:p-8">
                 <h2 className="text-xl font-semibold">{pt ? '02 · Ementa' : '02 · Menu'}</h2>
                 <p className="mt-4 text-[#555]">
-                  {!restaurant.menuItems?.length && restaurant.menuPhotos.length === 0 && !restaurant.menuPdf && !isDemo
+                  {!restaurant.menuItems?.length && !restaurant.menuPdf && !isDemo
                     ? (pt ? 'A ementa ainda não foi adicionada.' : 'The menu has not been added yet.')
                     : null}
                 </p>
                 {!!restaurant.menuItems?.length && <SavedRestaurantMenu items={photoMenuItems} country={restaurant.country} language={language} />}
-                {restaurant.menuPhotos.includes(SAMPLE_MENU_PHOTO) && !restaurant.menuItems?.some(item => item.photo === SAMPLE_MENU_PHOTO) && (
+                {isDemo && restaurant.menuPhotos.includes(SAMPLE_MENU_PHOTO) && !restaurant.menuItems?.some(item => item.photo === SAMPLE_MENU_PHOTO) && (
                   <figure className="mt-5 overflow-hidden rounded-xl border border-[#e9e5db] bg-white">
                     {/* Bundled sample, displayed only when staff select the demo cover. */}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -269,7 +269,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
                     {pt ? '🧱 Brick 008 · Experimentar o editor de ementa (demonstração) →' : '🧱 Brick 008 · Try the menu editor (demo) →'}
                   </a>
                 )}
-                {restaurant.menuPhotos.some(src => src !== SAMPLE_MENU_PHOTO) && (
+                {isDemo && restaurant.menuPhotos.some(src => src !== SAMPLE_MENU_PHOTO) && (
                   <div className="mt-5 grid gap-4 sm:grid-cols-2">
                     {restaurant.menuPhotos.filter(src => src !== SAMPLE_MENU_PHOTO && !restaurant.menuItems?.some(item => item.photo === src)).map((src, index) => (
                       // eslint-disable-next-line @next/next/no-img-element

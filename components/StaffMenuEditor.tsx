@@ -18,6 +18,6 @@ export default async function StaffMenuEditor({ id, country, verified, photos, o
       <summary className="cursor-pointer font-semibold text-emerald-700">{pt ? 'Adicionar prato ou bebida' : 'Add menu item'}</summary>
       <div className="mt-4"><MenuItemForm key="new-item" id={id} currency={currency} verified={verified} photoCount={selectablePhotos.length} photoIndex="" language={language} allowTranslation={!owner} action={action} /></div>
     </details>}
-    {!verified && <p className="mt-3 text-sm text-[#555]">{pt ? 'Básico: dois itens em destaque, pratos ou bebidas.' : 'Basic: two featured food or drink items.'}</p>}
+    {!verified && <p className="mt-3 text-sm text-[#555]">{pt ? 'Básico: dois itens em destaque no total, com ou sem fotografia, repartidos entre pratos e bebidas.' : 'Basic: two featured items in total, with or without photos, shared between food and drinks.'}</p>}
   </section>;
 }

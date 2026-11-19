@@ -27,7 +27,7 @@ export default function OwnerMenuPhotos({ id, photos, language, limit = MENU_PHO
     : result ? (pt ? 'Não foi possível guardar. Atualize a página e tente novamente.' : 'Could not save. Refresh the page and try again.') : '';
   return <section className="mt-6 rounded-lg border border-[#ded8c5] p-4">
     <h3 className="font-semibold">{pt ? 'Fotografias da ementa' : 'Menu photos'} ({photos.length}/{limit})</h3>
-    <p className="mt-2 text-sm text-[#555]">{pt ? 'As fotografias guardadas aparecem no perfil público. Ao remover uma fotografia, ela também deixa de aparecer nos pratos associados.' : 'Saved photos appear on the public profile. Removing a photo also removes it from linked menu items.'}</p>
+    <p className="mt-2 text-sm text-[#555]">{pt ? 'Depois de carregar uma fotografia, escolha-a num prato ou bebida no editor abaixo e guarde o item para a publicar. Ao remover uma fotografia, ela também deixa de aparecer nos itens associados.' : 'After uploading a photo, select it for a dish or drink in the editor below and save the item to publish it. Removing a photo also removes it from linked menu items.'}</p>
     {limit === 2 && <p className="mt-2 text-xs text-[#555]">{pt ? 'O Perfil Básico apresenta até duas fotografias de pratos ou bebidas. A fotografia de capa e o logótipo são separados.' : 'Basic profiles show up to two food or drink photos. The cover photo and logo are separate.'}</p>}
     <div className="mt-4 grid gap-4 sm:grid-cols-2">{photos.map((photo,index) => <RemovePhoto key={photo.token} id={id} photo={photo} index={index} pt={pt} />)}</div>
     <form action={action} onReset={() => {setFilename('');setTooLarge(false);input.current?.setCustomValidity('');}} className="mt-4 space-y-3">

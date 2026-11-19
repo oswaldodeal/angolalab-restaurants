@@ -492,6 +492,18 @@ async function action(id, decision, consent = true) {
   assert.equal(bilingualDish.id,translationItem.id);assert.equal(bilingualDish.price,translationItem.price);assert.equal(bilingualDish.photo,uploadedCover);assert.equal(bilingualDish.availability,'unavailable');
   const React=require('react');const {renderToStaticMarkup}=require('react-dom/server');
   const Menu=load('components/SavedRestaurantMenu').default;
+  const Profile=load('components/RestaurantResearchProfile').default;
+  const profileNodes=node=>Array.isArray(node)?node.flatMap(profileNodes):node&&typeof node==='object'?[node,...profileNodes(node.props?.children)]:[node];
+  const profileFixture=await data.getPublishedRestaurant(id);
+  for(const status of ['basic','verified']) for(const language of ['pt','en']) {
+    const restaurant={...profileFixture,status,ownerId:'linked-owner',menuPhotos:['/unattached-menu-photo.webp',load('lib/store').SAMPLE_MENU_PHOTO],menuItems:[bilingualDish]};
+    const nodes=profileNodes(Profile({restaurant,language}));
+    assert(!nodes.some(node=>node?.type==='img'&&restaurant.menuPhotos.includes(node.props.src)),'Unattached uploads and bundled samples are not public menu entries');
+    const saved=nodes.find(node=>node?.type===Menu);
+    assert(saved&&saved.props.items.some(item=>item.photo===bilingualDish.photo),'Saved photo dishes still render in the menu');
+    const empty=profileNodes(Profile({restaurant:{...restaurant,menuItems:[],menuPdf:undefined},language}));
+    assert(empty.includes(language==='pt'?'A ementa ainda não foi adicionada.':'The menu has not been added yet.'),'Uploading library photos alone leaves the public menu empty');
+  }
   const englishMenu=renderToStaticMarkup(React.createElement(Menu,{items:[bilingualDish],country:'GB',language:'en'}));
   const portugueseMenu=renderToStaticMarkup(React.createElement(Menu,{items:[bilingualDish],country:'GB',language:'pt'}));
   assert(englishMenu.includes(bilingualDish.referenceCode));assert(portugueseMenu.includes(bilingualDish.referenceCode),'PT and EN render the same reference');
