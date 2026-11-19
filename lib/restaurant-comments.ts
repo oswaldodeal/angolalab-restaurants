@@ -27,5 +27,6 @@ export async function commenterAccount(userId: string) {
   await prepareComments();
   const commenter = sqlRows(await executePrivateSql('SELECT public_name,active FROM restaurant_commenters WHERE user_id=?',[userId]))[0];
   const comments = sqlRows(await executePrivateSql(`SELECT c.id,c.restaurant_id,c.body,c.menu_reference,c.status,c.created_at,l.name FROM restaurant_comments c JOIN restaurant_listings l ON l.id=c.restaurant_id WHERE c.user_id=? ORDER BY c.created_at DESC LIMIT 30`,[userId]));
-  return { commenter, comments };
+  const ownedIds=sqlRows(await executePrivateSql('SELECT restaurant_id FROM restaurant_owners WHERE clerk_user_id=?',[userId])).map(row=>row.restaurant_id);
+  return { commenter, comments, ownedIds };
 }

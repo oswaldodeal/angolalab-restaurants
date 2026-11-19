@@ -1,13 +1,14 @@
 import { commenterAccount } from '@/lib/restaurant-comments';
-import { getPublishedRestaurants } from '@/lib/restaurant-data';
+import { getPublishedRestaurants, getSavedMenu } from '@/lib/restaurant-data';
 import { removeOwnComment } from '@/app/owner/comment-actions';
 import { NewCommentForm } from '@/components/CommentForms';
 
 export default async function AccountComments({ userId, language }: {userId:string;language:'en'|'pt'}) {
   const pt=language==='pt';
   try {
-    const {commenter,comments}=await commenterAccount(userId);
-    const restaurants=(await getPublishedRestaurants()).filter(r=>r.ownerId!=='demo').map(r=>({id:r.id!,name:r.name}));
+    const {commenter,comments,ownedIds}=await commenterAccount(userId);
+    const choices=await Promise.all((await getPublishedRestaurants()).filter(r=>r.ownerId!=='demo'&&!ownedIds.includes(r.id!)).map(async r=>({id:r.id!,name:r.name,items:(await getSavedMenu(r.id!,r.status==='verified')).filter(item=>item.referenceCode).map(item=>({reference:item.referenceCode!,name:!pt&&item.nameEn?item.nameEn:item.name}))})));
+    const restaurants=choices.filter(r=>r.items.length>0);
     const statuses:Record<string,string>=pt?{pending:'Em análise',approved:'Publicado',rejected:'Não publicado',removed:'Removido'}:{pending:'Awaiting review',approved:'Published',rejected:'Not published',removed:'Removed'};
     return <section className="mt-8 border-t border-[#ded8c5] pt-6">
       <h2 className="text-xl font-semibold">{pt?'Os meus comentários':'My comments'}</h2>
