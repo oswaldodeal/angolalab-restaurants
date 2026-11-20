@@ -14,6 +14,23 @@ function refreshComments() {
   revalidatePath('/en/account'); revalidatePath('/pt/conta'); revalidatePath('/staff/review');
   revalidatePath('/en/restaurants','layout'); revalidatePath('/pt/restaurantes','layout');
 }
+export async function requestCommentAccess(): Promise<string> {
+  const { userId } = await auth();
+  if (!userId) return 'signed-out';
+  try {
+    await prepareComments();
+    await executePrivateSql(`INSERT INTO restaurant_comment_access_requests(user_id,requested_at)
+      SELECT ?,? WHERE NOT EXISTS(SELECT 1 FROM restaurant_commenters WHERE user_id=? AND active=1)
+      ON CONFLICT(user_id) DO NOTHING`, [userId, new Date().toISOString(), userId]);
+    revalidatePath('/en/account');
+    revalidatePath('/pt/conta');
+    revalidatePath('/staff/review');
+    return '';
+  } catch {
+    return 'unavailable';
+  }
+}
+
 export async function submitComment(_previous: string, form: FormData): Promise<string> {
   const { userId } = await auth();
   if (!userId) return 'signed-out';

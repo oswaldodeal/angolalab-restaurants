@@ -6,6 +6,9 @@ export async function prepareComments() {
   await prepareRestaurantDatabase();
   for (const sql of [
     `CREATE TABLE IF NOT EXISTS restaurant_commenters (user_id TEXT PRIMARY KEY, public_name TEXT NOT NULL, active INTEGER NOT NULL CHECK(active IN (0,1)), review_note TEXT NOT NULL, reviewed_at TEXT NOT NULL)`,
+    `CREATE TABLE IF NOT EXISTS restaurant_comment_access_requests (user_id TEXT PRIMARY KEY NOT NULL, requested_at TEXT NOT NULL)`,
+    `CREATE TRIGGER IF NOT EXISTS restaurant_comment_access_granted_on_insert AFTER INSERT ON restaurant_commenters WHEN NEW.active=1 BEGIN DELETE FROM restaurant_comment_access_requests WHERE user_id=NEW.user_id; END`,
+    `CREATE TRIGGER IF NOT EXISTS restaurant_comment_access_granted_on_update AFTER UPDATE OF active ON restaurant_commenters WHEN NEW.active=1 BEGIN DELETE FROM restaurant_comment_access_requests WHERE user_id=NEW.user_id; END`,
     `CREATE TABLE IF NOT EXISTS restaurant_comments (id TEXT PRIMARY KEY, restaurant_id TEXT NOT NULL REFERENCES restaurant_listings(id) ON DELETE CASCADE, user_id TEXT NOT NULL, public_name TEXT NOT NULL, menu_reference TEXT NOT NULL, body TEXT NOT NULL CHECK(length(body) BETWEEN 20 AND 1000), status TEXT NOT NULL CHECK(status IN ('pending','approved','rejected','removed')), created_at TEXT NOT NULL, version TEXT NOT NULL, review_note TEXT, reviewed_at TEXT)`,
     `CREATE INDEX IF NOT EXISTS restaurant_comments_public ON restaurant_comments(restaurant_id,status,created_at)`,
     `CREATE INDEX IF NOT EXISTS restaurant_comments_author ON restaurant_comments(user_id,created_at)`,
@@ -48,5 +51,8 @@ export async function commenterAccount(userId: string) {
   const commenter = sqlRows(await executePrivateSql('SELECT public_name,active FROM restaurant_commenters WHERE user_id=?',[userId]))[0];
   const comments = sqlRows(await executePrivateSql(`SELECT c.id,c.restaurant_id,c.body,c.menu_reference,c.status,c.created_at,l.name FROM restaurant_comments c JOIN restaurant_listings l ON l.id=c.restaurant_id WHERE c.user_id=? ORDER BY c.created_at DESC LIMIT 30`,[userId]));
   const ownedIds=sqlRows(await executePrivateSql('SELECT restaurant_id FROM restaurant_owners WHERE clerk_user_id=?',[userId])).map(row=>row.restaurant_id);
-  return { commenter, comments, ownedIds };
+  const accessRequested = commenter?.active !== '1' && sqlRows(await executePrivateSql(
+    'SELECT 1 FROM restaurant_comment_access_requests WHERE user_id=?', [userId],
+  )).length > 0;
+  return { commenter, comments, ownedIds, accessRequested };
 }

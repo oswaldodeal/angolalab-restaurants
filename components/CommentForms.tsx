@@ -1,6 +1,6 @@
 'use client';
 import { useActionState, useState } from 'react';
-import { submitComment } from '@/app/owner/comment-actions';
+import { requestCommentAccess, submitComment } from '@/app/owner/comment-actions';
 import { moderateComment, verifyCommenter } from '@/app/staff/review/comment-actions';
 
 const input='mt-1 w-full rounded-lg border border-[#ded8c5] bg-white p-3';
@@ -47,15 +47,30 @@ export function NewCommentForm({ restaurants, language, initialRestaurantId }: {
     <p role="status" aria-live="polite" className={result==='comment-pending'?'text-emerald-700':'text-red-700'}>{result?(messages[result]??(pt?'Não foi possível enviar. Atualize a página e tente novamente.':'Could not submit. Refresh the page and try again.')):null}</p>
   </form>;
 }
-export function VerifyCommenterForm() {
+export function CommentAccessRequestForm({ language }: { language: 'en' | 'pt' }) {
+  const pt = language === 'pt';
+  const [result, action, pending] = useActionState(requestCommentAccess, '');
+  return <form action={action} className="mt-4 space-y-2 text-sm">
+    <button disabled={pending} className={button}>
+      {pending ? (pt ? 'A enviar…' : 'Sending…') : (pt ? 'Pedir autorização para comentar' : 'Request commenting access')}
+    </button>
+    {result && <p role="status" className="text-red-700">
+      {result === 'signed-out'
+        ? (pt ? 'Entre novamente para enviar o pedido.' : 'Sign in again to send your request.')
+        : (pt ? 'Não foi possível enviar o pedido. Tente novamente.' : 'Could not send your request. Please try again.')}
+    </p>}
+  </form>;
+}
+
+export function VerifyCommenterForm({ accountId }: { accountId?: string }) {
   const [result,action,pending]=useActionState(verifyCommenter,'');
   return <form action={action} className="mt-4 space-y-3 text-sm">
     <fieldset disabled={pending} className="space-y-3">
-      <label className="block">Account ID<input name="userId" required maxLength={105} placeholder="user_…" className={input}/></label>
+      <label className="block">Account ID<input name="userId" defaultValue={accountId} readOnly={Boolean(accountId)} required maxLength={105} placeholder="user_…" className={input}/></label>
       <label className="block">Public name (not an email or phone)<input name="publicName" minLength={2} maxLength={50} className={input}/></label>
       <label className="block">Private verification note (20–2000 characters)<textarea name="note" required minLength={20} maxLength={2000} rows={3} className={input}/></label>
       <label className="flex gap-2"><input type="checkbox" name="checked"/><span>I confirmed the person’s identity, phone ownership and permission to use this public name. Phone details remain private.</span></label>
-      <div className="flex flex-wrap gap-3"><button disabled={pending} className={button}>Allow comments</button><button disabled={pending} name="intent" value="revoke" className="rounded-lg border border-red-200 px-4 py-2 text-red-700">Revoke commenting access</button></div>
+      <div className="flex flex-wrap gap-3"><button disabled={pending} className={button}>Allow comments</button>{!accountId && <button disabled={pending} name="intent" value="revoke" className="rounded-lg border border-red-200 px-4 py-2 text-red-700">Revoke commenting access</button>}</div>
     </fieldset>
     <p role="status">{result==='verified'?'Commenting access verified.':result==='revoked'?'Commenting access revoked. Published comments are hidden.':result?'Check the account ID, public name, verification checkbox and note.':null}</p>
   </form>;
