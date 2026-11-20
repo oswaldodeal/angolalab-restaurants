@@ -1,3 +1,4 @@
+import { registrationPilotId, withRestaurantReferral } from '@/lib/restaurant-referral';
 import RestaurantComments from '@/components/RestaurantComments';
 import { MenuCategoryProvider, TextRestaurantMenu } from '@/components/MenuCategoryProvider';
 import SavedRestaurantMenu from '@/components/SavedRestaurantMenu';
@@ -23,6 +24,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
   const verified = restaurant.status === 'verified';
   const illustrativePhoto = photo === SAMPLE_RESTAURANT_COVER;
   const isDemo = restaurant.ownerId === 'demo';
+  const showPilotQr = !isDemo && restaurant.id === registrationPilotId;
   const isPro = verified && !isDemo && restaurant.profilePlan === 'pro';
   const textMenuItems = (restaurant.menuItems ?? []).filter(item => !item.photo);
   const photoMenuItems = isDemo ? (restaurant.menuItems ?? []) : (restaurant.menuItems ?? []).filter(item => !!item.photo);
@@ -75,6 +77,11 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
               {isDemo ? (pt ? 'Perfil Básico · Demonstração' : 'Basic profile · Demo') : isPro ? (pt ? 'Pro Verificado' : 'Pro Verified') : verified ? (pt ? 'Perfil verificado' : 'Verified profile') : (pt ? 'Perfil Básico' : 'Basic profile')}
             </span>
           </div>
+        )}
+        {showPilotQr && (
+          <a href="#menu" className="mt-5 inline-flex min-h-11 items-center rounded-lg bg-emerald-800 px-5 py-2 text-sm font-semibold text-white hover:bg-emerald-900 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-800">
+            {pt ? 'Ver menu' : 'View menu'}
+          </a>
         )}
         {brandedIdentity && <HospitalityVenueNavigation language={language} showDemo={isDemo} />}
         {/* Mobile cover follows the identity header inside the shared page width. */}
@@ -311,6 +318,24 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
               {!isDemo && <TextRestaurantMenu items={textMenuItems} country={restaurant.country} language={language} />}
             </aside>
           </div></MenuCategoryProvider>
+          {showPilotQr && (
+            <section aria-labelledby="restaurant-qr-title" className="mt-6 rounded-xl border border-[#e9e5db] bg-[#fffdf8] p-4 sm:p-6">
+              <h2 id="restaurant-qr-title" className="text-lg font-semibold">{pt ? 'Códigos QR' : 'QR codes'}</h2>
+              <div className="mt-4 grid max-w-md grid-cols-2 gap-3">
+                <a href="#menu" className="flex min-w-0 flex-col items-center gap-2 rounded-lg border border-[#ded8c5] p-2 text-center text-sm font-semibold text-emerald-800 hover:bg-emerald-50 focus-visible:outline-2 focus-visible:outline-offset-2">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/pilot-restaurant-menu.svg" alt="" width={120} height={120} className="h-auto w-full max-w-[120px]" />
+                  {pt ? 'Ver menu' : 'View menu'}
+                </a>
+                <a href={withRestaurantReferral(pt ? '/pt/profissionais' : '/en/professionals', restaurant.id)} className="flex min-w-0 flex-col items-center gap-2 rounded-lg border border-[#ded8c5] p-2 text-center text-sm font-semibold text-emerald-800 hover:bg-emerald-50 focus-visible:outline-2 focus-visible:outline-offset-2">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/pilot-restaurant-signup.svg" alt="" width={120} height={120} className="h-auto w-full max-w-[120px]" />
+                  {pt ? 'Criar conta AngolaLab' : 'Create an AngolaLab account'}
+                </a>
+              </div>
+              {!pt && <p className="mt-3 text-xs text-[#555]">Scanning either code opens its Portuguese page.</p>}
+            </section>
+          )}
         </div>
       </article>
     </div>
