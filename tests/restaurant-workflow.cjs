@@ -128,6 +128,14 @@ async function action(id, decision, consent = true) {
   assert.equal(savedComment.user_id,clerkUserId);assert.equal(savedComment.public_name,'Pilot Customer','Public name comes from staff verification');
   assert.deepEqual(await commentData.publicComments(id),[],'Pending comments never publish');
   assert.equal(await postComment(),'restaurant-limit','Duplicate/rate limit checked inside insert');
+  const withdrawnDraft = new FormData();
+  withdrawnDraft.set('id', savedComment.id);
+  await commentActions.removeOwnComment(withdrawnDraft);
+  commentForm.set('body', 'The dish was fresh and the service was excellent.');
+  assert.equal(await postComment(), 'comment-pending', 'A previously withdrawn pending comment can be replaced');
+  savedComment = db.prepare("SELECT * FROM restaurant_comments WHERE restaurant_id=? AND status='pending'").get(id);
+  assert.equal(savedComment.body, commentForm.get('body'));
+  assert.equal(await postComment(), 'restaurant-limit', 'Only one active submission is allowed');
   const moderation=new FormData();moderation.set('id',savedComment.id);moderation.set('version',savedComment.version);moderation.set('decision','approved');moderation.set('note','Own experience reviewed; no private contact information included.');
   loggedIn=false;assert.equal(await staffComments.moderateComment('',moderation),'unauthorized');loggedIn=true;
   moderation.set('version','outdated');assert.equal(await staffComments.moderateComment('',moderation),'stale');
@@ -139,6 +147,7 @@ async function action(id, decision, consent = true) {
   assert.equal((await commentData.publicComments(id)).length,1);
   const removal=new FormData();removal.set('id',savedComment.id);clerkUserId='user_intruder123456789';await commentActions.removeOwnComment(removal);assert.equal((await commentData.publicComments(id)).length,1,'Another account cannot remove comments');
   clerkUserId='user_customer12345678';await commentActions.removeOwnComment(removal);assert.deepEqual(await commentData.publicComments(id),[]);
+  assert.equal(await postComment(), 'restaurant-limit', 'Withdrawing a published comment keeps the cooldown');
   savedComment=db.prepare('SELECT * FROM restaurant_comments WHERE id=?').get(savedComment.id);moderation.set('version',savedComment.version);assert.equal(await staffComments.moderateComment('',moderation),'stale','Staff cannot republish a removed comment');
   assert(db.prepare('SELECT count(*) n FROM restaurant_comment_audit').get().n>=5,'Comment decisions are audited');
   clerkUserId=null;

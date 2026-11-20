@@ -10,6 +10,7 @@ export async function prepareComments() {
     `CREATE INDEX IF NOT EXISTS restaurant_comments_public ON restaurant_comments(restaurant_id,status,created_at)`,
     `CREATE INDEX IF NOT EXISTS restaurant_comments_author ON restaurant_comments(user_id,created_at)`,
     `CREATE TABLE IF NOT EXISTS restaurant_comment_audit (id INTEGER PRIMARY KEY AUTOINCREMENT, subject_id TEXT NOT NULL, event TEXT NOT NULL, note TEXT, recorded_at TEXT NOT NULL)`,
+    `CREATE INDEX IF NOT EXISTS restaurant_comment_audit_subject_event ON restaurant_comment_audit(subject_id,event)`,
     `CREATE TRIGGER IF NOT EXISTS restaurant_comment_created AFTER INSERT ON restaurant_comments BEGIN INSERT INTO restaurant_comment_audit(subject_id,event,recorded_at) VALUES(NEW.id,'pending',NEW.created_at); END`,
     `CREATE TRIGGER IF NOT EXISTS restaurant_comment_reviewed AFTER UPDATE OF status ON restaurant_comments BEGIN INSERT INTO restaurant_comment_audit(subject_id,event,note,recorded_at) VALUES(NEW.id,NEW.status,NEW.review_note,NEW.reviewed_at); END`,
     `CREATE TRIGGER IF NOT EXISTS restaurant_commenter_created AFTER INSERT ON restaurant_commenters BEGIN INSERT INTO restaurant_comment_audit(subject_id,event,note,recorded_at) VALUES(NEW.user_id,'commenter-verified',NEW.review_note,NEW.reviewed_at); END`,
