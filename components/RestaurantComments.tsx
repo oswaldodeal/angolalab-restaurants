@@ -1,3 +1,4 @@
+import { registrationPilotId, withRestaurantReferral } from '@/lib/restaurant-referral';
 import Link from 'next/link';
 import { publicComments } from '@/lib/restaurant-comments';
 
@@ -11,7 +12,20 @@ export default async function RestaurantComments({ id, language, demo }: {id:str
     </summary>
     <p className="mt-4 text-sm text-[#555]">{pt?'Comentários de contas verificadas, analisados pela equipa AngolaLab.':'Comments from verified accounts, reviewed by AngolaLab staff.'}</p>
     {comments===null?<p className="mt-4 text-sm text-[#555]">{pt?'Os comentários ainda não estão disponíveis.':'Comments are not available yet.'}</p>:comments.length===0?<p className="mt-4 text-sm text-[#555]">{pt?'Ainda não há comentários publicados.':'No published comments yet.'}</p>:<ul className="mt-4 divide-y divide-[#e9e5db]">{comments.map((c,index)=><li key={index} className="py-4"><p className="font-semibold">{c.public_name}</p><p className="mt-1 text-xs text-[#555]"><code>{c.menu_reference}</code> · {new Intl.DateTimeFormat(pt?'pt-PT':'en-GB',{dateStyle:'medium',timeZone:'UTC'}).format(new Date(c.created_at!))}</p><p className="mt-2 whitespace-pre-line break-words text-sm text-[#555]">{c.body}</p></li>)}</ul>}
-    {!demo&&<Link href={pt?'/pt/conta':'/en/account'} className="mt-4 inline-block font-semibold text-emerald-700 underline underline-offset-4">{pt?'Comentar na minha conta':'Comment from My account'}</Link>}
+    {!demo&&<Link href={withRestaurantReferral(pt?'/pt/conta':'/en/account', id)} className="mt-4 inline-block font-semibold text-emerald-700 underline underline-offset-4">{pt?'Comentar na minha conta':'Comment from My account'}</Link>}
+    {!demo && id === registrationPilotId && <div className="mt-5 grid gap-4 sm:grid-cols-2">
+      <a href={withRestaurantReferral(pt ? '/pt/profissionais' : '/en/professionals', id)} className="rounded-lg border border-[#ded8c5] p-3 text-sm font-semibold text-emerald-700">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/pilot-restaurant-signup.svg" alt="" width={150} height={150} />
+        {pt ? 'Criar conta AngolaLab' : 'Create an AngolaLab account'}
+      </a>
+      <a href="#menu" className="rounded-lg border border-[#ded8c5] p-3 text-sm font-semibold text-emerald-700">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/pilot-restaurant-menu.svg" alt="" width={150} height={150} />
+        {pt ? 'Ver menu' : 'View menu'}
+      </a>
+      <p className="text-xs text-[#555] sm:col-span-2">{pt ? 'Códigos QR do piloto em português.' : 'Pilot QR codes open the Portuguese pages.'}</p>
+    </div>}
     {demo&&<p className="mt-4 text-xs text-[#555]">{pt?'Perfil de demonstração.':'Demonstration profile.'}</p>}
   </details>;
 }

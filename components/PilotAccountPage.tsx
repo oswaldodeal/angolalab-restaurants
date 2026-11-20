@@ -1,3 +1,4 @@
+import { withRestaurantReferral } from '@/lib/restaurant-referral';
 import AccountComments from '@/components/AccountComments';
 import OwnerRestaurants from '@/components/OwnerRestaurants';
 import { ClerkProvider, SignIn, SignOutButton, SignUp } from '@clerk/nextjs';
@@ -10,16 +11,17 @@ import { accountsConfigured } from '@/lib/account-auth';
 
 type Props = {
   language: 'en' | 'pt';
+  restaurantId?: string;
   mode: 'sign-in' | 'sign-up' | 'account';
 };
 
-export default async function PilotAccountPage({ language, mode }: Props) {
+export default async function PilotAccountPage({ language, mode, restaurantId }: Props) {
   if (!accountsConfigured()) return <AccountUnavailable language={language} />;
 
   const pt = language === 'pt';
-  const signInUrl = pt ? '/pt/entrar' : '/en/signin';
-  const signUpUrl = pt ? '/pt/registar' : '/en/signup';
-  const accountUrl = pt ? '/pt/conta' : '/en/account';
+  const signInUrl = withRestaurantReferral(pt ? '/pt/entrar' : '/en/signin', restaurantId);
+  const signUpUrl = withRestaurantReferral(pt ? '/pt/registar' : '/en/signup', restaurantId);
+  const accountUrl = withRestaurantReferral(pt ? '/pt/conta' : '/en/account', restaurantId);
   const { userId } = await auth();
 
   if (mode === 'account' && !userId) redirect(signInUrl);
@@ -36,7 +38,7 @@ export default async function PilotAccountPage({ language, mode }: Props) {
             <h1 className="text-3xl font-semibold">{pt ? 'A sua conta AngolaLab' : 'Your AngolaLab account'}</h1>
             <p className="mt-4">{pt ? 'Sessão iniciada no piloto privado.' : 'You are signed in to the private pilot.'}</p>
             {userId && <OwnerRestaurants userId={userId} language={language} />}
-            {userId && <AccountComments userId={userId} language={language} />}
+            {userId && <AccountComments userId={userId} language={language} restaurantId={restaurantId} />}
             <div className="mt-6 flex flex-wrap items-center gap-4">
               <Link className="font-semibold text-[#76570f] underline" href={pt ? '/pt/restaurantes' : '/en/restaurants'}>
                 {pt ? 'Ver restaurantes' : 'Browse Restaurants'}

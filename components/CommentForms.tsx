@@ -5,10 +5,10 @@ import { moderateComment, verifyCommenter } from '@/app/staff/review/comment-act
 
 const input='mt-1 w-full rounded-lg border border-[#ded8c5] bg-white p-3';
 const button='rounded-lg bg-[#252a32] px-4 py-2 font-semibold text-white disabled:opacity-50';
-export function NewCommentForm({ restaurants, language }: { restaurants: {id:string;name:string;items:{reference:string;name:string}[]}[]; language:'en'|'pt' }) {
+export function NewCommentForm({ restaurants, language, initialRestaurantId }: { initialRestaurantId?: string; restaurants: {id:string;name:string;items:{reference:string;name:string}[]}[]; language:'en'|'pt' }) {
   const pt=language==='pt';
   const [result,action,pending]=useActionState(submitComment,'');
-  const [restaurantId,setRestaurantId]=useState('');
+  const [restaurantId,setRestaurantId]=useState(() => restaurants.some(r => r.id === initialRestaurantId) ? initialRestaurantId! : '');
   const items=restaurants.find(r=>r.id===restaurantId)?.items??[];
   const messages:Record<string,string>=pt?{
     'signed-out':'Entre novamente na sua conta para comentar.',

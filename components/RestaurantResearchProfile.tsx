@@ -184,7 +184,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
                 </p>
               </section>
               <section className="rounded-xl border border-[#e9e5db] p-6 sm:p-8">
-                <h2 className="text-xl font-semibold">{pt ? '02 · Ementa' : '02 · Menu'}</h2>
+                <h2 id="menu" className="scroll-mt-28 text-xl font-semibold">{pt ? '02 · Ementa' : '02 · Menu'}</h2>
                 <p className="mt-4 text-[#555]">
                   {!restaurant.menuItems?.length && !restaurant.menuPdf && !isDemo
                     ? (pt ? 'A ementa ainda não foi adicionada.' : 'The menu has not been added yet.')
