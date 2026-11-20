@@ -36,3 +36,29 @@ export async function moderateComment(_previous: string, form: FormData): Promis
   refreshComments();return Number(changed.affected_row_count)===1?'review-saved':'stale';
   } catch { return 'unavailable'; }
 }
+
+export async function moderateRestaurantReply(_previous: string, form: FormData): Promise<string> {
+  if (!(await staffAuthorized())) return 'unauthorized';
+  const id = String(form.get('commentId') ?? '');
+  const version = String(form.get('version') ?? '');
+  const decision = String(form.get('decision') ?? '');
+  const note = String(form.get('note') ?? '').trim();
+  if (!id || !version || id.length > 100 || version.length > 100 ||
+    !['approved', 'rejected'].includes(decision) || note.length < 20 || note.length > 2000) return 'invalid';
+  try {
+    await prepareComments();
+    const result = await executePrivateSql(`UPDATE restaurant_comment_replies AS r
+      SET status=?,review_note=?,reviewed_at=?,version=?
+      WHERE comment_id=? AND version=? AND
+        (status='pending' OR (status='approved' AND ?='rejected'))
+      AND (?='rejected' OR EXISTS (
+        SELECT 1 FROM restaurant_comments c JOIN restaurant_listings l ON l.id=c.restaurant_id
+        JOIN restaurant_commenters u ON u.user_id=c.user_id AND u.active=1
+        JOIN restaurant_owners o ON o.restaurant_id=l.id AND o.clerk_user_id=r.owner_id AND o.linked_at=r.owner_linked_at
+        WHERE c.id=r.comment_id AND c.status='approved'
+      ))`, [decision, note, new Date().toISOString(), randomUUID(), id, version, decision, decision]);
+    if (Number(result.affected_row_count) !== 1) return 'stale';
+    refreshComments();
+    return 'review-saved';
+  } catch { return 'unavailable'; }
+}

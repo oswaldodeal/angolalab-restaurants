@@ -10,6 +10,13 @@ export async function prepareComments() {
     `CREATE TRIGGER IF NOT EXISTS restaurant_comment_access_granted_on_insert AFTER INSERT ON restaurant_commenters WHEN NEW.active=1 BEGIN DELETE FROM restaurant_comment_access_requests WHERE user_id=NEW.user_id; END`,
     `CREATE TRIGGER IF NOT EXISTS restaurant_comment_access_granted_on_update AFTER UPDATE OF active ON restaurant_commenters WHEN NEW.active=1 BEGIN DELETE FROM restaurant_comment_access_requests WHERE user_id=NEW.user_id; END`,
     `CREATE TABLE IF NOT EXISTS restaurant_comments (id TEXT PRIMARY KEY, restaurant_id TEXT NOT NULL REFERENCES restaurant_listings(id) ON DELETE CASCADE, user_id TEXT NOT NULL, public_name TEXT NOT NULL, menu_reference TEXT NOT NULL, body TEXT NOT NULL CHECK(length(body) BETWEEN 20 AND 1000), status TEXT NOT NULL CHECK(status IN ('pending','approved','rejected','removed')), created_at TEXT NOT NULL, version TEXT NOT NULL, review_note TEXT, reviewed_at TEXT)`,
+    `CREATE TABLE IF NOT EXISTS restaurant_comment_replies (
+      comment_id TEXT PRIMARY KEY NOT NULL REFERENCES restaurant_comments(id) ON DELETE CASCADE,
+      owner_id TEXT NOT NULL, owner_linked_at TEXT NOT NULL, body TEXT NOT NULL CHECK(length(body) BETWEEN 20 AND 1000),
+      status TEXT NOT NULL CHECK(status IN ('pending','approved','rejected')),
+      version TEXT NOT NULL, submitted_at TEXT NOT NULL, review_note TEXT, reviewed_at TEXT
+    )`,
+    `CREATE INDEX IF NOT EXISTS restaurant_comment_replies_queue ON restaurant_comment_replies(status,submitted_at)`,
     `CREATE INDEX IF NOT EXISTS restaurant_comments_public ON restaurant_comments(restaurant_id,status,created_at)`,
     `CREATE INDEX IF NOT EXISTS restaurant_comments_author ON restaurant_comments(user_id,created_at)`,
     `CREATE TABLE IF NOT EXISTS restaurant_comment_audit (id INTEGER PRIMARY KEY AUTOINCREMENT, subject_id TEXT NOT NULL, event TEXT NOT NULL, note TEXT, recorded_at TEXT NOT NULL)`,
@@ -32,17 +39,25 @@ export async function prepareComments() {
 
 export async function publicComments(id: string, language: 'en' | 'pt' = 'pt') {
   const translationColumn = language === 'en' ? 'c.body_en' : 'c.body_pt';
-  const read = async (showTranslation: boolean) => {
+  let showTranslation = true;
+  let showReplies = true;
+  while (true) {
     const body = showTranslation ? `COALESCE(NULLIF(${translationColumn},''),c.body)` : 'c.body';
-    return sqlRows(await executePrivateSql(`SELECT c.public_name,c.menu_reference,${body} AS body,c.created_at FROM restaurant_comments c JOIN restaurant_commenters u ON u.user_id=c.user_id AND u.active=1 JOIN restaurant_listings l ON l.id=c.restaurant_id WHERE c.restaurant_id=? AND c.status='approved' ORDER BY c.created_at DESC LIMIT 20`,[id]));
-  };
-  try {
-    return await read(true);
-  } catch (error) {
-    if (error instanceof Error && error.message === 'TURSO_COMMENT_TRANSLATION_NOT_MIGRATED') {
-      try { return await read(false); } catch { return null; }
+    const reply = showReplies
+      ? "(SELECT r.body FROM restaurant_comment_replies r WHERE r.comment_id=c.id AND r.status='approved')"
+      : 'NULL';
+    try {
+      return sqlRows(await executePrivateSql(`SELECT c.public_name,c.menu_reference,${body} AS body,c.created_at,${reply} AS reply_body
+        FROM restaurant_comments c JOIN restaurant_commenters u ON u.user_id=c.user_id AND u.active=1
+        JOIN restaurant_listings l ON l.id=c.restaurant_id WHERE c.restaurant_id=? AND c.status='approved'
+        ORDER BY c.created_at DESC LIMIT 20`, [id]));
+    } catch (error) {
+      if (showReplies && error instanceof Error && error.message === 'TURSO_COMMENT_REPLIES_NOT_MIGRATED') {
+        showReplies = false;
+      } else if (showTranslation && error instanceof Error && error.message === 'TURSO_COMMENT_TRANSLATION_NOT_MIGRATED') {
+        showTranslation = false;
+      } else return null;
     }
-    return null;
   }
 }
 

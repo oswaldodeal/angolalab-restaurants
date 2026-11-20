@@ -73,3 +73,31 @@ export async function removeOwnComment(form: FormData): Promise<void> {
   await executePrivateSql(`UPDATE restaurant_comments SET status='removed',review_note='Removed by author',reviewed_at=?,version=? WHERE id=? AND user_id=? AND status IN ('pending','approved')`,[new Date().toISOString(),randomUUID(),String(form.get('id')??''),userId]);
   refreshComments();
 }
+
+export async function submitRestaurantReply(_previous: string, form: FormData): Promise<string> {
+  const { userId } = await auth();
+  if (!userId) return 'signed-out';
+  const commentId = String(form.get('commentId') ?? '');
+  const body = String(form.get('body') ?? '').trim();
+  if (!commentId || commentId.length > 100 || body.length < 20 || body.length > 1000) return 'invalid';
+  try {
+    await prepareComments();
+    const result = await executePrivateSql(`INSERT INTO restaurant_comment_replies
+      (comment_id,owner_id,owner_linked_at,body,status,version,submitted_at)
+      SELECT c.id,o.clerk_user_id,o.linked_at,?,'pending',?,?
+      FROM restaurant_comments c JOIN restaurant_listings l ON l.id=c.restaurant_id
+      JOIN restaurant_owners o ON o.restaurant_id=l.id AND o.clerk_user_id=?
+      JOIN restaurant_commenters u ON u.user_id=c.user_id AND u.active=1
+      WHERE c.id=? AND c.status='approved'
+      ON CONFLICT(comment_id) DO UPDATE SET owner_id=excluded.owner_id,owner_linked_at=excluded.owner_linked_at,
+        body=excluded.body,status='pending',version=excluded.version,submitted_at=excluded.submitted_at,
+        review_note=NULL,reviewed_at=NULL
+      WHERE restaurant_comment_replies.status='rejected' OR
+        (restaurant_comment_replies.status='pending' AND
+          (restaurant_comment_replies.owner_id<>excluded.owner_id OR restaurant_comment_replies.owner_linked_at<>excluded.owner_linked_at))`,
+    [body, randomUUID(), new Date().toISOString(), userId, commentId]);
+    if (Number(result.affected_row_count) !== 1) return 'stale';
+    refreshComments();
+    return 'submitted';
+  } catch { return 'unavailable'; }
+}
