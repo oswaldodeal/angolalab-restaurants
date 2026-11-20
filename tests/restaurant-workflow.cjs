@@ -142,6 +142,15 @@ async function action(id, decision, consent = true) {
   moderation.set('version',savedComment.version);assert.equal(await staffComments.moderateComment('',moderation),'review-saved');
   let publishedComments=await commentData.publicComments(id);assert.equal(publishedComments.length,1);assert.equal(publishedComments[0].menu_reference,legacyReference);
   assert.deepEqual(Object.keys(publishedComments[0]).sort(),['body','created_at','menu_reference','public_name'],'Public comment projection excludes account IDs and private review notes');
+  assert.equal((await commentData.publicComments(id,'en'))[0].body,savedComment.body,'English falls back to the original');
+  const currentVersion=db.prepare('SELECT version FROM restaurant_comments WHERE id=?').get(savedComment.id).version;
+  moderation.set('version',currentVersion);
+  moderation.set('bodyEn','Staff-reviewed English translation of the customer comment.');
+  assert.equal(await staffComments.moderateComment('',moderation),'review-saved','Staff can translate an already published comment');
+  assert.equal((await commentData.publicComments(id,'en'))[0].body,moderation.get('bodyEn'));
+  assert.equal((await commentData.publicComments(id,'pt'))[0].body,savedComment.body,'Portuguese preserves the original');
+  assert.equal(await staffComments.moderateComment('',moderation),'stale','A stale translation cannot overwrite a saved version');
+  moderation.delete('bodyEn');
   verification.set('intent','revoke');assert.equal(await staffComments.verifyCommenter('',verification),'revoked');assert.deepEqual(await commentData.publicComments(id),[],'Revoked commenters are hidden immediately');
   assert.equal(await postComment(),'permission-required');verification.delete('intent');assert.equal(await staffComments.verifyCommenter('',verification),'verified');
   assert.equal((await commentData.publicComments(id)).length,1);

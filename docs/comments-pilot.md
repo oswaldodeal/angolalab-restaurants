@@ -8,7 +8,7 @@ Basic and Verified restaurant profiles share the same comments workflow. Restaur
 2. In authenticated **Staff review → Comment permissions and review**, enter that ID and an agreed public name. Confirm identity, phone ownership and publication permission privately; record a review note. Select **Allow comments**.
 3. Refresh the customer's account. Choose a restaurant, then choose a dish or drink; its saved `AL-…` reference is selected with it. Own restaurants and restaurants without saved menu entries are excluded. Enter an experience of 20–1000 characters and consent to publication.
 4. Confirm **Awaiting review** in the customer's account and confirm it is absent from the public profile.
-5. Staff review the comment, record a note and publish. Open **Comments → Read more** on the restaurant profile in PT and EN. The original comment language is preserved; comments are not automatically translated.
+5. Staff review the comment, record a note and publish. Open **Comments → Read more** on the restaurant profile in PT and EN. Staff can save an optional English translation during review or update a published comment. The Portuguese page shows the original, and the English page falls back to the original when no translation has been saved.
 6. Check rejection/hiding, customer removal, revoking commenter access, invalid references, repeat submissions and an owner attempting to review their own restaurant. Repeat on a Basic and a Verified listing.
 
 ## Boundaries

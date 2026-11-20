@@ -4,7 +4,7 @@ import { publicComments } from '@/lib/restaurant-comments';
 
 export default async function RestaurantComments({ id, language, demo }: {id:string;language:'en'|'pt';demo:boolean}) {
   const pt=language==='pt';
-  const comments=demo?[]:await publicComments(id);
+  const comments=demo?[]:await publicComments(id, language);
   return <details className="group rounded-xl border border-[#e9e5db] p-4 sm:p-6">
     <summary className="flex min-h-11 cursor-pointer list-none flex-wrap items-center justify-between gap-3 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-700 [&::-webkit-details-marker]:hidden">
       <h2 className="text-xl font-semibold">{pt?'03 · Comentários':'03 · Comments'}</h2>
