@@ -60,13 +60,17 @@ export function VerifyCommenterForm() {
     <p role="status">{result==='verified'?'Commenting access verified.':result==='revoked'?'Commenting access revoked. Published comments are hidden.':result?'Check the account ID, public name, verification checkbox and note.':null}</p>
   </form>;
 }
-export function ModerateCommentForm({ id, version, english, published }: {id:string;version:string;english:string;published:boolean}) {
+export function ModerateCommentForm({ id, version, english, portuguese, published }: {id:string;version:string;english:string;portuguese:string;published:boolean}) {
   const [result,action,pending]=useActionState(moderateComment,'');
   return <form action={action} className="mt-3 space-y-3 text-sm">
     <input type="hidden" name="id" value={id}/><input type="hidden" name="version" value={version}/>
     <label className="block">English translation · optional
       <textarea key={version} lang="en" disabled={pending} name="bodyEn" maxLength={1500} rows={3} defaultValue={english} className={input}/>
       <span className="mt-1 block text-xs text-[#555]">Review the translation against the original above. Leave blank to show the original on the English page.</span>
+    </label>
+    <label className="block">Portuguese translation · optional
+      <textarea key={`pt:${version}`} lang="pt" disabled={pending} name="bodyPt" maxLength={1500} rows={3} defaultValue={portuguese} className={input}/>
+      <span className="mt-1 block text-xs text-[#555]">Review the translation against the original above. Leave blank to show the original on the Portuguese page.</span>
     </label>
     <label className="block">Private review note<textarea disabled={pending} name="note" required minLength={20} maxLength={2000} rows={2} className={input}/></label>
     <div className="flex flex-wrap gap-3"><button disabled={pending} name="decision" value="approved" className={button}>{published ? 'Save published comment' : 'Publish comment'}</button><button disabled={pending} name="decision" value="rejected" className="rounded-lg border border-red-200 px-4 py-2 text-red-700">Reject / hide</button></div>

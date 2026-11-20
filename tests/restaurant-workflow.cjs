@@ -151,6 +151,13 @@ async function action(id, decision, consent = true) {
   assert.equal((await commentData.publicComments(id,'pt'))[0].body,savedComment.body,'Portuguese preserves the original');
   assert.equal(await staffComments.moderateComment('',moderation),'stale','A stale translation cannot overwrite a saved version');
   moderation.delete('bodyEn');
+  moderation.set('version', db.prepare('SELECT version FROM restaurant_comments WHERE id=?').get(savedComment.id).version);
+  moderation.set('bodyPt', 'A comida estava boa, mas a mandioca estava um pouco doce.');
+  assert.equal(await staffComments.moderateComment('',moderation),'review-saved');
+  assert.equal((await commentData.publicComments(id,'pt'))[0].body, moderation.get('bodyPt'));
+  assert.equal((await commentData.publicComments(id,'en'))[0].body,'Staff-reviewed English translation of the customer comment.');
+  assert.equal((await commentData.commenterAccount(clerkUserId)).comments.find(item=>item.id===savedComment.id).body,savedComment.body);
+  moderation.delete('bodyPt');
   verification.set('intent','revoke');assert.equal(await staffComments.verifyCommenter('',verification),'revoked');assert.deepEqual(await commentData.publicComments(id),[],'Revoked commenters are hidden immediately');
   assert.equal(await postComment(),'permission-required');verification.delete('intent');assert.equal(await staffComments.verifyCommenter('',verification),'verified');
   assert.equal((await commentData.publicComments(id)).length,1);

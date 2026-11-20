@@ -17,9 +17,10 @@ export async function prepareComments() {
     `CREATE TRIGGER IF NOT EXISTS restaurant_commenter_updated AFTER UPDATE ON restaurant_commenters BEGIN INSERT INTO restaurant_comment_audit(subject_id,event,note,recorded_at) VALUES(NEW.user_id,CASE WHEN NEW.active=1 THEN 'commenter-verified' ELSE 'commenter-revoked' END,NEW.review_note,NEW.reviewed_at); END`,
   ]) await executePrivateSql(sql);
   const columns = sqlRows(await executePrivateSql('PRAGMA table_info(restaurant_comments)'));
-  if (!columns.some(column => column.name === 'body_en')) {
+  for (const name of ['body_en', 'body_pt']) {
+    if (columns.some(column => column.name === name)) continue;
     try {
-      await executePrivateSql('ALTER TABLE restaurant_comments ADD COLUMN body_en TEXT');
+      await executePrivateSql(`ALTER TABLE restaurant_comments ADD COLUMN ${name} TEXT`);
     } catch (error) {
       if (!(error instanceof Error) || error.message !== 'TURSO_COMMENT_TRANSLATION_ALREADY_MIGRATED') throw error;
     }
@@ -27,12 +28,13 @@ export async function prepareComments() {
 }
 
 export async function publicComments(id: string, language: 'en' | 'pt' = 'pt') {
+  const translationColumn = language === 'en' ? 'c.body_en' : 'c.body_pt';
   const read = async (showTranslation: boolean) => {
-    const body = showTranslation ? "COALESCE(NULLIF(c.body_en,''),c.body)" : 'c.body';
+    const body = showTranslation ? `COALESCE(NULLIF(${translationColumn},''),c.body)` : 'c.body';
     return sqlRows(await executePrivateSql(`SELECT c.public_name,c.menu_reference,${body} AS body,c.created_at FROM restaurant_comments c JOIN restaurant_commenters u ON u.user_id=c.user_id AND u.active=1 JOIN restaurant_listings l ON l.id=c.restaurant_id WHERE c.restaurant_id=? AND c.status='approved' ORDER BY c.created_at DESC LIMIT 20`,[id]));
   };
   try {
-    return await read(language === 'en');
+    return await read(true);
   } catch (error) {
     if (error instanceof Error && error.message === 'TURSO_COMMENT_TRANSLATION_NOT_MIGRATED') {
       try { return await read(false); } catch { return null; }

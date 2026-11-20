@@ -32,8 +32,8 @@ export async function executePrivateSql(sql: string, values: Array<string | null
     if (/readonly|read.only|not authorized|SQLITE_AUTH/i.test(detail)) throw new Error('TURSO_WRITE_DENIED');
     if (/no such table:\s*(?:main\.)?restaurant_verified_contacts\b/i.test(detail)) throw new Error('TURSO_VERIFIED_CONTACTS_NOT_MIGRATED');
     if (/no such table:\s*(?:main\.)?restaurant_pro_plans\b/i.test(detail)) throw new Error('TURSO_PRO_PLANS_NOT_MIGRATED');
-    if (/duplicate column name:\s*body_en\b/i.test(detail)) throw new Error('TURSO_COMMENT_TRANSLATION_ALREADY_MIGRATED');
-    if (/no such column:\s*c\.body_en\b/i.test(detail)) throw new Error('TURSO_COMMENT_TRANSLATION_NOT_MIGRATED');
+    if (/duplicate column name:\s*body_(?:en|pt)\b/i.test(detail)) throw new Error('TURSO_COMMENT_TRANSLATION_ALREADY_MIGRATED');
+    if (/no such column:\s*c\.body_(?:en|pt)\b/i.test(detail)) throw new Error('TURSO_COMMENT_TRANSLATION_NOT_MIGRATED');
     if (/duplicate column name:\s*(?:cover_photo_url|menu_photo_url|description_en|opening_hours_en|availability|name_en|profile_tier|is_active)\b/i.test(detail)) throw new Error('TURSO_COVER_ALREADY_MIGRATED');
     if (/no such column:\s*v\.is_active\b/i.test(detail)) throw new Error('TURSO_VERIFICATION_ACTIVE_NOT_MIGRATED');
     if (/no such column:\s*p\.profile_tier\b/i.test(detail)) throw new Error('TURSO_PLAN_NOT_MIGRATED');
