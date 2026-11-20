@@ -24,15 +24,22 @@ export function OwnerReplyForm({ commentId, language, draft }: { commentId: stri
   </details>;
 }
 
-export function StaffReplyForm({ commentId, version, approved }: { commentId: string; version: string; approved: boolean }) {
+export function StaffReplyForm({ commentId, version, approved, english, portuguese }: { commentId: string; version: string; approved: boolean; english: string; portuguese: string }) {
   const [result, action, pending] = useActionState(moderateRestaurantReply, '');
   return <form action={action} className="mt-3 space-y-2">
     <input type="hidden" name="commentId" value={commentId}/>
     <input type="hidden" name="version" value={version}/>
     <fieldset disabled={pending} className="space-y-2">
+      <p className="text-[#555]">Add either translation. A blank field shows the original reply on that language page.</p>
+      <label>English translation · optional
+        <textarea name="bodyEn" lang="en" defaultValue={english} className={field} rows={3} maxLength={1500}/>
+      </label>
+      <label>Portuguese translation · optional
+        <textarea name="bodyPt" lang="pt" defaultValue={portuguese} className={field} rows={3} maxLength={1500}/>
+      </label>
       <label>Private review note<textarea name="note" className={field} required rows={2} minLength={20} maxLength={2000}/></label>
       <div className="flex flex-wrap gap-2">
-        {!approved && <button name="decision" value="approved" className={button}>Approve reply</button>}
+        <button name="decision" value="approved" className={button}>{approved ? 'Save translations' : 'Approve reply'}</button>
         <button name="decision" value="rejected" className="rounded-lg border border-red-200 px-4 py-2 text-red-700">{approved ? 'Unpublish reply' : 'Reject reply'}</button>
       </div>
     </fieldset>

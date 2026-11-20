@@ -91,7 +91,7 @@ export async function submitRestaurantReply(_previous: string, form: FormData): 
       WHERE c.id=? AND c.status='approved'
       ON CONFLICT(comment_id) DO UPDATE SET owner_id=excluded.owner_id,owner_linked_at=excluded.owner_linked_at,
         body=excluded.body,status='pending',version=excluded.version,submitted_at=excluded.submitted_at,
-        review_note=NULL,reviewed_at=NULL
+        review_note=NULL,reviewed_at=NULL,body_en=NULL,body_pt=NULL
       WHERE restaurant_comment_replies.status='rejected' OR
         (restaurant_comment_replies.status='pending' AND
           (restaurant_comment_replies.owner_id<>excluded.owner_id OR restaurant_comment_replies.owner_linked_at<>excluded.owner_linked_at))`,

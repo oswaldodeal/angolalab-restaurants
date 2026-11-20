@@ -212,6 +212,17 @@ async function action(id, decision, consent = true) {
   replyReview.set('decision', 'approved');
   assert.equal(await reviewReply(), 'review-saved');
   db.prepare('DELETE FROM restaurant_owners WHERE restaurant_id=?').run(id);
+  replyReview.set('version', getReply().version);
+  replyReview.set('bodyEn', 'Thank you for sharing your feedback with us.');
+  replyReview.set('bodyPt', 'Obrigado por partilhar a sua opinião connosco.');
+  assert.equal(await reviewReply(), 'review-saved', 'Staff can translate an existing published reply');
+  assert.equal(getReply().body, replyForm.get('body'), 'The owner’s original reply is preserved');
+  assert.equal((await commentData.publicComments(id,'en'))[0].reply_body, replyReview.get('bodyEn'));
+  assert.equal((await commentData.publicComments(id,'pt'))[0].reply_body, replyReview.get('bodyPt'));
+  replyReview.set('version', getReply().version);
+  replyReview.set('bodyPt', '');
+  assert.equal(await reviewReply(), 'review-saved');
+  assert.equal((await commentData.publicComments(id,'pt'))[0].reply_body, replyForm.get('body'));
   const removal=new FormData();removal.set('id',savedComment.id);clerkUserId='user_intruder123456789';await commentActions.removeOwnComment(removal);assert.equal((await commentData.publicComments(id)).length,1,'Another account cannot remove comments');
   clerkUserId='user_customer12345678';await commentActions.removeOwnComment(removal);assert.deepEqual(await commentData.publicComments(id),[]);
   assert.equal(await postComment(), 'restaurant-limit', 'Withdrawing a published comment keeps the cooldown');

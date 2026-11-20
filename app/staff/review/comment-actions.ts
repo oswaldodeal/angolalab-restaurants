@@ -43,20 +43,28 @@ export async function moderateRestaurantReply(_previous: string, form: FormData)
   const version = String(form.get('version') ?? '');
   const decision = String(form.get('decision') ?? '');
   const note = String(form.get('note') ?? '').trim();
+  const english = form.has('bodyEn') ? String(form.get('bodyEn') ?? '').trim() : null;
+  const portuguese = form.has('bodyPt') ? String(form.get('bodyPt') ?? '').trim() : null;
   if (!id || !version || id.length > 100 || version.length > 100 ||
-    !['approved', 'rejected'].includes(decision) || note.length < 20 || note.length > 2000) return 'invalid';
+    !['approved', 'rejected'].includes(decision) || note.length < 20 || note.length > 2000 ||
+    (decision === 'approved' && Math.max(english?.length ?? 0, portuguese?.length ?? 0) > 1500)) return 'invalid';
   try {
     await prepareComments();
     const result = await executePrivateSql(`UPDATE restaurant_comment_replies AS r
-      SET status=?,review_note=?,reviewed_at=?,version=?
+      SET status=?,review_note=?,reviewed_at=?,version=?,
+        body_en=CASE WHEN ?='approved' THEN COALESCE(?,body_en) ELSE body_en END,
+        body_pt=CASE WHEN ?='approved' THEN COALESCE(?,body_pt) ELSE body_pt END
       WHERE comment_id=? AND version=? AND
-        (status='pending' OR (status='approved' AND ?='rejected'))
+        status IN ('pending','approved')
       AND (?='rejected' OR EXISTS (
         SELECT 1 FROM restaurant_comments c JOIN restaurant_listings l ON l.id=c.restaurant_id
         JOIN restaurant_commenters u ON u.user_id=c.user_id AND u.active=1
-        JOIN restaurant_owners o ON o.restaurant_id=l.id AND o.clerk_user_id=r.owner_id AND o.linked_at=r.owner_linked_at
-        WHERE c.id=r.comment_id AND c.status='approved'
-      ))`, [decision, note, new Date().toISOString(), randomUUID(), id, version, decision, decision]);
+        WHERE c.id=r.comment_id AND c.status='approved' AND
+          (r.status='approved' OR EXISTS (
+            SELECT 1 FROM restaurant_owners o WHERE o.restaurant_id=l.id
+              AND o.clerk_user_id=r.owner_id AND o.linked_at=r.owner_linked_at
+          ))
+      ))`, [decision, note, new Date().toISOString(), randomUUID(), decision, english, decision, portuguese, id, version, decision]);
     if (Number(result.affected_row_count) !== 1) return 'stale';
     refreshComments();
     return 'review-saved';

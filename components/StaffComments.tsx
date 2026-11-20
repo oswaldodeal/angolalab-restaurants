@@ -13,7 +13,7 @@ export default async function StaffComments() {
     ));
     const users=sqlRows(await executePrivateSql('SELECT user_id,public_name,active FROM restaurant_commenters ORDER BY reviewed_at DESC LIMIT 100'));
     const comments=sqlRows(await executePrivateSql(`SELECT c.id,c.version,c.public_name,c.body,c.body_en,c.body_pt,c.menu_reference,c.status,c.created_at,l.name FROM restaurant_comments c JOIN restaurant_listings l ON l.id=c.restaurant_id WHERE c.status IN ('pending','approved') ORDER BY CASE WHEN c.status='pending' THEN 0 ELSE 1 END,c.created_at DESC LIMIT 100`));
-    const replies = sqlRows(await executePrivateSql(`SELECT r.comment_id,r.version,r.body,r.status,
+    const replies = sqlRows(await executePrivateSql(`SELECT r.comment_id,r.version,r.body,r.body_en,r.body_pt,r.status,
       c.body AS customer_comment,c.menu_reference,l.name
       FROM restaurant_comment_replies r JOIN restaurant_comments c ON c.id=r.comment_id
       JOIN restaurant_listings l ON l.id=c.restaurant_id WHERE r.status IN ('pending','approved')
@@ -36,7 +36,7 @@ export default async function StaffComments() {
           <h3 className="font-semibold">{reply.name} · {reply.menu_reference} · {reply.status}</h3>
           <p className="mt-2 whitespace-pre-wrap break-words"><strong>Customer comment</strong><br/>{reply.customer_comment}</p>
           <p className="mt-2 whitespace-pre-wrap break-words"><strong>Restaurant reply</strong><br/>{reply.body}</p>
-          <StaffReplyForm key={reply.version} commentId={reply.comment_id!} version={reply.version!} approved={reply.status === 'approved'}/>
+          <StaffReplyForm key={reply.version} commentId={reply.comment_id!} version={reply.version!} english={reply.body_en ?? ''} portuguese={reply.body_pt ?? ''} approved={reply.status === 'approved'}/>
         </article>)}
       </details>
       <VerifyCommenterForm/>

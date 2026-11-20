@@ -26,13 +26,15 @@ export async function prepareComments() {
     `CREATE TRIGGER IF NOT EXISTS restaurant_commenter_created AFTER INSERT ON restaurant_commenters BEGIN INSERT INTO restaurant_comment_audit(subject_id,event,note,recorded_at) VALUES(NEW.user_id,'commenter-verified',NEW.review_note,NEW.reviewed_at); END`,
     `CREATE TRIGGER IF NOT EXISTS restaurant_commenter_updated AFTER UPDATE ON restaurant_commenters BEGIN INSERT INTO restaurant_comment_audit(subject_id,event,note,recorded_at) VALUES(NEW.user_id,CASE WHEN NEW.active=1 THEN 'commenter-verified' ELSE 'commenter-revoked' END,NEW.review_note,NEW.reviewed_at); END`,
   ]) await executePrivateSql(sql);
-  const columns = sqlRows(await executePrivateSql('PRAGMA table_info(restaurant_comments)'));
-  for (const name of ['body_en', 'body_pt']) {
-    if (columns.some(column => column.name === name)) continue;
-    try {
-      await executePrivateSql(`ALTER TABLE restaurant_comments ADD COLUMN ${name} TEXT`);
-    } catch (error) {
-      if (!(error instanceof Error) || error.message !== 'TURSO_COMMENT_TRANSLATION_ALREADY_MIGRATED') throw error;
+  for (const table of ['restaurant_comments', 'restaurant_comment_replies']) {
+    const columns = sqlRows(await executePrivateSql(`PRAGMA table_info(${table})`));
+    for (const name of ['body_en', 'body_pt']) {
+      if (columns.some(column => column.name === name)) continue;
+      try {
+        await executePrivateSql(`ALTER TABLE ${table} ADD COLUMN ${name} TEXT`);
+      } catch (error) {
+        if (!(error instanceof Error) || error.message !== 'TURSO_COMMENT_TRANSLATION_ALREADY_MIGRATED') throw error;
+      }
     }
   }
 }
@@ -41,10 +43,13 @@ export async function publicComments(id: string, language: 'en' | 'pt' = 'pt') {
   const translationColumn = language === 'en' ? 'c.body_en' : 'c.body_pt';
   let showTranslation = true;
   let showReplies = true;
+  let showReplyTranslation = true;
+  const replyColumn = language === 'en' ? 'r.body_en' : 'r.body_pt';
   while (true) {
     const body = showTranslation ? `COALESCE(NULLIF(${translationColumn},''),c.body)` : 'c.body';
+    const replyText = showReplyTranslation ? `COALESCE(NULLIF(${replyColumn},''),r.body)` : 'r.body';
     const reply = showReplies
-      ? "(SELECT r.body FROM restaurant_comment_replies r WHERE r.comment_id=c.id AND r.status='approved')"
+      ? `(SELECT ${replyText} FROM restaurant_comment_replies r WHERE r.comment_id=c.id AND r.status='approved')`
       : 'NULL';
     try {
       return sqlRows(await executePrivateSql(`SELECT c.public_name,c.menu_reference,${body} AS body,c.created_at,${reply} AS reply_body
@@ -54,6 +59,8 @@ export async function publicComments(id: string, language: 'en' | 'pt' = 'pt') {
     } catch (error) {
       if (showReplies && error instanceof Error && error.message === 'TURSO_COMMENT_REPLIES_NOT_MIGRATED') {
         showReplies = false;
+      } else if (showReplyTranslation && error instanceof Error && error.message === 'TURSO_REPLY_TRANSLATION_NOT_MIGRATED') {
+        showReplyTranslation = false;
       } else if (showTranslation && error instanceof Error && error.message === 'TURSO_COMMENT_TRANSLATION_NOT_MIGRATED') {
         showTranslation = false;
       } else return null;
