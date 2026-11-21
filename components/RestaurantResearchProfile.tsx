@@ -320,20 +320,31 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
           </div></MenuCategoryProvider>
           {showPilotQr && (
             <section aria-labelledby="restaurant-qr-title" className="mt-6 rounded-xl border border-[#e9e5db] bg-[#fffdf8] p-4 sm:p-6">
-              <h2 id="restaurant-qr-title" className="text-lg font-semibold">{pt ? 'Códigos QR' : 'QR codes'}</h2>
-              <div className="mt-4 grid max-w-md grid-cols-2 gap-3">
-                <a href="#menu" className="flex min-w-0 flex-col items-center gap-2 rounded-lg border border-[#ded8c5] p-2 text-center text-sm font-semibold text-emerald-800 hover:bg-emerald-50 focus-visible:outline-2 focus-visible:outline-offset-2">
+              <div className="grid gap-6 lg:grid-cols-[minmax(0,28rem)_minmax(0,1fr)] lg:items-center">
+                <div>
+                  <h2 id="restaurant-qr-title" className="text-lg font-semibold">{pt ? 'Códigos QR' : 'QR codes'}</h2>
+                  <div className="mt-4 grid max-w-md grid-cols-2 gap-3">
+                    <a href="#menu" className="flex min-w-0 flex-col items-center gap-2 rounded-lg border border-[#ded8c5] p-2 text-center text-sm font-semibold text-emerald-800 hover:bg-emerald-50 focus-visible:outline-2 focus-visible:outline-offset-2">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src="/pilot-restaurant-menu.svg" alt="" width={120} height={120} className="h-auto w-full max-w-[120px]" />
+                      {pt ? 'Ver menu' : 'View menu'}
+                    </a>
+                    <a href={withRestaurantReferral(pt ? '/pt/profissionais' : '/en/professionals', restaurant.id)} className="flex min-w-0 flex-col items-center gap-2 rounded-lg border border-[#ded8c5] p-2 text-center text-sm font-semibold text-emerald-800 hover:bg-emerald-50 focus-visible:outline-2 focus-visible:outline-offset-2">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src="/pilot-restaurant-signup.svg" alt="" width={120} height={120} className="h-auto w-full max-w-[120px]" />
+                      {pt ? 'Criar conta AngolaLab' : 'Create an AngolaLab account'}
+                    </a>
+                  </div>
+                  {!pt && <p className="mt-3 text-xs text-[#555]">Scanning either code opens its Portuguese page.</p>}
+                </div>
+                <figure className="relative isolate flex min-h-44 items-end overflow-hidden rounded-lg bg-[#252a32] lg:min-h-0 lg:self-stretch">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/pilot-restaurant-menu.svg" alt="" width={120} height={120} className="h-auto w-full max-w-[120px]" />
-                  {pt ? 'Ver menu' : 'View menu'}
-                </a>
-                <a href={withRestaurantReferral(pt ? '/pt/profissionais' : '/en/professionals', restaurant.id)} className="flex min-w-0 flex-col items-center gap-2 rounded-lg border border-[#ded8c5] p-2 text-center text-sm font-semibold text-emerald-800 hover:bg-emerald-50 focus-visible:outline-2 focus-visible:outline-offset-2">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/pilot-restaurant-signup.svg" alt="" width={120} height={120} className="h-auto w-full max-w-[120px]" />
-                  {pt ? 'Criar conta AngolaLab' : 'Create an AngolaLab account'}
-                </a>
+                  <img src="/angolalab-education.svg" alt="" width={800} height={680} loading="lazy" className="absolute inset-0 -z-10 h-full w-full object-cover object-[center_40%]" />
+                  <figcaption className="w-full bg-[#252a32] px-4 py-3 font-semibold text-[#F2C94C]">
+                    {pt ? 'Apoia a Educação Segura-Jovem' : 'Support Segura-Jovem Education'}
+                  </figcaption>
+                </figure>
               </div>
-              {!pt && <p className="mt-3 text-xs text-[#555]">Scanning either code opens its Portuguese page.</p>}
             </section>
           )}
         </div>
