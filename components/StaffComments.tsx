@@ -18,7 +18,11 @@ export default async function StaffComments() {
       FROM restaurant_comment_replies r JOIN restaurant_comments c ON c.id=r.comment_id
       JOIN restaurant_listings l ON l.id=c.restaurant_id WHERE r.status IN ('pending','approved')
       ORDER BY r.status='pending' DESC,r.submitted_at,r.comment_id LIMIT 100`));
-    return <details className="mt-6 rounded-xl border border-[#ded8c5] bg-[#fffdf8] p-5"><summary className="cursor-pointer text-lg font-semibold">Comment permissions and review · {requests.length}{requests.length === 100 ? '+' : ''} access requests · {comments.filter(c=>c.status==='pending').length} pending</summary>
+    const pendingComments = comments.filter(comment => comment.status === 'pending').length;
+    const pendingReplies = replies.filter(reply => reply.status === 'pending').length;
+    const commentCount = pendingComments === 100 ? '100+' : pendingComments;
+    const replyCount = pendingReplies === 100 ? '100+' : pendingReplies;
+    return <details className="mt-6 rounded-xl border border-[#ded8c5] bg-[#fffdf8] p-5"><summary className="cursor-pointer text-lg font-semibold">Comment permissions and review · {requests.length}{requests.length === 100 ? '+' : ''} access requests · {commentCount} pending {pendingComments === 1 ? 'comment' : 'comments'} · {replyCount} pending {pendingReplies === 1 ? 'reply' : 'replies'}</summary>
       <p className="mt-3 text-sm text-[#555]">Commenter verification is separate from restaurant verification. Review identity and phone privately; never put phone numbers or email addresses in the public name or comment.</p>
       {requests.length > 0 && <section aria-label="Commenting access requests" className="mt-4 space-y-3">
         <h3 className="font-semibold">Commenting access requests</h3>
@@ -30,7 +34,7 @@ export default async function StaffComments() {
         </details>)}
       </section>}
       <details className="mt-4 space-y-3 rounded-lg border border-[#ded8c5] p-4 text-sm">
-        <summary className="cursor-pointer font-semibold">Restaurant replies · {replies.filter(reply => reply.status === 'pending').length} pending</summary>
+        <summary className="cursor-pointer font-semibold">Restaurant replies · {replyCount} pending</summary>
         {replies.length === 0 && <p>No replies to review.</p>}
         {replies.map(reply => <article key={reply.comment_id} className="rounded-lg border border-[#ded8c5] bg-white p-4">
           <h3 className="font-semibold">{reply.name} · {reply.menu_reference} · {reply.status}</h3>
