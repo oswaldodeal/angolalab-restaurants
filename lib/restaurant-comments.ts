@@ -28,20 +28,26 @@ export async function prepareComments() {
   ]) await executePrivateSql(sql);
   for (const table of ['restaurant_comments', 'restaurant_comment_replies']) {
     const columns = sqlRows(await executePrivateSql(`PRAGMA table_info(${table})`));
-    for (const name of ['body_en', 'body_pt']) {
+    for (const name of table === 'restaurant_comments' ? ['body_en', 'body_pt', 'under_review'] : ['body_en', 'body_pt']) {
       if (columns.some(column => column.name === name)) continue;
       try {
-        await executePrivateSql(`ALTER TABLE ${table} ADD COLUMN ${name} TEXT`);
+        await executePrivateSql(`ALTER TABLE ${table} ADD COLUMN ${name} ${name === 'under_review' ? 'INTEGER NOT NULL DEFAULT 0' : 'TEXT'}`);
       } catch (error) {
         if (!(error instanceof Error) || error.message !== 'TURSO_COMMENT_TRANSLATION_ALREADY_MIGRATED') throw error;
       }
     }
   }
+  await executePrivateSql(`CREATE TRIGGER IF NOT EXISTS restaurant_comment_investigation
+    AFTER UPDATE OF under_review ON restaurant_comments WHEN OLD.under_review=0 AND NEW.under_review=1
+    BEGIN INSERT INTO restaurant_comment_audit(subject_id,event,note,recorded_at)
+    VALUES(NEW.id,'under-review',NEW.review_note,NEW.reviewed_at); END`);
 }
 
 export async function publicComments(id: string, language: 'en' | 'pt' = 'pt') {
   const translationColumn = language === 'en' ? 'c.body_en' : 'c.body_pt';
   let showTranslation = true;
+  let hasReviewFlag = true;
+  const notice = language === 'en' ? 'This comment is under review.' : 'Este comentário está em análise.';
   let showReplies = true;
   let showReplyTranslation = true;
   const replyColumn = language === 'en' ? 'r.body_en' : 'r.body_pt';
@@ -51,13 +57,17 @@ export async function publicComments(id: string, language: 'en' | 'pt' = 'pt') {
     const reply = showReplies
       ? `(SELECT ${replyText} FROM restaurant_comment_replies r WHERE r.comment_id=c.id AND r.status='approved')`
       : 'NULL';
+    const publicBody = hasReviewFlag ? `CASE WHEN c.under_review=1 THEN ? ELSE ${body} END` : body;
+    const publicReply = hasReviewFlag ? `CASE WHEN c.under_review=1 THEN NULL ELSE ${reply} END` : reply;
     try {
-      return sqlRows(await executePrivateSql(`SELECT c.public_name,c.menu_reference,${body} AS body,c.created_at,${reply} AS reply_body
+      return sqlRows(await executePrivateSql(`SELECT c.public_name,c.menu_reference,${publicBody} AS body,c.created_at,${publicReply} AS reply_body
         FROM restaurant_comments c JOIN restaurant_commenters u ON u.user_id=c.user_id AND u.active=1
         JOIN restaurant_listings l ON l.id=c.restaurant_id WHERE c.restaurant_id=? AND c.status='approved'
-        ORDER BY c.created_at DESC LIMIT 20`, [id]));
+        ORDER BY c.created_at DESC LIMIT 20`, hasReviewFlag ? [notice, id] : [id]));
     } catch (error) {
-      if (showReplies && error instanceof Error && error.message === 'TURSO_COMMENT_REPLIES_NOT_MIGRATED') {
+      if (hasReviewFlag && error instanceof Error && error.message === 'TURSO_COMMENT_REVIEW_NOT_MIGRATED') {
+        hasReviewFlag = false;
+      } else if (showReplies && error instanceof Error && error.message === 'TURSO_COMMENT_REPLIES_NOT_MIGRATED') {
         showReplies = false;
       } else if (showReplyTranslation && error instanceof Error && error.message === 'TURSO_REPLY_TRANSLATION_NOT_MIGRATED') {
         showReplyTranslation = false;

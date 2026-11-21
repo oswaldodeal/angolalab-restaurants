@@ -18,7 +18,7 @@ export default async function OwnerPublishedComments({ restaurantId, userId, lan
       JOIN restaurant_commenters u ON u.user_id=c.user_id AND u.active=1
       LEFT JOIN restaurant_comment_replies r ON r.comment_id=c.id AND
         (r.status='approved' OR (r.owner_id=o.clerk_user_id AND r.owner_linked_at=o.linked_at))
-      WHERE c.restaurant_id=? AND c.status='approved' ORDER BY c.created_at DESC,c.id LIMIT 100`, [userId, restaurantId]));
+      WHERE c.restaurant_id=? AND c.status='approved' AND c.under_review=0 ORDER BY c.created_at DESC,c.id LIMIT 100`, [userId, restaurantId]));
     return <details className="mt-4 rounded-lg border border-[#ded8c5] p-3 text-sm">
       <summary className="cursor-pointer font-semibold">{pt ? 'Comentários publicados' : 'Published comments'}</summary>
       {comments.length === 0 && <p className="mt-3">{pt ? 'Ainda não há comentários publicados.' : 'No published comments yet.'}</p>}

@@ -79,7 +79,7 @@ export function VerifyCommenterForm({ accountId }: { accountId?: string }) {
     <p role="status">{result==='verified'?'Commenting access verified.':result==='revoked'?'Commenting access revoked. Published comments are hidden.':result?'Check the account ID, public name, verification checkbox and note.':null}</p>
   </form>;
 }
-export function ModerateCommentForm({ id, version, english, portuguese, published }: {id:string;version:string;english:string;portuguese:string;published:boolean}) {
+export function ModerateCommentForm({ id, version, english, portuguese, published, underReview }: {id:string;version:string;english:string;portuguese:string;published:boolean;underReview?:boolean}) {
   const [result,action,pending]=useActionState(moderateComment,'');
   return <form action={action} className="mt-3 space-y-3 text-sm">
     <input type="hidden" name="id" value={id}/><input type="hidden" name="version" value={version}/>
@@ -92,7 +92,7 @@ export function ModerateCommentForm({ id, version, english, portuguese, publishe
       <span className="mt-1 block text-xs text-[#555]">Review the translation against the original above. Leave blank to show the original on the Portuguese page.</span>
     </label>
     <label className="block">Private review note<textarea disabled={pending} name="note" required minLength={20} maxLength={2000} rows={2} className={input}/></label>
-    <div className="flex flex-wrap gap-3"><button disabled={pending} name="decision" value="approved" className={button}>{published ? 'Save published comment' : 'Publish comment'}</button><button disabled={pending} name="decision" value="rejected" className="rounded-lg border border-red-200 px-4 py-2 text-red-700">Reject / hide</button></div>
+    <div className="flex flex-wrap gap-3"><button disabled={pending} name="decision" value="approved" className={button}>{underReview ? 'Restore comment' : published ? 'Save published comment' : 'Publish comment'}</button>{published && !underReview && <button disabled={pending} name="decision" value="investigate" className="rounded-lg border border-[#ded8c5] px-4 py-2 font-semibold">Mark under review</button>}<button disabled={pending} name="decision" value="rejected" className="rounded-lg border border-red-200 px-4 py-2 text-red-700">Reject / hide</button></div>
     <p role="status">{result==='review-saved'?'Comment decision saved.':result?'Unable to save. Check the note or refresh this review.':null}</p>
   </form>;
 }

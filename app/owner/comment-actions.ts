@@ -95,7 +95,7 @@ export async function submitRestaurantReply(_previous: string, form: FormData): 
       FROM restaurant_comments c JOIN restaurant_listings l ON l.id=c.restaurant_id
       JOIN restaurant_owners o ON o.restaurant_id=l.id AND o.clerk_user_id=?
       JOIN restaurant_commenters u ON u.user_id=c.user_id AND u.active=1
-      WHERE c.id=? AND c.status='approved'
+      WHERE c.id=? AND c.status='approved' AND c.under_review=0
       ON CONFLICT(comment_id) DO UPDATE SET owner_id=excluded.owner_id,owner_linked_at=excluded.owner_linked_at,
         body=excluded.body,status='pending',version=excluded.version,submitted_at=excluded.submitted_at,
         review_note=NULL,reviewed_at=NULL,body_en=NULL,body_pt=NULL

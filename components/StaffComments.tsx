@@ -12,7 +12,7 @@ export default async function StaffComments() {
       'SELECT user_id, requested_at FROM restaurant_comment_access_requests ORDER BY requested_at, user_id LIMIT 100',
     ));
     const users=sqlRows(await executePrivateSql('SELECT user_id,public_name,active FROM restaurant_commenters ORDER BY reviewed_at DESC LIMIT 100'));
-    const comments=sqlRows(await executePrivateSql(`SELECT c.id,c.version,c.public_name,c.body,c.body_en,c.body_pt,c.menu_reference,c.status,c.created_at,l.name FROM restaurant_comments c JOIN restaurant_listings l ON l.id=c.restaurant_id WHERE c.status IN ('pending','approved') ORDER BY CASE WHEN c.status='pending' THEN 0 ELSE 1 END,c.created_at DESC LIMIT 100`));
+    const comments=sqlRows(await executePrivateSql(`SELECT c.id,c.version,c.public_name,c.body,c.body_en,c.body_pt,c.under_review,c.menu_reference,c.status,c.created_at,l.name FROM restaurant_comments c JOIN restaurant_listings l ON l.id=c.restaurant_id WHERE c.status IN ('pending','approved') ORDER BY CASE WHEN c.status='pending' THEN 0 ELSE 1 END,c.created_at DESC LIMIT 100`));
     const replies = sqlRows(await executePrivateSql(`SELECT r.comment_id,r.version,r.body,r.body_en,r.body_pt,r.status,
       c.body AS customer_comment,c.menu_reference,l.name
       FROM restaurant_comment_replies r JOIN restaurant_comments c ON c.id=r.comment_id
@@ -41,7 +41,7 @@ export default async function StaffComments() {
       </details>
       <VerifyCommenterForm/>
       <ul className="mt-4 space-y-2 text-sm">{users.map(u=><li key={u.user_id}><code className="break-all">{u.user_id}</code> · {u.public_name} · {u.active==='1'?'Allowed':'Revoked'}</li>)}</ul>
-      <div className="mt-6 space-y-4">{comments.map(c=><article key={c.id} className="rounded-lg border border-[#ded8c5] bg-white p-4"><h3 className="font-semibold">{c.name} · {c.status}</h3><p className="mt-2 text-sm">{c.public_name} · {c.menu_reference} · {c.created_at}</p><p className="mt-3 whitespace-pre-line break-words text-sm">{c.body}</p><ModerateCommentForm id={c.id!} version={c.version!} english={c.body_en ?? ''} portuguese={c.body_pt ?? ''} published={c.status==='approved'}/></article>)}</div>
+      <div className="mt-6 space-y-4">{comments.map(c=><article key={c.id} className="rounded-lg border border-[#ded8c5] bg-white p-4"><h3 className="font-semibold">{c.name} · {c.under_review === '1' ? 'Under review' : c.status}</h3><p className="mt-2 text-sm">{c.public_name} · {c.menu_reference} · {c.created_at}</p><p className="mt-3 whitespace-pre-line break-words text-sm">{c.body}</p><ModerateCommentForm id={c.id!} version={c.version!} english={c.body_en ?? ''} portuguese={c.body_pt ?? ''} published={c.status==='approved'} underReview={c.under_review === '1'}/></article>)}</div>
     </details>;
   } catch {return <p className="mt-6 text-sm text-red-700">Unable to load comment review. Refresh and try again.</p>;}
 }
