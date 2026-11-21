@@ -38,7 +38,7 @@ function load(name) {
   const module = { exports: {} }; cache.set(full, module);
   const code = ts.transpileModule(fs.readFileSync(full, 'utf8'), { compilerOptions: { jsx: ts.JsxEmit.ReactJSX, module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true } }).outputText;
   const localRequire = id => {
-    if (id === '@clerk/nextjs/server') return { auth: async () => ({ userId: clerkUserId }) };
+    if (id === '@clerk/nextjs/server') return { auth: async () => ({ userId: clerkUserId }), currentUser: async () => clerkUserId && ({ id: clerkUserId, phoneNumbers: [{ phoneNumber: '+244900000100', verification: {status: 'verified'} }], emailAddresses: [{emailAddress: 'Pilot@example.test', verification: {status: 'verified'}}] }) };
     if (id === 'server-only') return {};
     if (id === 'next/headers') return { cookies };
     if (id === 'next/navigation') return { redirect: url => { throw new Redirect(url); } };
@@ -109,6 +109,21 @@ async function action(id, decision, consent = true) {
   clerkUserId=null;assert.equal(await postComment(),'signed-out');
   assert.equal(await commentActions.requestCommentAccess(),'signed-out');
   clerkUserId='user_customer12345678';assert.equal(await postComment(),'permission-required','Sign-in alone does not verify a commenter');
+  const accessBlock = new FormData();
+  accessBlock.set('kind', 'phone');
+  accessBlock.set('contact', '+244 900 000 100');
+  accessBlock.set('reason', 'Pilot test decision');
+  accessBlock.set('decision', 'block');
+  const changeBlock = () => load('app/staff/review/access-block-actions').changePilotAccessBlock('', accessBlock);
+  loggedIn = false;
+  assert.equal(await changeBlock(), 'unauthorized');
+  loggedIn = true;
+  assert.equal(await changeBlock(), 'blocked');
+  assert.equal(await commentActions.requestCommentAccess(), 'blocked');
+  assert.equal((await commentData.commenterAccount(clerkUserId)).accessRequested, false);
+  assert.equal(await postComment(), 'blocked');
+  accessBlock.set('decision', 'unblock');
+  assert.equal(await changeBlock(), 'unblocked');
   await Promise.all([commentActions.requestCommentAccess(), commentActions.requestCommentAccess()]);
   assert.equal((await commentData.commenterAccount(clerkUserId)).accessRequested, true);
   assert.equal((await commentData.commenterAccount('user_another_customer')).accessRequested, false);
@@ -119,6 +134,13 @@ async function action(id, decision, consent = true) {
   loggedIn=true;assert.equal(await staffComments.verifyCommenter('',verification),'invalid','Phone/identity confirmation required');
   verification.set('checked','on');assert.equal(await staffComments.verifyCommenter('',verification),'verified');
   assert.equal(db.prepare('SELECT COUNT(*) AS count FROM restaurant_comment_access_requests').get().count, 0);
+  accessBlock.set('kind', 'email');
+  accessBlock.set('contact', 'PILOT@EXAMPLE.TEST');
+  accessBlock.set('decision', 'block');
+  assert.equal(await changeBlock(), 'blocked');
+  assert.equal(await postComment(), 'blocked', 'A signed-in, approved commenter is blocked by verified email');
+  accessBlock.set('decision', 'unblock');
+  assert.equal(await changeBlock(), 'unblocked');
   await commentActions.requestCommentAccess();
   assert.equal((await commentData.commenterAccount(clerkUserId)).accessRequested, false);
   assert.equal(db.prepare('SELECT COUNT(*) AS count FROM restaurant_comment_access_requests').get().count, 0);

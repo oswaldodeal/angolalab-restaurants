@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { auth } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
 import { executePrivateSql, sqlRows } from '@/lib/turso';
+import { isPilotContactBlocked, pilotContactBlocked, verifiedContactKeys } from '@/lib/pilot-access-blocks';
 import { prepareComments } from '@/lib/restaurant-comments';
 
 // A withdrawn draft can be replaced, but a published comment still counts after removal.
@@ -18,10 +19,13 @@ export async function requestCommentAccess(): Promise<string> {
   const { userId } = await auth();
   if (!userId) return 'signed-out';
   try {
+    const keys = await verifiedContactKeys(userId);
     await prepareComments();
-    await executePrivateSql(`INSERT INTO restaurant_comment_access_requests(user_id,requested_at)
+    const requested = await executePrivateSql(`INSERT INTO restaurant_comment_access_requests(user_id,requested_at)
       SELECT ?,? WHERE NOT EXISTS(SELECT 1 FROM restaurant_commenters WHERE user_id=? AND active=1)
-      ON CONFLICT(user_id) DO NOTHING`, [userId, new Date().toISOString(), userId]);
+      AND NOT ${pilotContactBlocked}
+      ON CONFLICT(user_id) DO NOTHING`, [userId, new Date().toISOString(), userId, keys]);
+    if (!Number(requested.affected_row_count) && await isPilotContactBlocked(keys)) return 'blocked';
     revalidatePath('/en/account');
     revalidatePath('/pt/conta');
     revalidatePath('/staff/review');
@@ -43,15 +47,18 @@ export async function submitComment(_previous: string, form: FormData): Promise<
   if (form.get('consent') !== 'on') return 'consent-required';
   try {
     await prepareComments();
+    const keys = await verifiedContactKeys(userId);
     const now = new Date();
     const changed = await executePrivateSql(`INSERT INTO restaurant_comments(id,restaurant_id,user_id,public_name,menu_reference,body,status,created_at,version)
       SELECT ?,l.id,u.user_id,u.public_name,?,?,'pending',?,? FROM restaurant_listings l JOIN restaurant_commenters u ON u.user_id=? AND u.active=1 WHERE l.id=?
       AND EXISTS(SELECT 1 FROM restaurant_menu_items m JOIN restaurant_menu_references r ON r.item_id=m.id WHERE m.restaurant_id=l.id AND r.number=CAST(? AS INTEGER))
       AND NOT EXISTS(SELECT 1 FROM restaurant_owners o WHERE o.restaurant_id=l.id AND o.clerk_user_id=u.user_id)
       AND NOT EXISTS(SELECT 1 FROM restaurant_comments c WHERE c.user_id=u.user_id AND c.restaurant_id=l.id AND c.created_at>? AND ${countsTowardRestaurantLimit})
-      AND (SELECT COUNT(*) FROM restaurant_comments c WHERE c.user_id=u.user_id AND c.created_at>?)<5`,
-      [randomUUID(),reference,body,now.toISOString(),randomUUID(),userId,id,reference.slice(3),new Date(now.getTime()-86400000).toISOString(),new Date(now.getTime()-86400000).toISOString()]);
+      AND (SELECT COUNT(*) FROM restaurant_comments c WHERE c.user_id=u.user_id AND c.created_at>?)<5
+      AND NOT ${pilotContactBlocked}`,
+      [randomUUID(),reference,body,now.toISOString(),randomUUID(),userId,id,reference.slice(3),new Date(now.getTime()-86400000).toISOString(),new Date(now.getTime()-86400000).toISOString(),keys]);
     if (Number(changed.affected_row_count) !== 1) {
+      if (await isPilotContactBlocked(keys)) return 'blocked';
       const cutoff=new Date(now.getTime()-86400000).toISOString();
       const reason=sqlRows(await executePrivateSql(`SELECT CASE
         WHEN NOT EXISTS(SELECT 1 FROM restaurant_commenters WHERE user_id=? AND active=1) THEN 'permission-required'

@@ -11,6 +11,7 @@ export function NewCommentForm({ restaurants, language, initialRestaurantId }: {
   const [restaurantId,setRestaurantId]=useState(() => restaurants.some(r => r.id === initialRestaurantId) ? initialRestaurantId! : '');
   const items=restaurants.find(r=>r.id===restaurantId)?.items??[];
   const messages:Record<string,string>=pt?{
+    'blocked':'O acesso aos comentários está bloqueado.',
     'signed-out':'Entre novamente na sua conta para comentar.',
     'permission-required':'A equipa precisa de autorizar os seus comentários. A verificação do restaurante é separada.',
     'own-restaurant':'Não pode comentar o seu próprio restaurante. Para testar, use uma conta de cliente autorizada e não associada a este restaurante.',
@@ -22,6 +23,7 @@ export function NewCommentForm({ restaurants, language, initialRestaurantId }: {
     'consent-required':'Confirme a sua experiência e a autorização para publicar.',
     'comment-pending':'Comentário guardado. Aguarda análise da equipa; ainda não está público.',
   }:{
+    'blocked':'Your commenting access is blocked.',
     'signed-out':'Sign in again to leave a comment.',
     'permission-required':'Staff need to enable your commenting access. Restaurant verification is separate.',
     'own-restaurant':'You cannot review your own restaurant. To test, use an authorised customer account that is not linked to this restaurant.',
@@ -55,7 +57,9 @@ export function CommentAccessRequestForm({ language }: { language: 'en' | 'pt' }
       {pending ? (pt ? 'A enviar…' : 'Sending…') : (pt ? 'Pedir autorização para comentar' : 'Request commenting access')}
     </button>
     {result && <p role="status" className="text-red-700">
-      {result === 'signed-out'
+      {result === 'blocked'
+        ? (pt ? 'O acesso aos comentários está bloqueado.' : 'Your commenting access is blocked.')
+        : result === 'signed-out'
         ? (pt ? 'Entre novamente para enviar o pedido.' : 'Sign in again to send your request.')
         : (pt ? 'Não foi possível enviar o pedido. Tente novamente.' : 'Could not send your request. Please try again.')}
     </p>}
