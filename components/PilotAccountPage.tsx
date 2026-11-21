@@ -35,7 +35,7 @@ export default async function PilotAccountPage({ language, mode, restaurantId }:
         {mode === 'sign-up' && (
           <div className="flex w-full max-w-md flex-col items-center gap-5">
             <aside aria-labelledby="responsible-use-heading" className="w-full rounded-xl border border-[#ded8c5] bg-[#fffdf8] p-4 text-sm leading-relaxed">
-              <h2 id="responsible-use-heading" className="font-semibold">{pt ? 'Use a AngolaLab com responsabilidade' : 'Use AngolaLab responsibly'}</h2>
+              <h2 id="responsible-use-heading" className="font-semibold">{pt ? 'Usa o AngolaLab com responsabilidade' : 'Use AngolaLab responsibly'}</h2>
               <p className="mt-2">{pt
                 ? 'Não faça pedidos falsos, não assedie clientes ou funcionários e não use outra conta para contornar um bloqueio. O uso indevido pode levar ao bloqueio do seu número de telefone verificado e à perda de acesso às funcionalidades que exigem uma conta verificada em toda a AngolaLab, incluindo através de códigos QR já em circulação.'
                 : 'Do not place fake orders, harass customers or staff, or use another account to get around a block. Abuse may lead to your verified phone number being blocked and loss of access to features that require a verified account across AngolaLab, including through QR codes already in circulation.'}</p>
