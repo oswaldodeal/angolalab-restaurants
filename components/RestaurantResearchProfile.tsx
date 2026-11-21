@@ -192,6 +192,10 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
               </section>
               <section className="rounded-xl border border-[#e9e5db] p-6 sm:p-8">
                 <h2 id="menu" className="scroll-mt-28 text-xl font-semibold">{pt ? '02 · Ementa' : '02 · Menu'}</h2>
+                {showPilotQr && <a href={withRestaurantReferral(pt ? '/pt/conta' : '/en/account', restaurant.id)}
+                  className="mt-3 inline-flex rounded-lg border border-emerald-700 px-4 py-2 text-sm font-semibold text-emerald-800 hover:bg-emerald-50">
+                  {pt ? 'Fazer pedido' : 'Place an order'}
+                </a>}
                 <p className="mt-4 text-[#555]">
                   {!restaurant.menuItems?.length && !restaurant.menuPdf && !isDemo
                     ? (pt ? 'A ementa ainda não foi adicionada.' : 'The menu has not been added yet.')

@@ -1,3 +1,4 @@
+import RestaurantOrders from '@/components/RestaurantOrders';
 import { withRestaurantReferral } from '@/lib/restaurant-referral';
 import AccountComments from '@/components/AccountComments';
 import OwnerRestaurants from '@/components/OwnerRestaurants';
@@ -47,6 +48,7 @@ export default async function PilotAccountPage({ language, mode, restaurantId }:
           <div className="w-full max-w-4xl self-start rounded-xl border border-[#ded8c5] p-8">
             <h1 className="text-3xl font-semibold">{pt ? 'A sua conta AngolaLab' : 'Your AngolaLab account'}</h1>
             <p className="mt-4">{pt ? 'Sessão iniciada no piloto privado.' : 'You are signed in to the private pilot.'}</p>
+            {userId && <RestaurantOrders userId={userId} language={language} restaurantId={restaurantId} />}
             {userId && <OwnerRestaurants userId={userId} language={language} />}
             {userId && <AccountComments userId={userId} language={language} restaurantId={restaurantId} />}
             <div className="mt-6 flex flex-wrap items-center gap-4">

@@ -1,3 +1,5 @@
+import RestaurantOrders from '@/components/RestaurantOrders';
+import { registrationPilotId } from '@/lib/restaurant-referral';
 import OwnerPublishedComments from '@/components/OwnerPublishedComments';
 import OwnerLogoForm from '@/components/OwnerLogoForm';
 import OwnerDetailsForm from '@/components/OwnerDetailsForm';
@@ -25,6 +27,7 @@ export default async function OwnerRestaurants({ userId, language }: { userId: s
         <h3 className="text-lg font-semibold">{restaurant.name}</h3>
         <Link href={`${pt ? '/pt/restaurantes' : '/en/restaurants'}/${restaurant.id}`} className="font-semibold text-emerald-700 underline underline-offset-4">{pt ? 'Ver perfil' : 'View profile'}</Link>
       </div>
+      {restaurant.id === registrationPilotId && <RestaurantOrders userId={userId} language={language} counter />}
       <OwnerPublishedComments restaurantId={restaurant.id!} userId={userId} language={language}/>
       <OwnerLogoForm id={restaurant.id!} language={language} src={restaurant.logo_url} token={restaurant.logo_url ? createHash('sha256').update(restaurant.logo_url).digest('hex') : ''} />
       <OwnerDetailsForm id={restaurant.id!} language={language} description={restaurant.description ?? ''} hours={restaurant.opening_hours ?? ''} version={restaurant.details_version ?? ''} />
