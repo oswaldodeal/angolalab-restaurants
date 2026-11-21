@@ -341,7 +341,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src="/angolalab-education.svg" alt="" width={800} height={680} loading="lazy" className="absolute inset-0 -z-10 h-full w-full object-cover object-[center_40%]" />
                   <figcaption className="w-full bg-[#252a32] px-4 py-3 font-semibold text-[#F2C94C]">
-                    {pt ? 'Apoia a Educação Segura-Jovem' : 'Support Segura-Jovem Education'}
+                    {pt ? 'Apoia a Educação Segura-Jovem' : 'Support Hold-Youth Education'}
                   </figcaption>
                 </figure>
               </div>
