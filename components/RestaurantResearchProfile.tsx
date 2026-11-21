@@ -1,3 +1,4 @@
+import { RestaurantBasketProvider, RestaurantBasketSummary } from '@/components/RestaurantBasket';
 import { registrationPilotId, withRestaurantReferral } from '@/lib/restaurant-referral';
 import RestaurantComments from '@/components/RestaurantComments';
 import { MenuCategoryProvider, TextRestaurantMenu } from '@/components/MenuCategoryProvider';
@@ -182,7 +183,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
             </section>
           )}
 
-          <MenuCategoryProvider><div className="grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(270px,1fr)]">
+          <RestaurantBasketProvider enabled={showPilotQr}><MenuCategoryProvider><div className="grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(270px,1fr)]">
             <div className="space-y-6">
               <section className="rounded-xl border border-[#e9e5db] p-6 sm:p-8">
                 <h2 className="text-xl font-semibold">{pt ? '01 · Sobre o restaurante' : '01 · About the restaurant'}</h2>
@@ -192,10 +193,10 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
               </section>
               <section className="rounded-xl border border-[#e9e5db] p-6 sm:p-8">
                 <h2 id="menu" className="scroll-mt-28 text-xl font-semibold">{pt ? '02 · Ementa' : '02 · Menu'}</h2>
-                {showPilotQr && <a href={withRestaurantReferral(pt ? '/pt/conta' : '/en/account', restaurant.id)}
-                  className="mt-3 inline-flex rounded-lg border border-emerald-700 px-4 py-2 text-sm font-semibold text-emerald-800 hover:bg-emerald-50">
-                  {pt ? 'Fazer pedido' : 'Place an order'}
-                </a>}
+                {showPilotQr && <RestaurantBasketSummary language={language} items={restaurant.menuItems?.flatMap(item =>
+                  item.referenceCode && item.availability === 'available'
+                    ? [{ reference: item.referenceCode, name: pt ? item.name : item.nameEn || item.name, price: item.price }]
+                    : []) ?? []} />}
                 <p className="mt-4 text-[#555]">
                   {!restaurant.menuItems?.length && !restaurant.menuPdf && !isDemo
                     ? (pt ? 'A ementa ainda não foi adicionada.' : 'The menu has not been added yet.')
@@ -321,7 +322,7 @@ export default function RestaurantResearchProfile({ restaurant, language }: {
               </section>
               {!isDemo && <TextRestaurantMenu items={textMenuItems} country={restaurant.country} language={language} />}
             </aside>
-          </div></MenuCategoryProvider>
+          </div></MenuCategoryProvider></RestaurantBasketProvider>
           {showPilotQr && (
             <section aria-labelledby="restaurant-qr-title" className="mt-6 rounded-xl border border-[#e9e5db] bg-[#fffdf8] p-4 sm:p-6">
               <div className="grid gap-6 lg:grid-cols-[minmax(0,28rem)_minmax(0,1fr)] lg:items-center">

@@ -1,5 +1,6 @@
 'use client';
 import { createContext, useContext, useState, type ReactNode, type Dispatch, type SetStateAction } from 'react';
+import { useRestaurantBasket } from '@/components/RestaurantBasket';
 import type { SavedMenuItem } from '@/lib/store';
 
 const MenuCategoryContext = createContext<{ category: string; setCategory: Dispatch<SetStateAction<string>> } | null>(null);
@@ -14,6 +15,7 @@ export function useMenuCategory() {
 }
 export function TextRestaurantMenu({ items, country, language }: { items: SavedMenuItem[]; country: string; language: 'pt' | 'en' }) {
   const { category } = useMenuCategory();
+  const basket = useRestaurantBasket();
   const pt = language === 'pt';
   const visible = items.filter(item => !item.photo && (category === 'all' || item.category === category));
   const menuCurrency = country === 'GB' ? 'GBP' : country === 'PT' ? 'EUR' : 'AOA';
@@ -34,6 +36,10 @@ export function TextRestaurantMenu({ items, country, language }: { items: SavedM
                             <span className="shrink-0 text-emerald-800">{new Intl.NumberFormat(pt ? 'pt-PT' : 'en-GB', { style: 'currency', currency: menuCurrency }).format(Number(item.price))}</span>
                           </div>
                           {item.referenceCode && <p className="mt-1 text-xs text-[#555]"><code>{item.referenceCode}</code></p>}
+                          {basket && item.referenceCode && item.availability === 'available' &&
+                            <button type="button" onClick={() => basket.add(item.referenceCode!)} className="mt-2 text-sm font-semibold text-emerald-800 underline">
+                              {pt ? 'Adicionar ao cesto' : 'Add to basket'}{basket.basket[item.referenceCode] ? ` (${basket.basket[item.referenceCode]})` : ''}
+                            </button>}
                           {item.availability === 'unavailable' && <p className="mt-1 text-xs text-[#555]">{pt ? 'Indisponível' : 'Unavailable'}</p>}
                         </li>)}
                       </ul>

@@ -1,17 +1,32 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { decideRestaurantOrder, submitRestaurantOrder } from '@/app/orders/actions';
+
+import { readRestaurantBasket, saveRestaurantBasket } from './RestaurantBasket';
 
 const input = 'rounded-lg border border-[#ded8c5] bg-white p-2';
 const button = 'rounded-lg bg-[#252a32] px-4 py-2 font-semibold text-white disabled:opacity-50';
 type Language = 'en' | 'pt';
 
-export function PlaceOrderForm({ language, orderId, items }: {
-  language: Language; orderId: string; items: { reference: string; name: string; price: string }[];
+export function PlaceOrderForm({ language, orderId, items, hasPending, menuHref }: {
+  language: Language; orderId: string; hasPending: boolean; menuHref: string; items: { reference: string; name: string; price: string }[];
 }) {
   const pt = language === 'pt';
-  const [result, action, pending] = useActionState(submitRestaurantOrder, '');
+  const [basket, setBasket] = useState<Record<string, number> | null>(null);
+  useEffect(() => {
+    const stored = readRestaurantBasket();
+    setBasket(stored);
+    if (Object.keys(stored).length) document.getElementById('my-orders')?.scrollIntoView();
+  }, []);
+  const [result, action, pending] = useActionState(async (previous: string, data: FormData) => {
+    const result = await submitRestaurantOrder(previous, data);
+    if (result === 'submitted') {
+      saveRestaurantBasket({});
+      setBasket({});
+    }
+    return result;
+  }, '');
   const messages: Record<string,string> = pt ? {
     submitted: 'Pedido enviado ao balcão.', blocked: 'O acesso aos pedidos está bloqueado.',
     'verification-required': 'Verifica o telefone ou e-mail da tua conta para fazer pedidos.',
@@ -23,18 +38,29 @@ export function PlaceOrderForm({ language, orderId, items }: {
     invalid: 'Choose at least one item, with a quantity between 1 and 10.',
     stale: 'Check whether you already have a pending order or the menu has changed.',
   };
-  return <form action={action} className="mt-3 space-y-3">
-    <input type="hidden" name="orderId" value={orderId}/>
-    <fieldset disabled={pending} className="space-y-3">
-      <legend>{pt ? 'Indica a quantidade de cada item (0–10).' : 'Enter a quantity for each item (0–10).'}</legend>
-      {items.map(item => <label key={item.reference} className="flex flex-wrap items-center justify-between gap-2">
-        <span>{item.name} · {item.reference} · {item.price}</span>
-        <input type="number" inputMode="numeric" name={`item:${item.reference}`} min={0} max={10} step={1} defaultValue={0} className={`${input} w-20`}/>
-      </label>)}
-      <button className={button}>{pt ? 'Enviar pedido ao balcão' : 'Send order to counter'}</button>
-    </fieldset>
+  if (!basket || hasPending) return null;
+  const selected = items.filter(item => basket[item.reference]);
+  const missing = selected.length < Object.keys(basket).length;
+  const menuLink = <a href={menuHref} className="font-semibold text-emerald-800 underline">{pt ? 'Voltar à ementa' : 'Back to menu'}</a>;
+  return <div className="mt-3 space-y-3">
+    {missing && <p role="status">{pt ? 'Alguns itens do cesto já não estão disponíveis.' : 'Some basket items are no longer available.'}</p>}
+    {!selected.length ? <p>{pt ? 'O cesto está vazio. ' : 'Your basket is empty. '}{menuLink}</p> :
+      <form action={action} className="space-y-3">
+        <input type="hidden" name="orderId" value={orderId}/>
+        <fieldset disabled={pending} className="space-y-3">
+          <legend>{pt ? 'Revê as quantidades do cesto (0–10).' : 'Review your basket quantities (0–10).'}</legend>
+          {selected.map(item => <label key={item.reference} className="flex flex-wrap items-center justify-between gap-2">
+            <span>{item.name} · {item.reference} · {item.price}</span>
+            <input type="number" inputMode="numeric" name={`item:${item.reference}`} min={0} max={10} step={1} defaultValue={basket[item.reference]} className={`${input} w-20`}/>
+          </label>)}
+          <div className="flex flex-wrap items-center gap-3">
+            <button className={button}>{pt ? 'Enviar pedido ao balcão' : 'Send order to counter'}</button>
+            {menuLink}
+          </div>
+        </fieldset>
+      </form>}
     {result && <p role="status">{messages[result] ?? (pt ? 'Não foi possível enviar o pedido.' : 'Unable to send the order.')}</p>}
-  </form>;
+  </div>;
 }
 
 export function CounterOrderForm({ language, orderId, accepted, items }: {

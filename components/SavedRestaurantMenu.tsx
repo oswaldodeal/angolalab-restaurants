@@ -1,9 +1,11 @@
 'use client';
 import { useMenuCategory } from '@/components/MenuCategoryProvider';
+import { useRestaurantBasket } from '@/components/RestaurantBasket';
 import type { SavedMenuItem } from '@/lib/store';
 
 export default function SavedRestaurantMenu({ items, country, language }: { items: SavedMenuItem[]; country: string; language: 'en' | 'pt' }) {
   const { category, setCategory } = useMenuCategory();
+  const basket = useRestaurantBasket();
   const pt = language === 'pt';
   const currency = country === 'GB' ? 'GBP' : country === 'PT' ? 'EUR' : 'AOA';
   const labels = [['all', pt ? 'Todos' : 'All'], ['mains', pt ? 'Pratos principais' : 'Main courses'], ['drinks', pt ? 'Bebidas' : 'Drinks'], ['desserts', pt ? 'Sobremesas' : 'Desserts']];
@@ -12,8 +14,15 @@ export default function SavedRestaurantMenu({ items, country, language }: { item
     <div role="group" aria-label={pt ? 'Categorias da ementa' : 'Menu categories'} className="flex flex-wrap gap-4 border-b border-[#e9e5db]">
       {labels.map(([key,label]) => <button key={key} type="button" aria-pressed={category === key} onClick={() => setCategory(key)} className={`border-b-2 px-1 pb-3 text-sm font-semibold ${category === key ? 'border-emerald-700 text-emerald-700' : 'border-transparent text-[#555]'}`}>{label}</button>)}
     </div>
-    <div className="mt-5 grid gap-4 sm:grid-cols-2">{visible.map(item => <article key={item.id} className="overflow-hidden rounded-xl border border-[#e9e5db] bg-white">
-      {item.photo && <img src={item.photo} alt={language === 'en' && item.nameEn ? item.nameEn : item.name} loading="lazy" className="aspect-[4/3] w-full object-cover" />}
+    <div className="mt-5 grid gap-4 sm:grid-cols-2">{visible.map(item => {
+      const name = !pt && item.nameEn ? item.nameEn : item.name;
+      const reference = item.referenceCode;
+      const canAdd = basket && reference && item.availability === 'available';
+      const photo = item.photo && <img src={item.photo} alt={name} loading="lazy" className="aspect-[4/3] w-full object-cover" />;
+      return <article key={item.id} className="overflow-hidden rounded-xl border border-[#e9e5db] bg-white">
+      {canAdd && photo ? <button type="button" onClick={() => basket.add(reference)}
+        aria-label={pt ? `Adicionar ${name} ao cesto` : `Add ${name} to basket`}
+        className="block w-full cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-emerald-700">{photo}</button> : photo}
       <div className="p-4"><h3 className="font-semibold">{language === 'en' && item.nameEn ? item.nameEn : item.name}</h3>
         {item.referenceCode && <p className="mt-2 text-sm text-[#555]">{pt ? 'Referência' : 'Reference'}: <code className="font-semibold tracking-wide text-[#242424]">{item.referenceCode}</code></p>}
         <span className={`mt-2 inline-block rounded-full px-3 py-1 text-xs font-semibold ${item.availability === 'unavailable' ? 'bg-gray-100 text-gray-700' : 'bg-emerald-50 text-emerald-800'}`}>
@@ -21,8 +30,12 @@ export default function SavedRestaurantMenu({ items, country, language }: { item
         </span>
         {item.photo?.startsWith('/demo/') && <p className="mt-1 text-xs text-[#555]">{pt ? 'Imagem ilustrativa' : 'Illustrative image'}</p>}
         <p className="mt-2 text-lg font-semibold text-emerald-800">{new Intl.NumberFormat(pt ? 'pt-PT' : 'en-GB', { style: 'currency', currency }).format(Number(item.price))}</p>
+        {canAdd && <button type="button" onClick={() => basket.add(reference)} className="mt-2 text-sm font-semibold text-emerald-800 underline">
+          {pt ? 'Adicionar ao cesto' : 'Add to basket'}{basket.basket[reference] ? ` (${basket.basket[reference]})` : ''}
+        </button>}
       </div>
-    </article>)}</div>
+    </article>;
+    })}</div>
     {visible.length === 0 && <p className="mt-4 text-sm text-[#555]">{pt ? 'Ainda não há itens nesta categoria.' : 'No items in this category yet.'}</p>}
   </div>;
 }

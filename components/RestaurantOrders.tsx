@@ -29,9 +29,8 @@ export default async function RestaurantOrders({ userId, language, restaurantId,
     return <section id={counter ? 'counter-orders' : 'my-orders'} className="mt-6 space-y-3 rounded-lg border border-[#ded8c5] bg-[#fffdf8] p-4 text-sm">
       <h2 className="text-lg font-semibold">{counter ? (pt ? 'Pedidos do balcão' : 'Counter orders') : (pt ? 'Os meus pedidos' : 'My orders')}</h2>
       {placing && <p>{pt ? 'Aguarda a confirmação e paga no balcão.' : 'Wait for confirmation and pay at the counter.'}</p>}
-      {placing && !pendingOrder && (items.length
-        ? <PlaceOrderForm language={language} orderId={randomUUID()} items={items}/>
-        : <p>{pt ? 'Não há itens disponíveis para pedir.' : 'No items are available to order.'}</p>)}
+      {placing && <PlaceOrderForm language={language} orderId={randomUUID()} items={items} hasPending={pendingOrder}
+        menuHref={`${pt ? '/pt/restaurantes' : '/en/restaurants'}/${registrationPilotId}#menu`}/>}
       {counter && !orders.length && <p>{pt ? 'Ainda não há pedidos.' : 'No orders yet.'}</p>}
       {orders.map(order => <article key={order.id} className="rounded-lg border border-[#ded8c5] bg-white p-3">
         <p className="font-semibold">{statuses[order.status!]} · <code className="break-all">{order.id}</code></p>
