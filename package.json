@@ -5,10 +5,13 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "prebuild": "node scripts/check-preview-db.cjs"
   },
   "dependencies": {
-    "next": "^16.4.2",
+    "@clerk/localizations": "^4.24.6",
+    "@clerk/nextjs": "^7.9.25",
+    "next": "16.4.6",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },

@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
   }
   const response = NextResponse.redirect(new URL('/staff/review', request.url), 303);
   response.cookies.set(STAFF_COOKIE, makeSession(), {
-    httpOnly: true, secure: true, sameSite: 'strict', path: '/staff',
+    httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', path: '/staff',
     maxAge: 60 * 60 * 8,
   });
   response.headers.set('Cache-Control', 'no-store');

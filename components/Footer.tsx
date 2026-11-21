@@ -1,16 +1,22 @@
+'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export default function Footer() {
+  const pathname = usePathname();
+  const homeHref = pathname?.startsWith('/en') ? '/en' : '/pt';
+
   return (
     <footer className="bg-slate-900 text-white py-12 px-6">
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-3 gap-8">
           {/* Brand */}
           <div>
-<p className="text-xl font-bold mb-3">
+<Link href={`${homeHref}#top`} onClick={(event) => { if (pathname === homeHref) { event.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); } }} className="mb-3 inline-block text-xl font-bold hover:opacity-80 focus-visible:rounded focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#F2C94C]" aria-label="AngolaLab — Home">
   <span className="text-emerald-400">Angola</span>
   <span className="text-[#F2C94C]">Lab</span>
-</p>
+</Link>
             <p className="text-slate-400 text-sm">
               Descubra negócios verificados em Angola.<br />
               Grátis para listar, grátis para descobrir.
@@ -38,8 +44,13 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-[#F2C94C] mt-8 pt-6 text-center text-slate-500 text-sm">
-          © {new Date().getFullYear()} AngolaLab — Todos os direitos reservados
+        <div className="mt-8 text-center text-sm">
+          <Link href="/staff/review/login" prefetch={false} className="mb-3 inline-block rounded text-slate-300 underline underline-offset-4 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#F2C94C]">
+            {homeHref === '/en' ? 'Staff only' : 'Apenas para a equipa'}
+          </Link>
+        </div>
+        <div className="border-t border-[#F2C94C] pt-6 text-center text-sm text-slate-500">
+          <p>© {new Date().getFullYear()} AngolaLab — Todos os direitos reservados</p>
         </div>
       </div>
     </footer>

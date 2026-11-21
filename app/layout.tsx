@@ -4,8 +4,8 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
-  title: 'AngolaLab — Restaurantes Verificados',
-  description: 'Descubra restaurantes verificados em Angola',
+  title: 'AngolaLab — Rede de Restaurantes',
+  description: 'Explore restaurantes, registos Básicos e perfis de demonstração na rede AngolaLab.',
 };
 
 export default function RootLayout({
@@ -16,7 +16,7 @@ export default function RootLayout({
   return (
     <html lang="pt">
       {/* Body = clean white → Hero controls its own grey background ✅ */}
-      <body className="min-h-screen bg-white text-slate-900 flex flex-col">
+      <body id="top" className="min-h-screen bg-white text-slate-900 flex flex-col">
         <Header />
         
         
