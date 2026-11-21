@@ -802,8 +802,11 @@ async function action(id, decision, consent = true) {
   db.exec("UPDATE restaurant_menu_items SET availability='unavailable' WHERE id='order-item'");
   assert.equal(await placeOrder(),'stale');
   db.exec("UPDATE restaurant_menu_items SET availability='available' WHERE id='order-item'");
+  clerkUserId = 'user_counter123456';
+  assert.equal(await placeOrder(),'own-restaurant');
+  clerkUserId = 'user_customer12345678';
   assert.equal(await placeOrder(),'submitted');
-  assert.equal(await placeOrder(),'stale');
+  assert.equal(await placeOrder(),'already-submitted');
   const firstOrder = (await orderData.getRestaurantOrders(clerkUserId,pilotId))[0];
   assert.equal(firstOrder.status,'pending');
   assert.deepEqual(firstOrder.lines,[{reference,quantity:2,name:'Omelette',nameEn:'',price:'3500'}]);

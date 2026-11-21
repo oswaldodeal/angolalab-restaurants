@@ -31,14 +31,21 @@ export function PlaceOrderForm({ language, orderId, items, hasPending, menuHref 
     submitted: 'Pedido enviado ao balcão.', blocked: 'O acesso aos pedidos está bloqueado.',
     'verification-required': 'Verifica o telefone ou e-mail da tua conta para fazer pedidos.',
     invalid: 'Escolhe pelo menos um item, com quantidade entre 1 e 10.',
-    stale: 'Verifica se já tens um pedido pendente ou se a ementa mudou.',
+    'own-restaurant': 'Estás na conta do balcão. Entra com uma conta de cliente para pedir neste restaurante.',
+    'already-submitted': 'Este pedido já foi enviado. Consulta Os meus pedidos.',
+    'pending-order': 'Já tens um pedido a aguardar confirmação do balcão.',
+    stale: 'A ementa pode ter mudado. Volta à ementa e verifica o cesto.',
   } : {
     submitted: 'Order sent to the counter.', blocked: 'Your ordering access is blocked.',
     'verification-required': 'Verify your account phone number or email to order.',
     invalid: 'Choose at least one item, with a quantity between 1 and 10.',
-    stale: 'Check whether you already have a pending order or the menu has changed.',
+    'own-restaurant': 'You’re signed in to the counter account. Sign in with a customer account to order here.',
+    'already-submitted': 'This order was already sent. Check My orders.',
+    'pending-order': 'You already have an order awaiting counter confirmation.',
+    stale: 'The menu may have changed. Go back to the menu and check your basket.',
   };
-  if (!basket || hasPending) return null;
+  if (!basket) return null;
+  if (hasPending) return <p role="status">{messages['pending-order']}</p>;
   const selected = items.filter(item => basket[item.reference]);
   const missing = selected.length < Object.keys(basket).length;
   const menuLink = <a href={menuHref} className="font-semibold text-emerald-800 underline">{pt ? 'Voltar à ementa' : 'Back to menu'}</a>;

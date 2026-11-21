@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { isPilotContactBlocked, pilotContactBlocked, verifiedContactKeys } from '@/lib/pilot-access-blocks';
 import { registrationPilotId } from '@/lib/restaurant-referral';
 import { prepareRestaurantOrders } from '@/lib/restaurant-orders';
-import { executePrivateSql } from '@/lib/turso';
+import { executePrivateSql, sqlRows } from '@/lib/turso';
 
 function refreshOrders() {
   revalidatePath('/en/account');
@@ -45,7 +45,16 @@ export async function submitRestaurantOrder(_previous: string, form: FormData): 
       AND (SELECT count(*) FROM available)=(SELECT count(*) FROM requested)
       AND NOT ${pilotContactBlocked}
     ON CONFLICT DO NOTHING`, [JSON.stringify(items),registrationPilotId,id,userId,new Date().toISOString(),registrationPilotId,userId,keys]);
-    if (!Number(changed.affected_row_count)) return await isPilotContactBlocked(keys) ? 'blocked' : 'stale';
+    if (!Number(changed.affected_row_count)) {
+      if (await isPilotContactBlocked(keys)) return 'blocked';
+      const [result] = sqlRows(await executePrivateSql(`SELECT CASE
+        WHEN EXISTS (SELECT 1 FROM restaurant_owners WHERE restaurant_id=? AND clerk_user_id=?) THEN 'own-restaurant'
+        WHEN EXISTS (SELECT 1 FROM restaurant_orders WHERE id=? AND restaurant_id=? AND customer_id=?) THEN 'already-submitted'
+        WHEN EXISTS (SELECT 1 FROM restaurant_orders WHERE restaurant_id=? AND customer_id=? AND status='pending') THEN 'pending-order'
+        ELSE 'stale' END AS reason`, [registrationPilotId,userId,id,registrationPilotId,userId,registrationPilotId,userId]));
+      refreshOrders();
+      return result?.reason ?? 'stale';
+    }
     refreshOrders();
     return 'submitted';
   } catch { return 'unavailable'; }
