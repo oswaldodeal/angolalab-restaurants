@@ -44,10 +44,12 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-[#F2C94C] mt-8 pt-6 text-center text-slate-500 text-sm">
+        <div className="mt-8 text-center text-sm">
           <Link href="/staff/review/login" prefetch={false} className="mb-3 inline-block rounded text-slate-300 underline underline-offset-4 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#F2C94C]">
             {homeHref === '/en' ? 'Staff only' : 'Apenas para a equipa'}
           </Link>
+        </div>
+        <div className="border-t border-[#F2C94C] pt-6 text-center text-sm text-slate-500">
           <p>© {new Date().getFullYear()} AngolaLab — Todos os direitos reservados</p>
         </div>
       </div>
