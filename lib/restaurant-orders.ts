@@ -18,15 +18,18 @@ export async function prepareRestaurantOrders() {
 
 export type OrderLine = { reference: string; name: string; nameEn: string; price: string; quantity: number };
 
-export async function getRestaurantOrders(userId: string, restaurantId: string, counter = false) {
+export async function getRestaurantOrders(userId: string, restaurantId: string | undefined, counter = false) {
+  if (counter && !restaurantId) return [];
   await prepareRestaurantOrders();
   const filter = counter
     ? 'EXISTS (SELECT 1 FROM restaurant_owners o WHERE o.restaurant_id=r.restaurant_id AND o.clerk_user_id=?)'
     : 'r.customer_id=?';
-  const rows = sqlRows(await executePrivateSql(`SELECT r.id,r.lines,r.status,r.created_at,r.decline_reason,r.decline_item,r.decline_note
-    FROM restaurant_orders r WHERE r.restaurant_id=? AND ${filter}
-    ORDER BY CASE r.status WHEN 'pending' THEN 0 WHEN 'accepted' THEN 1 ELSE 2 END,r.created_at DESC,r.rowid DESC LIMIT 50`, [restaurantId,userId]));
+  const rows = sqlRows(await executePrivateSql(`SELECT r.restaurant_id,i.restaurant_name,i.country,r.id,r.lines,r.status,r.created_at,r.decline_reason,r.decline_item,r.decline_note
+    FROM restaurant_orders r LEFT JOIN restaurant_intake i ON i.id=r.restaurant_id
+    WHERE (? IS NULL OR r.restaurant_id=?) AND ${filter}
+    ORDER BY CASE r.status WHEN 'pending' THEN 0 WHEN 'accepted' THEN 1 ELSE 2 END,r.created_at DESC,r.rowid DESC LIMIT 50`, [restaurantId ?? null,restaurantId ?? null,userId]));
   return rows.map(row => ({
+    restaurantId: row.restaurant_id!, restaurantName: row.restaurant_name, country: row.country,
     id: row.id!, status: row.status!, created_at: row.created_at!,
     decline_reason: row.decline_reason, decline_item: row.decline_item, decline_note: row.decline_note,
     lines: JSON.parse(row.lines!) as OrderLine[],

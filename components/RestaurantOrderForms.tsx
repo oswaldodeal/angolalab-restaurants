@@ -9,20 +9,20 @@ const input = 'rounded-lg border border-[#ded8c5] bg-white p-2';
 const button = 'rounded-lg bg-[#252a32] px-4 py-2 font-semibold text-white disabled:opacity-50';
 type Language = 'en' | 'pt';
 
-export function PlaceOrderForm({ language, orderId, items, hasPending, menuHref }: {
-  language: Language; orderId: string; hasPending: boolean; menuHref: string; items: { reference: string; name: string; price: string }[];
+export function PlaceOrderForm({ language, orderId, restaurantId, items, hasPending, menuHref }: {
+  language: Language; orderId: string; restaurantId: string; hasPending: boolean; menuHref: string; items: { reference: string; name: string; price: string }[];
 }) {
   const pt = language === 'pt';
   const [basket, setBasket] = useState<Record<string, number> | null>(null);
   useEffect(() => {
-    const stored = readRestaurantBasket();
+    const stored = readRestaurantBasket(restaurantId);
     setBasket(stored);
     if (Object.keys(stored).length) document.getElementById('my-orders')?.scrollIntoView();
-  }, []);
+  }, [restaurantId]);
   const [result, action, pending] = useActionState(async (previous: string, data: FormData) => {
     const result = await submitRestaurantOrder(previous, data);
     if (result === 'submitted') {
-      saveRestaurantBasket({});
+      saveRestaurantBasket(restaurantId, {});
       setBasket({});
     }
     return result;
@@ -33,6 +33,7 @@ export function PlaceOrderForm({ language, orderId, items, hasPending, menuHref 
     invalid: 'Escolhe pelo menos um item, com quantidade entre 1 e 10.',
     'own-restaurant': 'Estás na conta do balcão. Entra com uma conta de cliente para pedir neste restaurante.',
     'already-submitted': 'Este pedido já foi enviado. Consulta Os meus pedidos.',
+    'counter-unavailable': 'Este restaurante ainda não está a receber pedidos online.',
     'pending-order': 'Já tens um pedido a aguardar confirmação do balcão.',
     stale: 'A ementa pode ter mudado. Volta à ementa e verifica o cesto.',
   } : {
@@ -41,6 +42,7 @@ export function PlaceOrderForm({ language, orderId, items, hasPending, menuHref 
     invalid: 'Choose at least one item, with a quantity between 1 and 10.',
     'own-restaurant': 'You’re signed in to the counter account. Sign in with a customer account to order here.',
     'already-submitted': 'This order was already sent. Check My orders.',
+    'counter-unavailable': 'This restaurant is not taking online orders yet.',
     'pending-order': 'You already have an order awaiting counter confirmation.',
     stale: 'The menu may have changed. Go back to the menu and check your basket.',
   };
@@ -53,6 +55,7 @@ export function PlaceOrderForm({ language, orderId, items, hasPending, menuHref 
     {missing && <p role="status">{pt ? 'Alguns itens do cesto já não estão disponíveis.' : 'Some basket items are no longer available.'}</p>}
     {!selected.length ? <p>{pt ? 'O cesto está vazio. ' : 'Your basket is empty. '}{menuLink}</p> :
       <form action={action} className="space-y-3">
+        <input type="hidden" name="restaurantId" value={restaurantId}/>
         <input type="hidden" name="orderId" value={orderId}/>
         <fieldset disabled={pending} className="space-y-3">
           <legend>{pt ? 'Revê as quantidades do cesto (0–10).' : 'Review your basket quantities (0–10).'}</legend>
