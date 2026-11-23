@@ -1,3 +1,4 @@
+import PilotFeedbackForm from "@/components/PilotFeedbackForm";
 import RestaurantOrders from '@/components/RestaurantOrders';
 import { withRestaurantReferral } from '@/lib/restaurant-referral';
 import AccountComments from '@/components/AccountComments';
@@ -51,6 +52,7 @@ export default async function PilotAccountPage({ language, mode, restaurantId }:
             {userId && <RestaurantOrders userId={userId} language={language} restaurantId={restaurantId} />}
             {userId && <OwnerRestaurants userId={userId} language={language} />}
             {userId && <AccountComments userId={userId} language={language} restaurantId={restaurantId} />}
+            {userId && <PilotFeedbackForm language={language} />}
             {userId && <details className="mt-6 text-sm">
               <summary className="cursor-pointer text-emerald-700">{pt ? 'ID da minha conta' : 'My account ID'}</summary>
               <code className="mt-2 block select-all break-all rounded bg-[#f4f3ef] p-3">{userId}</code>
