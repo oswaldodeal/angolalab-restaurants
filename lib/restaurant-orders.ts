@@ -1,10 +1,12 @@
 import 'server-only';
 
+import { prepareRestaurantSurveys } from '@/lib/pilot-feedback';
 import { prepareRestaurantDatabase } from '@/lib/restaurant-data';
 import { executePrivateSql, sqlRows } from '@/lib/turso';
 
 export async function prepareRestaurantOrders() {
   await prepareRestaurantDatabase();
+  await prepareRestaurantSurveys();
   await executePrivateSql(`CREATE TABLE IF NOT EXISTS restaurant_orders (
     id TEXT PRIMARY KEY NOT NULL, restaurant_id TEXT NOT NULL, customer_id TEXT NOT NULL,
     lines TEXT NOT NULL CHECK(json_valid(lines)), status TEXT NOT NULL DEFAULT 'pending'
@@ -24,12 +26,14 @@ export async function getRestaurantOrders(userId: string, restaurantId: string |
   const filter = counter
     ? 'EXISTS (SELECT 1 FROM restaurant_owners o WHERE o.restaurant_id=r.restaurant_id AND o.clerk_user_id=?)'
     : 'r.customer_id=?';
-  const rows = sqlRows(await executePrivateSql(`SELECT r.restaurant_id,i.restaurant_name,i.country,r.id,r.lines,r.status,r.created_at,r.decline_reason,r.decline_item,r.decline_note
+  const rows = sqlRows(await executePrivateSql(`SELECT r.restaurant_id,i.restaurant_name,i.country,r.id,s.order_id AS survey_id,r.lines,r.status,r.created_at,r.decline_reason,r.decline_item,r.decline_note
     FROM restaurant_orders r LEFT JOIN restaurant_intake i ON i.id=r.restaurant_id
+    LEFT JOIN restaurant_experience_surveys s ON s.order_id=r.id
     WHERE (? IS NULL OR r.restaurant_id=?) AND ${filter}
     ORDER BY CASE r.status WHEN 'pending' THEN 0 WHEN 'accepted' THEN 1 ELSE 2 END,r.created_at DESC,r.rowid DESC LIMIT 50`, [restaurantId ?? null,restaurantId ?? null,userId]));
   return rows.map(row => ({
     restaurantId: row.restaurant_id!, restaurantName: row.restaurant_name, country: row.country,
+    surveySubmitted: Boolean(row.survey_id),
     id: row.id!, status: row.status!, created_at: row.created_at!,
     decline_reason: row.decline_reason, decline_item: row.decline_item, decline_note: row.decline_note,
     lines: JSON.parse(row.lines!) as OrderLine[],

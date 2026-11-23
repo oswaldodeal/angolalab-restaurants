@@ -1,3 +1,4 @@
+import { RestaurantExperienceForm } from './RestaurantExperienceForms';
 import { randomUUID } from 'node:crypto';
 import { getPublishedRestaurant } from '@/lib/restaurant-data';
 import { getRestaurantOrders } from '@/lib/restaurant-orders';
@@ -52,7 +53,10 @@ export default async function RestaurantOrders({ userId, language, restaurantId,
             </li>)}
           </ul>
           {order.decline_reason && <p className="mt-2">{reasons[order.decline_reason]}{declinedName && <> · {declinedName}</>}{' '}{order.decline_item && <code>{order.decline_item}</code>} {order.decline_note}</p>}
-          {counter && (order.status === 'pending' || order.status === 'accepted') &&
+          {!counter && order.status === 'completed' && (order.surveySubmitted
+          ? <p className="mt-3 text-emerald-800">{pt ? 'Avaliação enviada à equipa AngolaLab.' : 'Survey sent to AngolaLab staff.'}</p>
+          : <RestaurantExperienceForm orderId={order.id} language={language}/>)}
+        {counter && (order.status === 'pending' || order.status === 'accepted') &&
             <CounterOrderForm key={order.status} language={language} orderId={order.id!} accepted={order.status === 'accepted'}
               items={order.lines.map(line => ({reference: line.reference,name: pt ? line.name : line.nameEn || line.name}))}/>}
       </article>;
