@@ -51,6 +51,10 @@ export default async function PilotAccountPage({ language, mode, restaurantId }:
             {userId && <RestaurantOrders userId={userId} language={language} restaurantId={restaurantId} />}
             {userId && <OwnerRestaurants userId={userId} language={language} />}
             {userId && <AccountComments userId={userId} language={language} restaurantId={restaurantId} />}
+            {userId && <details className="mt-6 text-sm">
+              <summary className="cursor-pointer text-emerald-700">{pt ? 'ID da minha conta' : 'My account ID'}</summary>
+              <code className="mt-2 block select-all break-all rounded bg-[#f4f3ef] p-3">{userId}</code>
+            </details>}
             <div className="mt-6 flex flex-wrap items-center gap-4">
               <Link className="font-semibold text-[#76570f] underline" href={pt ? '/pt/restaurantes' : '/en/restaurants'}>
                 {pt ? 'Ver restaurantes' : 'Browse Restaurants'}
