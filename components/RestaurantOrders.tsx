@@ -11,6 +11,19 @@ export default async function RestaurantOrders({ userId, language, restaurantId,
   const statuses: Record<string,string> = pt
     ? { pending: 'Aguarda confirmação do balcão', accepted: 'Aceite pelo balcão', declined: 'Recusado', completed: 'Concluído' }
     : { pending: 'Awaiting counter confirmation', accepted: 'Accepted by the counter', declined: 'Declined', completed: 'Completed' };
+  const customerMessages: Record<string,string> = pt
+    ? {
+        pending: 'Aguarda a confirmação do balcão antes de pagar.',
+        accepted: 'O restaurante confirmou o teu pedido. Paga no balcão.',
+        declined: 'O restaurante não pôde aceitar este pedido. Não é necessário pagar.',
+        completed: 'O restaurante marcou este pedido como concluído.',
+      }
+    : {
+        pending: 'Wait for the counter to confirm before paying.',
+        accepted: 'The restaurant confirmed your order. Pay at the counter.',
+        declined: 'The restaurant couldn’t accept this order. No payment is needed.',
+        completed: 'The restaurant marked this order as completed.',
+      };
   const reasons: Record<string,string> = pt
     ? { unavailable: 'Item indisponível', capacity: 'Capacidade do balcão', other: 'Outro' }
     : { unavailable: 'Item unavailable', capacity: 'Counter capacity', other: 'Other' };
@@ -27,22 +40,26 @@ export default async function RestaurantOrders({ userId, language, restaurantId,
     const pendingOrder = orders.some(order => order.restaurantId === restaurantId && order.status === 'pending');
     return <section id={counter ? `counter-orders-${restaurantId}` : 'my-orders'} className="mt-6 space-y-3 rounded-lg border border-[#ded8c5] bg-[#fffdf8] p-4 text-sm">
       <h2 className="text-lg font-semibold">{counter ? (pt ? 'Pedidos do balcão' : 'Counter orders') : (pt ? 'Os meus pedidos' : 'My orders')}</h2>
-      {placing && <p>{pt ? 'Aguarda a confirmação e paga no balcão.' : 'Wait for confirmation and pay at the counter.'}</p>}
       {placing && restaurant && restaurant.ownerId !== 'demo' && restaurantId && <PlaceOrderForm restaurantId={restaurantId} language={language} orderId={randomUUID()} items={items} hasPending={pendingOrder}
         menuHref={`${pt ? '/pt/restaurantes' : '/en/restaurants'}/${restaurantId}#menu`}/>}
       {counter && !orders.length && <p>{pt ? 'Ainda não há pedidos.' : 'No orders yet.'}</p>}
-      {orders.map(order => <article key={order.id} className="rounded-lg border border-[#ded8c5] bg-white p-3">
+      {orders.map(order => {
+        const declinedLine = order.lines.find(line => line.reference === order.decline_item);
+        const declinedName = declinedLine && (pt ? declinedLine.name : declinedLine.nameEn || declinedLine.name);
+        return <article key={order.id} className="rounded-lg border border-[#ded8c5] bg-white p-3">
         <p className="font-semibold">{!counter && order.restaurantName && <>{order.restaurantName} · </>}{statuses[order.status]} · <code className="break-all">{order.id}</code></p>
+        {!counter && <p className="mt-2">{customerMessages[order.status]}</p>}
         <ul className="mt-2">
           {order.lines.map(line => <li key={line.reference}>
             {line.quantity} × {pt ? line.name : line.nameEn || line.name} · {line.reference} · {money(line.price, order.country)}
           </li>)}
         </ul>
-        {order.decline_reason && <p className="mt-2">{reasons[order.decline_reason]} {order.decline_item && <code>{order.decline_item}</code>} {order.decline_note}</p>}
+        {order.decline_reason && <p className="mt-2">{reasons[order.decline_reason]}{declinedName && <> · {declinedName}</>}{' '}{order.decline_item && <code>{order.decline_item}</code>} {order.decline_note}</p>}
         {counter && (order.status === 'pending' || order.status === 'accepted') &&
           <CounterOrderForm key={order.status} language={language} orderId={order.id!} accepted={order.status === 'accepted'}
             items={order.lines.map(line => ({reference: line.reference,name: pt ? line.name : line.nameEn || line.name}))}/>}
-      </article>)}
+      </article>;
+      })}
     </section>;
   } catch {
     if (!counter && !placing) return null;
