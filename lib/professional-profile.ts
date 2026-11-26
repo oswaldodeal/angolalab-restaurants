@@ -4,7 +4,7 @@ import { executePrivateSql, sqlRows } from '@/lib/turso';
 import { pilotContactBlocked } from '@/lib/pilot-access-blocks';
 import type { ProfessionalProfile } from '@/lib/professional-profile-fields';
 
-async function prepareProfessionalProfiles() {
+export async function prepareProfessionalProfiles() {
   await executePrivateSql(`CREATE TABLE IF NOT EXISTS professional_profiles (
     user_id TEXT PRIMARY KEY NOT NULL,
     display_name TEXT NOT NULL,

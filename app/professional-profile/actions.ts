@@ -1,5 +1,9 @@
 'use server';
 
+import { randomUUID } from 'node:crypto';
+import { requestFppAccess, submitFppPost } from '@/lib/fpp-community';
+import { isFppPostType } from '@/lib/fpp-posts';
+import { revalidateFpp } from '@/lib/fpp-revalidation';
 import { auth } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
 import { accountsConfigured } from '@/lib/account-auth';
@@ -30,4 +34,41 @@ export async function submitProfessionalProfile(_previous: ProfessionalProfileRe
   revalidatePath('/en/account');
   revalidatePath('/pt/conta');
   return 'saved';
+}
+
+export async function requestProfessionalProfileAccess() {
+  if (!accountsConfigured()) return 'unavailable';
+  const { userId } = await auth();
+  if (!userId) return 'unavailable';
+
+  try {
+    const contacts = await verifiedContactKeys(userId);
+    if (!(await requestFppAccess(userId, randomUUID(), contacts))) return 'not-eligible';
+  } catch {
+    return 'unavailable';
+  }
+  revalidateFpp();
+  return 'requested';
+}
+
+export async function shareFppPost(_previous: string | null, formData: FormData) {
+  if (!accountsConfigured()) return 'unavailable';
+  const { userId } = await auth();
+  if (!userId) return 'unavailable';
+  const kind = formData.get('kind');
+  const rawTitle = formData.get('title');
+  const rawBody = formData.get('body');
+  if (!isFppPostType(kind) || typeof rawTitle !== 'string' || typeof rawBody !== 'string' || formData.get('consent') !== 'on') return 'invalid';
+  const title = rawTitle.trim();
+  const body = rawBody.trim();
+  if (title.length < 3 || title.length > 120 || body.length < 10 || body.length > 3000) return 'invalid';
+
+  try {
+    const contacts = await verifiedContactKeys(userId);
+    if (!(await submitFppPost(userId, randomUUID(), { kind, title, body }, contacts))) return 'not-eligible';
+  } catch {
+    return 'unavailable';
+  }
+  revalidateFpp();
+  return 'submitted';
 }

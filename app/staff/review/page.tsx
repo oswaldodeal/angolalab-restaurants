@@ -35,6 +35,7 @@ export default async function StaffReview({ searchParams }: { searchParams: Prom
     return <main className="min-h-[65vh] bg-white px-5 py-12 text-[#222]">
       <div className="mx-auto max-w-4xl">
         <h1 className="text-3xl font-semibold">Staff review</h1>
+        <Link href="/staff/review/fpp" className="mt-4 inline-block font-semibold text-emerald-800 underline">FPP admin</Link>
         <p role="alert" className="mt-6 rounded-lg border border-red-200 bg-red-50 p-5">
           Unable to load registrations. {diagnosis}
         </p>
@@ -51,10 +52,7 @@ export default async function StaffReview({ searchParams }: { searchParams: Prom
         Pilot reviews use one shared staff identity; review notes and timestamps are recorded.
       </p>
       <div className="mt-5 flex flex-wrap items-center gap-4">
-        <nav aria-label="Professional profile pilot" className="flex flex-wrap gap-x-4 gap-y-2">
-          <Link href="/en/professionals" className="font-semibold text-emerald-800 underline underline-offset-4">Test Free Professional Profile</Link>
-          <Link href="/pt/profissionais" lang="pt" className="font-semibold text-emerald-800 underline underline-offset-4">Testar Perfil Profissional Gratuito</Link>
-        </nav>
+        <Link href="/staff/review/fpp" className="font-semibold text-emerald-800 underline underline-offset-4">FPP admin</Link>
         <form action={signOutStaff}><button className="rounded-lg border border-[#ded8c5] px-4 py-2">Sign out / Sair</button></form>
       </div>
       {result && <p role="status" className="mt-5 rounded-lg bg-[#fffaf0] p-4">{result === 'basic-restored' ? 'Basic profile restored. Contacts and verification are hidden; evidence and photos remain saved privately.' : result === 'invalid-basic' ? 'Confirm the return to Basic and refresh the record.' : result === 'tier-saved' ? 'Profile tier saved. Photos and business verification preserved.' : result === 'invalid-tier' ? 'Choose a profile tier and confirm the change.' : result === 'owner-linked' ? 'Owner account connected / Conta do proprietário ligada.' : result === 'owner-unlinked' ? 'Owner access removed / Acesso removido.' : result === 'invalid-owner' ? 'Check the account ID, permission and review note.' : result === 'item-saved' ? 'Menu item saved / Prato guardado.' : result === 'item-removed' ? 'Menu item removed / Prato removido.' : result === 'invalid-item' ? 'Check the item name, category, price and photo. Basic profiles allow two food or drink items; Verified profiles allow 60 items.' : result === 'menu-duplicate' ? 'This image is already on the menu. / Esta imagem já está na ementa.' : result === 'menu-limit' ? 'Remove an image before adding another. / Remova uma imagem antes de adicionar outra.' : result === 'invalid-upload' ? 'Choose a JPG, PNG or WebP image up to 250 KB.' : result === 'menu-saved' ? 'Menu image saved / Imagem da ementa guardada.' : result === 'menu-removed' ? 'Menu image removed / Imagem da ementa removida.' : result === 'cover-removed' ? 'Cover photo removed / Fotografia de capa removida.' : result === 'invalid-cover' ? 'Enter a direct HTTPS image URL for the approved cover photo.' : result === 'verified' ? 'Verified profile published / Perfil verificado publicado.' : result === 'invalid-verification' ? 'Enter a valid business address and public phone, record the evidence, and confirm permission to publish.' : result === 'saved' ? 'Decision saved. Directory updated / Decisão guardada.' : result === 'stale' ? 'This record has changed or already been reviewed. Reload it and try again.' : result === 'invalid' ? 'Add a review note of 20–2000 characters. Publication also requires the identity and permission check.' : 'Unable to save. No publication decision was confirmed. Try again later.'}</p>}

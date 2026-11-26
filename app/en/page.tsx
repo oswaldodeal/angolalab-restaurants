@@ -49,9 +49,9 @@ export default function EcosystemHomePage() {
    <div className="page-rail rounded-3xl border border-[#e4d8bc] bg-white p-6 shadow-sm sm:p-9">
     <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#927018]">AngolaLab · Professional Connections</p>
     <h2 id="fpp-home-title" className="mt-3 text-3xl font-bold">Skills can connect across borders.</h2>
-    <p className="mt-4 max-w-3xl leading-7 text-[#555]">Free Professional Profiles help people present their skills and collaboration countries. The directory is a demonstration; live verification and connections are not yet enabled.</p>
+    <p className="mt-4 max-w-3xl leading-7 text-[#555]">Share business ideas, ask questions and show what you’re working on in the FPP community.</p>
     <div className="mt-6 flex flex-wrap gap-3">
-     <Link href="/en/professionals" className="rounded-lg bg-[#252a32] px-5 py-3 font-semibold text-white hover:bg-[#424850]">Explore FPP Profile →</Link>
+     <Link href="/en/professionals" className="rounded-lg bg-[#252a32] px-5 py-3 font-semibold text-white hover:bg-[#424850]">Explore the FPP community →</Link>
      <Link href="/en/professionals/directory" className="rounded-lg border border-[#bca36b] px-5 py-3 font-semibold text-[#725716] hover:bg-[#fbf6e9]">View Directory Demo →</Link>
     </div>
    </div>
