@@ -28,7 +28,7 @@ export default function FppParticipation({ language, blocked, posts, businesses 
 
   return (
     <section className="mt-6 border-t border-[#ded8c5] pt-5">
-      <h3 className="font-semibold">{pt ? 'Partilhar na comunidade FPP' : 'Share in the FPP community'}</h3>
+      <h3 className="font-semibold">{pt ? 'Partilhar na Comunidade AngolaLab' : 'Share in the AngolaLab Community'}</h3>
       {blocked ? <p role="status" className="mt-3 text-red-700">{pt ? 'O teu acesso a esta funcionalidade está bloqueado.' : 'Your access to this feature is blocked.'}</p> :
         <form action={sendPost} className="mt-3 space-y-4">
           <p>{pt ? 'A equipa analisa cada publicação antes de aparecer na comunidade.' : 'Staff review each post before it appears in the community.'}</p>
@@ -47,7 +47,7 @@ export default function FppParticipation({ language, blocked, posts, businesses 
             <label className="block">{pt ? 'Título' : 'Title'}
               <input name="title" className={input} minLength={3} maxLength={120} required value={title} onChange={event => setTitle(event.target.value)} />
             </label>
-            <label className="block">{pt ? 'A tua ideia, pergunta ou projeto' : 'Your idea, question or project'}
+            <label className="block">{pt ? 'Texto da publicação' : 'Post text'}
               <textarea name="body" className={input} rows={5} minLength={10} maxLength={3000} required value={body} onChange={event => setBody(event.target.value)} />
             </label>
             <label className="flex items-start gap-2">

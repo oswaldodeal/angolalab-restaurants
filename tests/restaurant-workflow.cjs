@@ -898,7 +898,7 @@ async function action(id, decision, consent = true) {
   assert.equal(await submitProfessionalProfile(null, profileForm), 'blocked');
   assert.equal((await getProfessionalProfile(profileOwner)).displayName, 'João Updated');
   const { shareFppPost } = load('app/professional-profile/actions');
-  const { getOwnFppPosts, getPublishedFppPosts } = load('lib/fpp-community');
+  const { getOwnFppPosts, getPublishedFppPosts, getFppReview } = load('lib/fpp-community');
   const { decideFpp } = load('app/staff/review/fpp/actions');
   const staffDecision = async (id, decision) => {
     const form = new FormData();
@@ -913,6 +913,13 @@ async function action(id, decision, consent = true) {
   postForm.set('title', 'Restaurant discovery project');
   postForm.set('body', 'Study how guests discover participating restaurants.');
   postForm.set('consent', 'on');
+  db.exec(`CREATE TABLE fpp_posts (
+    id TEXT PRIMARY KEY NOT NULL, user_id TEXT NOT NULL REFERENCES fpp_requests(user_id),
+    kind TEXT NOT NULL CHECK(kind IN ('idea','question','project')),
+    title TEXT NOT NULL, body TEXT NOT NULL, author_name TEXT NOT NULL,
+    status TEXT NOT NULL CHECK(status IN ('pending','published','declined','removed')),
+    created_at TEXT NOT NULL, reviewed_at TEXT, published_at TEXT, restaurant_id TEXT
+  )`);
   assert.equal(await shareFppPost(null, postForm), 'not-eligible', 'Blocked accounts cannot post');
   db.prepare("UPDATE pilot_access_blocks SET blocked=0 WHERE contact='+244900000100'").run();
   clerkUserId = null;
@@ -1040,6 +1047,19 @@ async function action(id, decision, consent = true) {
   fppReviewForm.set('decision', 'removed');
   await assert.rejects(decideFppComment(fppReviewForm), error => error.url === '/staff/review/fpp?view=comments&result=saved');
   assert.equal((await getPublishedFppComments([businessPost.id])).length, 0);
+  postForm.delete('restaurantId');
+  postForm.set('kind', 'note');
+  postForm.set('title', 'A new course in Luanda');
+  postForm.set('body', 'A new course begins in September. Contact the university for more information.');
+  assert.equal(await shareFppPost(null, postForm), 'submitted');
+  const note = (await getOwnFppPosts(clerkUserId)).find(post => post.kind === 'note');
+  assert.equal(note.status, 'pending');
+  assert.equal((await getFppReview(1)).find(post => post.id === note.id).kind, 'note');
+  assert.equal((await getPublishedFppPosts()).some(post => post.id === note.id), false);
+  assert.equal(await staffDecision(note.id, 'published'), '/staff/review/fpp?result=saved');
+  assert.equal((await getPublishedFppPosts()).find(post => post.id === note.id).kind, 'note');
+  assert.equal(await staffDecision(note.id, 'removed'), '/staff/review/fpp?result=saved');
+  console.log('PASS: Note survives the legacy schema migration and follows staff moderation.');
   db.prepare('DELETE FROM restaurant_owners WHERE restaurant_id=?').run(another.id);
   assert.equal((await getPublishedFppPosts()).length, 0, 'Revoking the owner link hides the attributed business post');
   assert.equal(await submitFppComment(null, fppCommentForm), 'not-eligible');

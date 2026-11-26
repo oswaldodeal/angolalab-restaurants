@@ -2,6 +2,7 @@ export const fppPostTypes = {
   idea: { en: 'Business idea', pt: 'Ideia de negócio' },
   question: { en: 'Question', pt: 'Pergunta' },
   project: { en: 'Project', pt: 'Projeto' },
+  note: { en: 'Note', pt: 'Aviso' },
 } as const;
 
 export type FppPostType = keyof typeof fppPostTypes;

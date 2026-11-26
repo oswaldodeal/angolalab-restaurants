@@ -23,8 +23,8 @@ export default async function AccountProfessionalProfile({ userId, language }: {
         {pt ? 'O meu perfil profissional gratuito' : 'My Free Professional Profile'}
       </summary>
       <p className="mt-3 text-sm">
-        {pt ? 'Guarda o teu perfil privado para partilhar ideias de negócio, perguntas e projetos.'
-          : 'Save your private profile to share business ideas, questions and projects.'}
+        {pt ? 'Guarda o teu perfil privado para partilhar ideias de negócio, perguntas, projetos e avisos.'
+          : 'Save your private profile to share business ideas, questions, projects and announcements.'}
       </p>
       {profile === undefined
         ? <p className="mt-3 text-sm text-red-700">{pt ? 'O perfil está temporariamente indisponível.' : 'Your profile is temporarily unavailable.'}</p>
@@ -34,7 +34,7 @@ export default async function AccountProfessionalProfile({ userId, language }: {
       {participation ? <FppParticipation language={language} posts={participation[0]} blocked={participation[1]} businesses={participation[2]} />
         : profile && <p role="alert" className="mt-4 text-sm text-red-700">{pt ? 'Não foi possível carregar o acesso ao FPP.' : 'Unable to load FPP access.'}</p>}
       <Link href={pt ? '/pt/profissionais' : '/en/professionals'} className="mt-4 inline-block font-semibold text-emerald-800 underline">
-        {pt ? 'Ver comunidade FPP' : 'View FPP community'}
+        {pt ? 'Ver Comunidade AngolaLab' : 'View AngolaLab Community'}
       </Link>
     </details>
   );

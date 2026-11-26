@@ -15,7 +15,7 @@ export default async function FppVisitorProfile({ id, language }: { id: string; 
     <section className="min-h-[65vh] bg-[#f3f2ef] px-5 py-12 text-[#222]">
       <div className="mx-auto max-w-3xl">
         <Link href={community + '#post-' + id} className="font-semibold text-emerald-800 underline underline-offset-4">
-          {pt ? 'Voltar à comunidade FPP' : 'Back to FPP Community'}
+          {pt ? 'Voltar à Comunidade AngolaLab' : 'Back to AngolaLab Community'}
         </Link>
         <article className="mt-6 rounded-2xl border border-[#ded8c5] bg-white p-6 sm:p-8">
           <div className="flex flex-wrap items-center gap-4">

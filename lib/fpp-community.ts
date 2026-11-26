@@ -36,14 +36,20 @@ async function prepareFppTables() {
     created_at TEXT NOT NULL,
     reviewed_at TEXT,
     published_at TEXT,
-    restaurant_id TEXT
+    restaurant_id TEXT,
+    kind_override TEXT CHECK (kind_override = 'note')
   )`);
   const columns = async () => sqlRows(await executePrivateSql('PRAGMA table_info(fpp_posts)'));
-  if (!(await columns()).some(column => column.name === 'restaurant_id')) {
+  const existing = await columns();
+  for (const [name, definition] of [
+    ['restaurant_id', 'TEXT'],
+    ['kind_override', "TEXT CHECK (kind_override = 'note')"],
+  ] as const) {
+    if (existing.some(column => column.name === name)) continue;
     try {
-      await executePrivateSql('ALTER TABLE fpp_posts ADD COLUMN restaurant_id TEXT');
+      await executePrivateSql(`ALTER TABLE fpp_posts ADD COLUMN ${name} ${definition}`);
     } catch (error) {
-      if (!(await columns()).some(column => column.name === 'restaurant_id')) throw error;
+      if (!(await columns()).some(column => column.name === name)) throw error;
     }
   }
   await executePrivateSql('CREATE INDEX IF NOT EXISTS fpp_posts_by_user ON fpp_posts(user_id, created_at DESC)');
@@ -54,7 +60,7 @@ type PostDraft = { kind: FppPostType; title: string; body: string };
 export type FppPost = PostDraft & { id: string; author_name: string; status: FppPostStatus };
 export async function getOwnFppPosts(userId: string) {
   await prepareFppCommunity();
-  return sqlRows(await executePrivateSql(`SELECT id, kind, title, status FROM fpp_posts
+  return sqlRows(await executePrivateSql(`SELECT id, COALESCE(kind_override, kind) AS kind, title, status FROM fpp_posts
     WHERE user_id = ? ORDER BY created_at DESC, id DESC LIMIT 30`, [userId])) as unknown as
     Array<Pick<FppPost, 'id' | 'kind' | 'title' | 'status'>>;
 }
@@ -73,11 +79,13 @@ export async function submitFppPost(userId: string, id: string, post: PostDraft,
     SELECT 1 FROM restaurant_owners o JOIN restaurant_listings l ON l.id = o.restaurant_id
     WHERE o.clerk_user_id = p.user_id AND l.id = ?)` : '';
   const authorName = restaurantId ? '(SELECT name FROM restaurant_listings WHERE id = ?)' : 'p.display_name';
-  const result = await executePrivateSql(`INSERT INTO fpp_posts (id, user_id, kind, title, body, author_name, status, created_at, restaurant_id)
-    SELECT ?, p.user_id, ?, ?, ?, ${authorName}, 'pending', ?, ?
+  // The original table restricts kind to three values. Keep it and its dependent comments intact.
+  const kindOverride = post.kind === 'note' ? post.kind : null;
+  const result = await executePrivateSql(`INSERT INTO fpp_posts (id, user_id, kind, title, body, author_name, status, created_at, restaurant_id, kind_override)
+    SELECT ?, p.user_id, ?, ?, ?, ${authorName}, 'pending', ?, ?, ?
     FROM professional_profiles p JOIN fpp_requests r ON r.user_id = p.user_id
     WHERE p.user_id = ? AND NOT ${pilotContactBlocked} ${businessCheck}`,
-  [id, post.kind, post.title, post.body, ...(restaurantId ? [restaurantId] : []), now, restaurantId, userId, contactKeys, ...(restaurantId ? [restaurantId] : [])]);
+  [id, kindOverride ? 'idea' : post.kind, post.title, post.body, ...(restaurantId ? [restaurantId] : []), now, restaurantId, kindOverride, userId, contactKeys, ...(restaurantId ? [restaurantId] : [])]);
   return Number(result.affected_row_count) === 1;
 }
 
@@ -105,21 +113,21 @@ type FeedPost = Omit<FppPost, 'status'> & {
 };
 
 export async function getPublishedFppPosts() {
+  await prepareFppCommunity();
   try {
-    await prepareFppCommunity();
     await prepareVisitorSettings();
     await prepareRestaurantDatabase();
     return await readFppFeed();
   } catch (error) {
     console.error('FPP feed enrichment failed:', error instanceof Error ? error.message : 'unknown');
-    const rows = sqlRows(await executePrivateSql(`SELECT id, kind, title, body, author_name FROM fpp_posts
+    const rows = sqlRows(await executePrivateSql(`SELECT id, COALESCE(kind_override, kind) AS kind, title, body, author_name FROM fpp_posts
       WHERE status = 'published' AND COALESCE(restaurant_id, '') = '' ORDER BY published_at DESC, id DESC LIMIT 50`));
     return rows.map(row => ({ ...row, has_photo: '0', business_id: null, business_name: null, business_tier: null })) as FeedPost[];
   }
 }
 
 async function readFppFeed() {
-  return sqlRows(await executePrivateSql(`SELECT p.id, p.kind, p.title, p.body, p.author_name,
+  return sqlRows(await executePrivateSql(`SELECT p.id, COALESCE(p.kind_override, p.kind) AS kind, p.title, p.body, p.author_name,
       CASE WHEN ${visiblePhoto} AND json_extract(s.preferences, '$.photo') <> '' THEN 1 ELSE 0 END AS has_photo,
       l.id AS business_id, l.name AS business_name,
       CASE WHEN l.id IS NULL THEN NULL
@@ -173,7 +181,7 @@ export const fppReviewPageSize = 25;
 export async function getFppReview(page: number) {
   await prepareFppCommunity();
   const offset = (page - 1) * fppReviewPageSize;
-  return sqlRows(await executePrivateSql(`SELECT id, kind, title, body, author_name, status FROM fpp_posts
+  return sqlRows(await executePrivateSql(`SELECT id, COALESCE(kind_override, kind) AS kind, title, body, author_name, status FROM fpp_posts
     ORDER BY (status = 'pending') DESC, created_at DESC, id DESC LIMIT CAST(? AS INTEGER) OFFSET CAST(? AS INTEGER)`,
   [String(fppReviewPageSize + 1), String(offset)])) as unknown as FppPost[];
 }

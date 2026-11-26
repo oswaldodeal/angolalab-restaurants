@@ -29,7 +29,7 @@ export default async function FppAdmin({ searchParams }: { searchParams: Promise
         <nav aria-label="FPP navigation" className="mt-4 flex flex-wrap gap-4 border-b border-[#D2AC37] pb-4">
           <Link className="font-semibold text-emerald-800 underline" href="/staff/review/fpp" aria-current={!commentsView ? 'page' : undefined}>Posts</Link>
           <Link className="font-semibold text-emerald-800 underline" href="?view=comments" aria-current={commentsView ? 'page' : undefined}>Comments</Link>
-          <Link className="font-semibold text-emerald-800 underline" href="/en/professionals">View FPP community</Link>
+          <Link className="font-semibold text-emerald-800 underline" href="/en/professionals">View AngolaLab Community</Link>
         </nav>
         {query.result && <p role="status" className="mt-4">{query.result === 'saved' ? 'Decision saved.' : query.result === 'stale' ? 'This item has already changed. Review its current status.' : 'Unable to save the decision.'}</p>}
         {!active && <p role="alert" className="mt-6 text-red-700">Unable to load FPP review. Reload to try again.</p>}
