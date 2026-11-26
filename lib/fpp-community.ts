@@ -90,6 +90,13 @@ export async function getFppBusinesses(userId: string) {
 
 const visiblePhoto = `EXISTS (SELECT 1 FROM json_each(s.preferences, '$.visible') WHERE value = 'photo')`;
 
+const fppBusinessJoin = `LEFT JOIN restaurant_listings l ON l.id = (
+      SELECT CASE WHEN COUNT(*) = 1 THEN MIN(owned.id) END
+      FROM restaurant_owners o JOIN restaurant_listings owned ON owned.id = o.restaurant_id
+      WHERE o.clerk_user_id = p.user_id AND (
+        owned.id = p.restaurant_id OR (p.restaurant_id IS NULL AND owned.name = p.author_name COLLATE NOCASE))
+    )`;
+
 type FeedPost = Omit<FppPost, 'status'> & {
   has_photo: '0' | '1';
   business_id: string | null;
@@ -120,12 +127,7 @@ async function readFppFeed() {
           COALESCE(v.public_address, '') = '' OR COALESCE(v.public_phone, '') = '' THEN 'basic'
         WHEN plans.profile_tier = 'pro' THEN 'pro' ELSE 'verified' END AS business_tier
     FROM fpp_posts p LEFT JOIN fpp_visitor_settings s ON s.user_id = p.user_id
-    LEFT JOIN restaurant_listings l ON l.id = (
-      SELECT CASE WHEN COUNT(*) = 1 THEN MIN(owned.id) END
-      FROM restaurant_owners o JOIN restaurant_listings owned ON owned.id = o.restaurant_id
-      WHERE o.clerk_user_id = p.user_id AND (
-        owned.id = p.restaurant_id OR (p.restaurant_id IS NULL AND owned.name = p.author_name COLLATE NOCASE))
-    )
+    ${fppBusinessJoin}
     LEFT JOIN restaurant_verified_contacts v ON v.id = l.id
     LEFT JOIN restaurant_pro_plans plans ON plans.id = l.id
     WHERE p.status = 'published' AND (COALESCE(p.restaurant_id, '') = '' OR l.id IS NOT NULL) ORDER BY p.published_at DESC, p.id DESC LIMIT 50`)) as unknown as FeedPost[];
@@ -134,13 +136,15 @@ async function readFppFeed() {
 export async function getFppVisitorProfile(postId: string, language: 'en' | 'pt') {
   await prepareFppCommunity();
   await prepareVisitorSettings();
+  await prepareRestaurantDatabase();
 
-  const [row] = sqlRows(await executePrivateSql(`SELECT p.author_name, a.profession, a.skills, a.languages, a.projects,
-      CASE WHEN json_extract(s.preferences, '$.shareDetails') = 1 THEN s.preferences ELSE NULL END AS shared_settings,
+  const [row] = sqlRows(await executePrivateSql(`SELECT COALESCE(l.name, p.author_name) AS author_name, l.id AS business_id, a.profession, a.skills, a.languages, a.projects,
+      CASE WHEN l.id IS NULL AND json_extract(s.preferences, '$.shareDetails') = 1 THEN s.preferences ELSE NULL END AS shared_settings,
       CASE WHEN ${visiblePhoto} AND json_extract(s.preferences, '$.photo') <> '' THEN 1 ELSE 0 END AS has_photo
     FROM fpp_posts p JOIN professional_profiles a ON a.user_id = p.user_id
     LEFT JOIN fpp_visitor_settings s ON s.user_id = p.user_id
-    WHERE p.id = ? AND p.status = 'published' AND COALESCE(p.restaurant_id, '') = ''`, [postId]));
+    ${fppBusinessJoin}
+    WHERE p.id = ? AND p.status = 'published' AND (COALESCE(p.restaurant_id, '') = '' OR l.id IS NOT NULL)`, [postId]));
   if (!row?.author_name) return null;
   const details = row.shared_settings ? fppVisitorDetails({
     displayName: row.author_name,
@@ -149,7 +153,7 @@ export async function getFppVisitorProfile(postId: string, language: 'en' | 'pt'
     languages: row.languages ?? '',
     projects: row.projects ?? '',
   }, { ...emptyVisitorSettings, ...JSON.parse(row.shared_settings) }, language) : [];
-  return { displayName: row.author_name, details, hasPhoto: row.has_photo === '1' };
+  return { displayName: row.author_name, details, hasPhoto: row.has_photo === '1', ...(row.business_id ? { businessId: row.business_id } : {}) };
 }
 
 export async function getPublishedFppPhoto(postId: string) {

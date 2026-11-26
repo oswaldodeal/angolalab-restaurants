@@ -49,11 +49,8 @@ export default async function FppCommunity({ language, restaurantId }: { languag
             <h2 className="mt-2 break-words text-xl font-semibold">{post.title}</h2>
             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
               {post.has_photo === '1' && <img src={'/api/fpp/photo/' + post.id} alt="" loading="lazy" width={40} height={40} className="size-10 rounded-full object-cover" />}
-              {post.business_id
-                ? <Link href={restaurantBase + post.business_id}
-                    className="break-words font-semibold text-emerald-800 underline underline-offset-2">{post.business_name ?? post.author_name}</Link>
-                : <Link href={(pt ? '/pt/profissionais/perfil/' : '/en/professionals/profile/') + post.id}
-                    className="break-words font-semibold text-emerald-800 underline underline-offset-2">{post.author_name}</Link>}
+              <Link href={(pt ? '/pt/profissionais/perfil/' : '/en/professionals/profile/') + post.id}
+                className="break-words font-semibold text-emerald-800 underline underline-offset-2">{post.business_name ?? post.author_name}</Link>
               {post.business_id && post.business_tier && <Link
                 href={restaurantBase + post.business_id}
                 className="rounded-full border border-[#ded8c5] bg-[#fffaf0] px-3 py-1 font-semibold text-[#76570f] hover:underline">

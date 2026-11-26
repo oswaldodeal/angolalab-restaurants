@@ -21,10 +21,14 @@ export default async function FppVisitorProfile({ id, language }: { id: string; 
           <div className="flex flex-wrap items-center gap-4">
             {profile.hasPhoto && <img src={'/api/fpp/photo/' + id} width={80} height={80} alt="" className="size-20 rounded-full object-cover" />}
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-[#76570f]">{pt ? 'Perfil Profissional Gratuito' : 'Free Professional Profile'}</p>
+              <p className="text-sm font-semibold text-[#76570f]">{profile.businessId ? (pt ? 'Perfil empresarial FPP' : 'FPP business profile') : (pt ? 'Perfil Profissional Gratuito' : 'Free Professional Profile')}</p>
               <h1 className="mt-1 break-words text-3xl font-semibold">{profile.displayName}</h1>
             </div>
           </div>
+          {profile.businessId && <Link href={(pt ? '/pt/restaurantes/' : '/en/restaurants/') + profile.businessId}
+            className="mt-5 inline-block font-semibold text-emerald-800 underline underline-offset-4">
+            {pt ? 'Ver perfil do restaurante' : 'View restaurant listing'}
+          </Link>}
           {profile.details.length > 0 && <dl className="mt-6 grid gap-5 border-t border-[#ded8c5] pt-6 sm:grid-cols-2">
             {profile.details.map(detail => <div key={detail.key} className="min-w-0">
               <dt className="font-semibold">{detail.label}</dt>
