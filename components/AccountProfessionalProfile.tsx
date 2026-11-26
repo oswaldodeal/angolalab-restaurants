@@ -34,7 +34,7 @@ export default async function AccountProfessionalProfile({ userId, language }: {
       {participation ? <FppParticipation language={language} posts={participation[0]} blocked={participation[1]} businesses={participation[2]} />
         : profile && <p role="alert" className="mt-4 text-sm text-red-700">{pt ? 'Não foi possível carregar o acesso ao FPP.' : 'Unable to load FPP access.'}</p>}
       <Link href={pt ? '/pt/profissionais' : '/en/professionals'} className="mt-4 inline-block font-semibold text-emerald-800 underline">
-        {pt ? 'Ver Comunidade AngolaLab' : 'View AngolaLab Community'}
+        {pt ? 'Ver Comunidade da AngolaLab' : 'View AngolaLab Community'}
       </Link>
     </details>
   );

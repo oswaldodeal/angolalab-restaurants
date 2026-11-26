@@ -136,7 +136,7 @@ export default function FppDirectoryDemo({ language }: { language: Language }) {
           <p className="mt-3 text-xs text-[#666]">{pt ? 'O campo Fundador está oculto por defeito. Pesquisas não incluem campos ocultos nem perfis sem autorização.' : 'Founder is hidden by default. Search excludes hidden fields and profiles without directory consent.'}</p>
         </section>
         <div className="mt-7 flex flex-wrap gap-3">
-          <Link href={directoryBase} className="rounded-lg border border-[#d6caa8] bg-white px-5 py-3 text-sm font-semibold text-[#6b5319]">{pt ? '← Voltar à Comunidade AngolaLab' : '← Back to the AngolaLab Community'}</Link>
+          <Link href={directoryBase} className="rounded-lg border border-[#d6caa8] bg-white px-5 py-3 text-sm font-semibold text-[#6b5319]">{pt ? '← Voltar à Comunidade da AngolaLab' : '← Back to the AngolaLab Community'}</Link>
           <Link href={pt ? '/pt/cartoes' : '/en/cards'} className="rounded-lg border border-[#d6caa8] bg-white px-5 py-3 text-sm font-semibold text-[#6b5319]">{pt ? 'Cartões Digitais' : 'Digital Cards'}</Link>
         </div>
         <p className="mt-5 text-xs leading-6 text-[#666]">{pt ? 'Antes de publicar perfis reais: autenticação, consentimento explícito, aplicação das permissões no servidor, verificação com âmbito definido, moderação e proteção contra abuso.' : 'Before listing real people: authentication, explicit consent, server-enforced permissions, scoped verification, moderation and abuse protection.'}</p>

@@ -11,7 +11,7 @@ export default async function RestaurantRegistrationEntry({ language, id }: { la
   return <section className="mx-auto my-8 max-w-4xl rounded-xl border border-[#ded8c5] bg-[#fffdf8] p-6 text-[#242424]">
     <h1 className="text-2xl font-semibold">{pt ? 'Criar conta AngolaLab' : 'Create an AngolaLab account'}</h1>
     <p className="mt-3">{pt ? 'Convite de' : 'Invited by'} <strong>{restaurant.name}</strong></p>
-    <p className="mt-3">{pt ? 'As Conexões Digitais ajudam a descobrir negócios e profissionais. Na Comunidade AngolaLab, podes partilhar ideias de negócio, perguntas, projetos e avisos.' : 'Digital Connections helps you discover businesses and professionals. In the AngolaLab Community, you can share business ideas, questions, projects and announcements.'}</p>
+    <p className="mt-3">{pt ? 'As Conexões Digitais ajudam a descobrir negócios e profissionais. Na Comunidade da AngolaLab, podes partilhar ideias de negócio, perguntas, projetos e avisos.' : 'Digital Connections helps you discover businesses and professionals. In the AngolaLab Community, you can share business ideas, questions, projects and announcements.'}</p>
     <div className="mt-4 flex flex-wrap gap-4">
       <Link href={signup} className="rounded-lg bg-[#252a32] px-4 py-2 font-semibold text-white">{pt ? 'Criar conta' : 'Create account'}</Link>
       <Link href={signin} className="rounded-lg px-4 py-2 font-semibold text-emerald-700 underline">{pt ? 'Entrar' : 'Sign in'}</Link>
