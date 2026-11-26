@@ -1,4 +1,4 @@
-import { professionalProfileFields, type ProfessionalProfile } from './professional-profile-fields';
+import { professionalProfileFields, type ProfessionalProfile } from '@/lib/professional-profile-fields';
 
 export const countryCodes = ['AO', 'BR', 'CV', 'DK', 'FR', 'DE', 'GW', 'GQ', 'MZ', 'NL', 'PT', 'ST', 'ZA', 'TL', 'GB', 'US'] as const;
 

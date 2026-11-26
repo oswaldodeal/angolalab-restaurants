@@ -2,7 +2,7 @@ import Link from 'next/link';
 import FppVisitorSettings from './FppVisitorSettings';
 import { getFppVisitorSettings } from '@/lib/fpp-visitor-storage';
 import FppParticipation from './FppParticipation';
-import { getOwnFppPosts } from '@/lib/fpp-community';
+import { getFppBusinesses, getOwnFppPosts } from '@/lib/fpp-community';
 import { isPilotContactBlocked, verifiedContactKeys } from '@/lib/pilot-access-blocks';
 import ProfessionalProfileForm from './ProfessionalProfileForm';
 import { getProfessionalProfile } from '@/lib/professional-profile';
@@ -14,6 +14,7 @@ export default async function AccountProfessionalProfile({ userId, language }: {
   const participation = profile ? await Promise.all([
     getOwnFppPosts(userId),
     verifiedContactKeys(userId).then(isPilotContactBlocked),
+    getFppBusinesses(userId).catch(() => []),
   ]).catch(() => null) : null;
 
   return (
@@ -30,7 +31,7 @@ export default async function AccountProfessionalProfile({ userId, language }: {
         : <ProfessionalProfileForm language={language} profile={profile} />}
       {profile && settings && <FppVisitorSettings profile={profile} settings={settings} language={language} />}
       {profile && !settings && <p role="alert" className="mt-4 text-sm text-red-700">{pt ? 'Não foi possível carregar as preferências do perfil.' : 'Unable to load profile preferences.'}</p>}
-      {participation ? <FppParticipation language={language} posts={participation[0]} blocked={participation[1]} />
+      {participation ? <FppParticipation language={language} posts={participation[0]} blocked={participation[1]} businesses={participation[2]} />
         : profile && <p role="alert" className="mt-4 text-sm text-red-700">{pt ? 'Não foi possível carregar o acesso ao FPP.' : 'Unable to load FPP access.'}</p>}
       <Link href={pt ? '/pt/profissionais' : '/en/professionals'} className="mt-4 inline-block font-semibold text-emerald-800 underline">
         {pt ? 'Ver comunidade FPP' : 'View FPP community'}

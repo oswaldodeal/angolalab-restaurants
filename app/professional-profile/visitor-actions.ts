@@ -1,7 +1,8 @@
 'use server';
 
 import { auth } from '@clerk/nextjs/server';
-import { revalidatePath } from 'next/cache';
+import { revalidateFpp } from '@/lib/fpp-revalidation';
+import { photoUpload } from '@/lib/photo-upload';
 import { accountsConfigured } from '@/lib/account-auth';
 import { readVisitorSettings } from '@/lib/fpp-visitor-settings';
 import { storeFppVisitorSettings } from '@/lib/fpp-visitor-storage';
@@ -14,13 +15,20 @@ export async function saveFppVisitorSettings(_previous: string | null, form: For
   const settings = readVisitorSettings(form);
   if (!settings || form.get('adult') !== 'on') return 'invalid';
 
+  let photo: string | null;
+  try {
+    const upload = await photoUpload(form);
+    photo = upload || (form.get('removePhoto') === 'on' ? '' : null);
+  } catch {
+    return 'invalid-photo';
+  }
+
   try {
     const contacts = await verifiedContactKeys(userId);
-    if (!(await storeFppVisitorSettings(userId, settings, contacts))) return 'unavailable';
+    if (!(await storeFppVisitorSettings(userId, settings, contacts, photo))) return 'unavailable';
   } catch {
     return 'unavailable';
   }
-  revalidatePath('/en/account');
-  revalidatePath('/pt/conta');
+  revalidateFpp();
   return 'saved';
 }

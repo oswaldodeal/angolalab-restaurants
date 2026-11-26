@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useState, type ChangeEvent } from 'react';
+import { useActionState, useState } from 'react';
 import { saveFppVisitorSettings } from '@/app/professional-profile/visitor-actions';
 import { additionalFields, countryCodes, fppVisitorDetails, visitorFields, type VisitorSettings } from '@/lib/fpp-visitor-settings';
 import type { ProfessionalProfile } from '@/lib/professional-profile-fields';
@@ -10,29 +10,14 @@ const secondary = 'rounded-lg border border-[#ded8c5] px-4 py-2 font-semibold ho
 
 export default function FppVisitorSettings({ profile, settings, language }: {
   profile: ProfessionalProfile;
-  settings: VisitorSettings;
+  settings: VisitorSettings & { photo: string };
   language: 'en' | 'pt';
 }) {
   const pt = language === 'pt';
   const [preview, setPreview] = useState(false);
-  const [photo, setPhoto] = useState('');
-  const [photoError, setPhotoError] = useState(false);
   const [result, submit, pending] = useActionState(saveFppVisitorSettings, null);
   const countries = new Intl.DisplayNames([language], { type: 'region' });
   const details = fppVisitorDetails(profile, settings, language);
-
-  useEffect(() => {
-    return () => { if (photo) URL.revokeObjectURL(photo); };
-  }, [photo]);
-
-  function choosePhoto(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    const valid = ['image/jpeg', 'image/png', 'image/webp'].includes(file.type) && file.size <= 3 * 1024 * 1024;
-    setPhotoError(!valid);
-    if (valid) setPhoto(URL.createObjectURL(file));
-    event.target.value = '';
-  }
 
   return (
     <section className="mt-6 rounded-xl border border-[#ded8c5] bg-white p-4 sm:p-6">
@@ -45,7 +30,7 @@ export default function FppVisitorSettings({ profile, settings, language }: {
         <div className="mt-4 rounded-lg bg-[#fffdf8] p-4">
           <p className="text-sm">{pt ? 'Vista privada com as preferências guardadas.' : 'Private preview using your saved preferences.'}</p>
           <h4 className="mt-3 text-xl font-semibold">{profile.displayName}</h4>
-          {photo && settings.visible.includes('photo') && <img src={photo} alt={pt ? 'Pré-visualização da fotografia' : 'Profile photo preview'} className="mt-3 size-24 rounded-full object-cover" />}
+          {settings.photo && settings.visible.includes('photo') && <img src={settings.photo} alt={pt ? 'Pré-visualização da fotografia' : 'Profile photo preview'} className="mt-3 size-24 rounded-full object-cover" />}
           {details.length > 0 && <dl className="mt-3 grid gap-3 sm:grid-cols-2">
             {details.map(detail => <div key={detail.key} className="min-w-0">
               <dt className="font-semibold">{detail.label}</dt><dd className="break-words whitespace-pre-wrap">{detail.value}</dd>
@@ -54,8 +39,8 @@ export default function FppVisitorSettings({ profile, settings, language }: {
         </div>
       ) : (
         <form action={submit} className="mt-4">
-          <p className="mb-4 text-sm">{pt ? 'Guarda as tuas escolhas para atualizar a vista privada. O teu perfil fica na tua conta.' : 'Save your choices to update the private preview. Your profile stays in your account.'}</p>
-          <fieldset key={JSON.stringify(settings)} disabled={pending} className="grid gap-4 sm:grid-cols-2">
+          <p className="mb-4 text-sm">{pt ? 'Guarda as tuas escolhas para atualizar a pré-visualização. A fotografia aparece nas tuas publicações se ativares a sua visibilidade.' : 'Save your choices to update the preview. Your photo appears on your published posts when you enable its visibility.'}</p>
+          <fieldset key={JSON.stringify({ ...settings, photo: undefined })} disabled={pending} className="grid gap-4 sm:grid-cols-2">
             {additionalFields.map(field => <label key={field.key} className="block text-sm font-semibold">
               {field[language]} <span className="font-normal">({pt ? 'opcional' : 'optional'})</span>
               <input type={field.key === 'instagram' || field.key === 'facebook' ? 'url' : 'text'} name={field.key} maxLength={field.maxLength} defaultValue={settings[field.key]} className={input} />
@@ -90,11 +75,12 @@ export default function FppVisitorSettings({ profile, settings, language }: {
             <div className="sm:col-span-2">
               <label className="block text-sm font-semibold">
                 {pt ? 'Fotografia de perfil (opcional)' : 'Profile photo (optional)'}
-                <p className="my-2 font-normal">{pt ? 'JPG, PNG ou WebP até 3 MB. Pré-visualização apenas neste dispositivo.' : 'JPG, PNG or WebP up to 3 MB. Preview on this device only.'}</p>
-                <input type="file" accept="image/jpeg,image/png,image/webp" onChange={choosePhoto} className="block w-full text-sm" />
+                <p className="my-2 font-normal">{pt ? 'JPG, PNG ou WebP até 250 KB.' : 'JPG, PNG or WebP up to 250 KB.'}</p>
+                <input type="file" name="photoFile" accept="image/jpeg,image/png,image/webp" className="block w-full text-sm" />
               </label>
-              {photo && <button type="button" className="mt-2 text-sm text-emerald-800 underline" onClick={() => { setPhoto(''); setPhotoError(false); }}>{pt ? 'Remover fotografia da pré-visualização' : 'Remove photo from preview'}</button>}
-              {photoError && <p role="alert" className="mt-2 text-sm text-red-700">{pt ? 'Seleciona JPG, PNG ou WebP até 3 MB.' : 'Choose a JPG, PNG or WebP up to 3 MB.'}</p>}
+              {settings.photo && <label className="mt-2 flex items-center gap-2 text-sm">
+                <input type="checkbox" name="removePhoto" />{pt ? 'Remover fotografia guardada' : 'Remove saved photo'}
+              </label>}
             </div>
             <label className="flex items-center gap-2 text-sm sm:col-span-2">
               <input name="adult" type="checkbox" required className="accent-[#927018]" />{pt ? 'Confirmo que tenho 18 anos ou mais.' : 'I confirm that I am 18 or older.'}
@@ -109,6 +95,7 @@ export default function FppVisitorSettings({ profile, settings, language }: {
       )}
       {result && <p role="status" className={result === 'saved' ? 'mt-3 text-emerald-800' : 'mt-3 text-red-700'}>
         {result === 'saved' ? (pt ? 'Preferências guardadas.' : 'Preferences saved.')
+          : result === 'invalid-photo' ? (pt ? 'Seleciona JPG, PNG ou WebP até 250 KB.' : 'Choose a JPG, PNG or WebP up to 250 KB.')
           : result === 'invalid' ? (pt ? 'Verifica os dados, incluindo os endereços HTTPS dos perfis sociais e a confirmação de idade.' : 'Check your details, including HTTPS social profile links and age confirmation.')
           : (pt ? 'Não foi possível guardar as preferências.' : 'Unable to save your preferences.')}
       </p>}

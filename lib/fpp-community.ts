@@ -3,11 +3,19 @@ import 'server-only';
 import { randomUUID } from 'node:crypto';
 
 import { pilotContactBlocked } from '@/lib/pilot-access-blocks';
+import { prepareVisitorSettings } from '@/lib/fpp-visitor-storage';
+import { prepareRestaurantDatabase } from '@/lib/restaurant-data';
 import { prepareProfessionalProfiles } from '@/lib/professional-profile';
 import { executePrivateSql, sqlRows } from '@/lib/turso';
 import type { FppPostStatus, FppPostType } from '@/lib/fpp-posts';
 
-async function prepareFppCommunity() {
+let preparation: Promise<void> | undefined;
+export function prepareFppCommunity() {
+  preparation ??= prepareFppTables().catch(error => { preparation = undefined; throw error; });
+  return preparation;
+}
+
+async function prepareFppTables() {
   await prepareProfessionalProfiles();
   await executePrivateSql(`CREATE TABLE IF NOT EXISTS fpp_requests (
     user_id TEXT PRIMARY KEY NOT NULL REFERENCES professional_profiles(user_id),
@@ -26,8 +34,17 @@ async function prepareFppCommunity() {
     status TEXT NOT NULL CHECK(status IN ('pending','published','declined','removed')),
     created_at TEXT NOT NULL,
     reviewed_at TEXT,
-    published_at TEXT
+    published_at TEXT,
+    restaurant_id TEXT
   )`);
+  const columns = async () => sqlRows(await executePrivateSql('PRAGMA table_info(fpp_posts)'));
+  if (!(await columns()).some(column => column.name === 'restaurant_id')) {
+    try {
+      await executePrivateSql('ALTER TABLE fpp_posts ADD COLUMN restaurant_id TEXT');
+    } catch (error) {
+      if (!(await columns()).some(column => column.name === 'restaurant_id')) throw error;
+    }
+  }
   await executePrivateSql('CREATE INDEX IF NOT EXISTS fpp_posts_by_user ON fpp_posts(user_id, created_at DESC)');
   await executePrivateSql('CREATE INDEX IF NOT EXISTS fpp_posts_by_status ON fpp_posts(status, published_at DESC)');
 }
@@ -41,8 +58,9 @@ export async function getOwnFppPosts(userId: string) {
     Array<Pick<FppPost, 'id' | 'kind' | 'title' | 'status'>>;
 }
 
-export async function submitFppPost(userId: string, id: string, post: PostDraft, contactKeys: string) {
+export async function submitFppPost(userId: string, id: string, post: PostDraft, contactKeys: string, restaurantId = '') {
   await prepareFppCommunity();
+  if (restaurantId) await prepareRestaurantDatabase();
   const now = new Date().toISOString();
 
   // Existing post tables reference this row. Keep old decisions for history without using them as access gates.
@@ -50,18 +68,65 @@ export async function submitFppPost(userId: string, id: string, post: PostDraft,
     SELECT user_id, ?, 'approved', ? FROM professional_profiles WHERE user_id = ? AND NOT ${pilotContactBlocked}
     ON CONFLICT(user_id) DO NOTHING`, [randomUUID(), now, userId, contactKeys]);
 
-  const result = await executePrivateSql(`INSERT INTO fpp_posts (id, user_id, kind, title, body, author_name, status, created_at)
-    SELECT ?, p.user_id, ?, ?, ?, p.display_name, 'pending', ?
+  const businessCheck = restaurantId ? `AND EXISTS (
+    SELECT 1 FROM restaurant_owners o JOIN restaurant_listings l ON l.id = o.restaurant_id
+    WHERE o.clerk_user_id = p.user_id AND l.id = ?)` : '';
+  const authorName = restaurantId ? '(SELECT name FROM restaurant_listings WHERE id = ?)' : 'p.display_name';
+  const result = await executePrivateSql(`INSERT INTO fpp_posts (id, user_id, kind, title, body, author_name, status, created_at, restaurant_id)
+    SELECT ?, p.user_id, ?, ?, ?, ${authorName}, 'pending', ?, ?
     FROM professional_profiles p JOIN fpp_requests r ON r.user_id = p.user_id
-    WHERE p.user_id = ? AND NOT ${pilotContactBlocked}`,
-  [id, post.kind, post.title, post.body, now, userId, contactKeys]);
+    WHERE p.user_id = ? AND NOT ${pilotContactBlocked} ${businessCheck}`,
+  [id, post.kind, post.title, post.body, ...(restaurantId ? [restaurantId] : []), now, restaurantId, userId, contactKeys, ...(restaurantId ? [restaurantId] : [])]);
   return Number(result.affected_row_count) === 1;
 }
 
+export async function getFppBusinesses(userId: string) {
+  await prepareRestaurantDatabase();
+  return sqlRows(await executePrivateSql(`SELECT l.id, l.name FROM restaurant_owners o
+    JOIN restaurant_listings l ON l.id = o.restaurant_id
+    WHERE o.clerk_user_id = ? ORDER BY l.name, l.id`, [userId])) as unknown as Array<{ id: string; name: string }>;
+}
+
+const visiblePhoto = `EXISTS (SELECT 1 FROM json_each(s.preferences, '$.visible') WHERE value = 'photo')`;
+
+type FeedPost = Omit<FppPost, 'status'> & {
+  has_photo: '0' | '1';
+  business_id: string | null;
+  business_name: string | null;
+  business_tier: 'basic' | 'verified' | 'pro' | null;
+};
+
 export async function getPublishedFppPosts() {
-  await prepareFppCommunity();
-  return sqlRows(await executePrivateSql(`SELECT id, kind, title, body, author_name FROM fpp_posts
-    WHERE status = 'published' ORDER BY published_at DESC, id DESC LIMIT 50`)) as unknown as Array<Omit<FppPost, 'status'>>;
+  await Promise.all([prepareFppCommunity(), prepareVisitorSettings(), prepareRestaurantDatabase()]);
+  return sqlRows(await executePrivateSql(`SELECT p.id, p.kind, p.title, p.body, p.author_name,
+      CASE WHEN ${visiblePhoto} AND json_extract(s.preferences, '$.photo') <> '' THEN 1 ELSE 0 END AS has_photo,
+      l.id AS business_id, l.name AS business_name,
+      CASE WHEN l.id IS NULL THEN NULL
+        WHEN COALESCE(v.is_active, 0) <> 1 OR COALESCE(v.verified_at, '') = '' OR
+          COALESCE(v.public_address, '') = '' OR COALESCE(v.public_phone, '') = '' THEN 'basic'
+        WHEN plans.profile_tier = 'pro' THEN 'pro' ELSE 'verified' END AS business_tier
+    FROM fpp_posts p LEFT JOIN fpp_visitor_settings s ON s.user_id = p.user_id
+    LEFT JOIN restaurant_listings l ON l.id = (
+      SELECT MIN(owned.id) FROM restaurant_owners o JOIN restaurant_listings owned ON owned.id = o.restaurant_id
+      WHERE o.clerk_user_id = p.user_id AND (
+        owned.id = p.restaurant_id OR (p.restaurant_id IS NULL AND owned.name = p.author_name COLLATE NOCASE))
+      HAVING COUNT(*) = 1
+    )
+    LEFT JOIN restaurant_verified_contacts v ON v.id = l.id
+    LEFT JOIN restaurant_pro_plans plans ON plans.id = l.id
+    WHERE p.status = 'published' AND (COALESCE(p.restaurant_id, '') = '' OR l.id IS NOT NULL) ORDER BY p.published_at DESC, p.id DESC LIMIT 50`)) as unknown as FeedPost[];
+}
+
+export async function getPublishedFppPhoto(postId: string) {
+  await Promise.all([prepareFppCommunity(), prepareVisitorSettings(), prepareRestaurantDatabase()]);
+  const [row] = sqlRows(await executePrivateSql(`SELECT json_extract(s.preferences, '$.photo') AS photo
+    FROM fpp_posts p JOIN fpp_visitor_settings s ON s.user_id = p.user_id
+    WHERE p.id = ? AND p.status = 'published' AND ${visiblePhoto}
+      AND (COALESCE(p.restaurant_id, '') = '' OR EXISTS (
+        SELECT 1 FROM restaurant_owners o JOIN restaurant_listings l ON l.id = o.restaurant_id
+        WHERE o.clerk_user_id = p.user_id AND l.id = p.restaurant_id
+      ))`, [postId]));
+  return row?.photo ?? null;
 }
 
 export const fppReviewPageSize = 25;

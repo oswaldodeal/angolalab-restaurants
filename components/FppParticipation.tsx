@@ -8,9 +8,10 @@ import type { FppPost } from '@/lib/fpp-community';
 const button = 'rounded-lg bg-[#252a32] px-4 py-2 font-semibold text-white disabled:opacity-60';
 const input = 'mt-1 block w-full rounded-lg border border-[#ded8c5] bg-white px-3 py-2';
 
-export default function FppParticipation({ language, blocked, posts }: {
+export default function FppParticipation({ language, blocked, posts, businesses }: {
   language: 'en' | 'pt';
   blocked: boolean;
+  businesses: Array<{ id: string; name: string }>;
   posts: Array<Pick<FppPost, 'id' | 'kind' | 'title' | 'status'>>;
 }) {
   const pt = language === 'pt';
@@ -32,6 +33,12 @@ export default function FppParticipation({ language, blocked, posts }: {
         <form action={sendPost} className="mt-3 space-y-4">
           <p>{pt ? 'A equipa analisa cada publicação antes de aparecer na comunidade.' : 'Staff review each post before it appears in the community.'}</p>
           <fieldset disabled={sending} className="space-y-4">
+            {businesses.length > 0 && <label className="block">{pt ? 'Publicar como' : 'Post as'}
+              <select name="restaurantId" className={input}>
+                <option value="">{pt ? 'Perfil pessoal' : 'Personal profile'}</option>
+                {businesses.map(business => <option key={business.id} value={business.id}>{business.name}</option>)}
+              </select>
+            </label>}
             <label className="block">{pt ? 'Tipo de publicação' : 'Post type'}
               <select name="kind" className={input}>
                 {Object.entries(fppPostTypes).map(([kind, label]) => <option key={kind} value={kind}>{label[language]}</option>)}
@@ -45,7 +52,7 @@ export default function FppParticipation({ language, blocked, posts }: {
             </label>
             <label className="flex items-start gap-2">
               <input name="consent" type="checkbox" required className="mt-1" />
-              <span>{pt ? 'Autorizo a publicação deste texto com o meu nome de apresentação.' : 'I agree to share this text under my display name.'}</span>
+              <span>{pt ? 'Autorizo a publicação deste texto com o nome do perfil escolhido.' : 'I agree to share this text under the selected profile name.'}</span>
             </label>
             <button className={button}>{sending ? (pt ? 'A enviar…' : 'Sending…') : (pt ? 'Enviar para publicação' : 'Submit for publication')}</button>
           </fieldset>

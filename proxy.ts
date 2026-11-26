@@ -9,5 +9,5 @@ export default function proxy(request: NextRequest, event: NextFetchEvent) {
 }
 
 export const config = {
-  matcher: ['/en/signin', '/en/signup', '/en/account', '/pt/entrar', '/pt/registar', '/pt/conta'],
+  matcher: ['/en/signin', '/en/signup', '/en/account', '/pt/entrar', '/pt/registar', '/pt/conta', '/en/professionals', '/pt/profissionais'],
 };
