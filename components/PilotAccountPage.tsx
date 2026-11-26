@@ -1,5 +1,6 @@
 import RestaurantOrders from '@/components/RestaurantOrders';
 import { withRestaurantReferral } from '@/lib/restaurant-referral';
+import AccountProfessionalProfile from '@/components/AccountProfessionalProfile';
 import AccountComments from '@/components/AccountComments';
 import OwnerRestaurants from '@/components/OwnerRestaurants';
 import { ClerkProvider, SignIn, SignOutButton, SignUp } from '@clerk/nextjs';
@@ -41,6 +42,10 @@ export default async function PilotAccountPage({ language, mode, restaurantId }:
                 ? 'Não faça pedidos falsos, não assedie clientes ou funcionários e não use outra conta para contornar um bloqueio. O uso indevido pode levar ao bloqueio do seu número de telefone verificado e à perda de acesso às funcionalidades que exigem uma conta verificada em toda a AngolaLab, incluindo através de códigos QR já em circulação.'
                 : 'Do not place fake orders, harass customers or staff, or use another account to get around a block. Abuse may lead to your verified phone number being blocked and loss of access to features that require a verified account across AngolaLab, including through QR codes already in circulation.'}</p>
             </aside>
+            <p className="w-full text-sm">
+              {pt ? 'Com a tua conta AngolaLab podes criar um perfil profissional gratuito em A minha conta.'
+                : 'With your AngolaLab account, you can create a Free Professional Profile in My account.'}
+            </p>
             <SignUp routing="hash" />
           </div>
         )}
@@ -49,6 +54,7 @@ export default async function PilotAccountPage({ language, mode, restaurantId }:
             <h1 className="text-3xl font-semibold">{pt ? 'A sua conta AngolaLab' : 'Your AngolaLab account'}</h1>
             <p className="mt-4">{pt ? 'Sessão iniciada no piloto privado.' : 'You are signed in to the private pilot.'}</p>
             {userId && <RestaurantOrders userId={userId} language={language} restaurantId={restaurantId} />}
+            {userId && <AccountProfessionalProfile userId={userId} language={language} />}
             {userId && <OwnerRestaurants userId={userId} language={language} />}
             {userId && <AccountComments userId={userId} language={language} restaurantId={restaurantId} />}
             {userId && <details className="mt-6 text-sm">

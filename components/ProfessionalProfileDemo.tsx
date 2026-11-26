@@ -87,9 +87,18 @@ export default function ProfessionalProfileDemo({ language }: { language: Langua
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-7 text-[#555]">
           {pt
-            ? 'Conheça as competências, os interesses e os projetos de outras pessoas. Esta página é uma demonstração fictícia: não existem perfis públicos nem pedidos de ligação ativos.'
-            : 'Discover people through their skills, interests and projects. This is a fictional demonstration: no public profiles or connection requests are active.'}
+            ? 'Cria um perfil privado na tua conta AngolaLab para guardar as tuas competências, idiomas e projetos. Experimenta o exemplo abaixo para conhecer o perfil.'
+            : 'Create a private profile in your AngolaLab account to save your skills, languages and projects. Try the example below to see how a profile works.'}
         </p>
+
+        <div className="mt-5 flex flex-wrap items-center gap-4">
+          <Link href={pt ? '/pt/registar' : '/en/signup'} className="rounded-lg bg-[#252a32] px-5 py-3 text-sm font-semibold text-white hover:bg-[#424850]">
+            {pt ? 'Criar conta AngolaLab' : 'Create an AngolaLab account'}
+          </Link>
+          <Link href={pt ? '/pt/conta' : '/en/account'} className="text-sm font-semibold text-emerald-800 underline">
+            {pt ? 'A minha conta' : 'My account'}
+          </Link>
+        </div>
 
         <p className="mt-3 max-w-2xl text-sm font-semibold text-[#73591b]">{pt ? 'Para adultos com 18 anos ou mais. Não recolhemos a data de nascimento nesta demonstração.' : 'Designed for adults aged 18 and over. No date of birth is collected in this demonstration.'}</p>
 
