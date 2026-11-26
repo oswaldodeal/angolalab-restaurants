@@ -70,7 +70,7 @@ export function readVisitorSettings(form: FormData): VisitorSettings | null {
     ...settings, instagram, facebook, country,
     markets: [...new Set(markets as string[])],
     remote: form.get('remote') === 'on',
-    visible: visitorFields.filter(field => field.key !== 'displayName' && visibility.has(field.key)).map(field => field.key),
+    visible: visitorFields.filter(field => visibility.has(field.key)).map(field => field.key),
   };
 }
 
