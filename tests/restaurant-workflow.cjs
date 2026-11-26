@@ -897,13 +897,12 @@ async function action(id, decision, consent = true) {
   profileForm.set('displayName', 'Blocked update');
   assert.equal(await submitProfessionalProfile(null, profileForm), 'blocked');
   assert.equal((await getProfessionalProfile(profileOwner)).displayName, 'João Updated');
-  const { requestProfessionalProfileAccess, shareFppPost } = load('app/professional-profile/actions');
-  const { getFppAccount, getPublishedFppPosts } = load('lib/fpp-community');
+  const { shareFppPost } = load('app/professional-profile/actions');
+  const { getOwnFppPosts, getPublishedFppPosts } = load('lib/fpp-community');
   const { decideFpp } = load('app/staff/review/fpp/actions');
-  const staffDecision = async (id, queue, decision) => {
+  const staffDecision = async (id, decision) => {
     const form = new FormData();
     form.set('id', id);
-    form.set('queue', queue);
     form.set('decision', decision);
     try { await decideFpp(form); }
     catch (error) { if (error instanceof Redirect) return error.url; throw error; }
@@ -914,59 +913,45 @@ async function action(id, decision, consent = true) {
   postForm.set('title', 'Restaurant discovery project');
   postForm.set('body', 'Study how guests discover participating restaurants.');
   postForm.set('consent', 'on');
-  assert.equal(await requestProfessionalProfileAccess(), 'not-eligible', 'Blocked accounts cannot request FPP');
+  assert.equal(await shareFppPost(null, postForm), 'not-eligible', 'Blocked accounts cannot post');
   db.prepare("UPDATE pilot_access_blocks SET blocked=0 WHERE contact='+244900000100'").run();
   clerkUserId = null;
-  assert.equal(await requestProfessionalProfileAccess(), 'unavailable');
   assert.equal(await shareFppPost(null, postForm), 'unavailable');
   clerkUserId = 'user_no_profile';
-  assert.equal(await requestProfessionalProfileAccess(), 'not-eligible');
-  clerkUserId = profileOwner;
-  assert.equal((await getFppAccount(profileOwner)).status, null, 'Existing private profiles do not have access automatically');
-  assert.equal(await requestProfessionalProfileAccess(), 'requested');
-  assert.equal(await requestProfessionalProfileAccess(), 'not-eligible', 'One pending request per account');
   assert.equal(await shareFppPost(null, postForm), 'not-eligible');
-  const initial = db.prepare('SELECT id FROM fpp_requests WHERE user_id=?').get(profileOwner).id;
-  loggedIn = false;
-  assert.equal(await staffDecision(initial, 'requests', 'approved'), '/staff/review/login');
-  loggedIn = true;
+  clerkUserId = profileOwner;
+  assert.equal((await getOwnFppPosts(profileOwner)).length, 0);
+  assert.equal(db.prepare('SELECT id FROM fpp_requests WHERE user_id=?').get(profileOwner), undefined);
   session = load('lib/staff-auth').makeSession();
-  assert.equal(await staffDecision(initial, 'requests', 'declined'), '/staff/review/fpp?queue=requests&result=saved');
-  assert.equal((await getFppAccount(profileOwner)).status, 'declined');
-  assert.equal(await requestProfessionalProfileAccess(), 'requested');
-  const nextRequest = db.prepare('SELECT id FROM fpp_requests WHERE user_id=?').get(profileOwner).id;
-  assert.notEqual(nextRequest, initial);
-  assert.equal(await staffDecision(initial, 'requests', 'approved'), '/staff/review/fpp?queue=requests&result=stale');
-  assert.equal(await staffDecision(nextRequest, 'requests', 'approved'), '/staff/review/fpp?queue=requests&result=saved');
-  assert.equal((await getFppAccount(profileOwner)).status, 'approved');
   postForm.delete('consent');
   assert.equal(await shareFppPost(null, postForm), 'invalid');
   postForm.set('consent', 'on');
-  for (const kind of ['idea', 'question', 'project']) {
+  for (const [kind, oldStatus] of [['idea', null], ['question', 'pending'], ['project', 'declined']]) {
+    if (oldStatus) db.prepare('UPDATE fpp_requests SET status=? WHERE user_id=?').run(oldStatus, profileOwner);
     postForm.set('kind', kind);
-    assert.equal(await shareFppPost(null, postForm), 'submitted');
+    assert.equal(await shareFppPost(null, postForm), 'submitted', 'Old access decisions do not gate posting');
   }
-  const ownPosts = (await getFppAccount(profileOwner)).posts;
+  const ownPosts = await getOwnFppPosts(profileOwner);
   assert.equal(ownPosts.length, 3);
-  assert.equal((await getFppAccount(otherProfileOwner)).posts.length, 0);
+  assert.equal((await getOwnFppPosts(otherProfileOwner)).length, 0);
   assert.equal((await getPublishedFppPosts()).length, 0);
   const idea = ownPosts.find(post => post.kind === 'idea');
   const question = ownPosts.find(post => post.kind === 'question');
   loggedIn = false;
-  assert.equal(await staffDecision(idea.id, 'posts', 'published'), '/staff/review/login');
+  assert.equal(await staffDecision(idea.id, 'published'), '/staff/review/login');
   loggedIn = true;
-  assert.equal(await staffDecision(question.id, 'posts', 'declined'), '/staff/review/fpp?queue=posts&result=saved');
-  assert.equal(await staffDecision(idea.id, 'posts', 'published'), '/staff/review/fpp?queue=posts&result=saved');
+  assert.equal(await staffDecision(question.id, 'declined'), '/staff/review/fpp?result=saved');
+  assert.equal(await staffDecision(idea.id, 'published'), '/staff/review/fpp?result=saved');
   const [visible] = await getPublishedFppPosts();
   assert.deepEqual(Object.keys(visible).sort(), ['author_name', 'body', 'id', 'kind', 'title']);
   assert.equal(visible.author_name, 'João Updated');
   assert.equal(visible.id, idea.id);
-  assert.equal(await staffDecision(idea.id, 'posts', 'removed'), '/staff/review/fpp?queue=posts&result=saved');
+  assert.equal(await staffDecision(idea.id, 'removed'), '/staff/review/fpp?result=saved');
   assert.equal((await getPublishedFppPosts()).length, 0);
-  assert.equal(await staffDecision(idea.id, 'posts', 'published'), '/staff/review/fpp?queue=posts&result=stale');
+  assert.equal(await staffDecision(idea.id, 'published'), '/staff/review/fpp?result=stale');
   db.prepare("UPDATE pilot_access_blocks SET blocked=1 WHERE contact='+244900000100'").run();
-  assert.equal(await shareFppPost(null, postForm), 'not-eligible', 'Approved access cannot override a block');
-  console.log('PASS: optional FPP requests, staff authorization, all post types, private pending entries, approval, rejection and removal.');
+  assert.equal(await shareFppPost(null, postForm), 'not-eligible', 'A saved FPP cannot override a block');
+  console.log('PASS: automatic FPP access, legacy requests, staff authorization, all post types, private pending entries, approval, rejection and removal.');
   console.log('PASS: private professional profile creation, editing, account isolation and blocked updates.');
   console.log('PASS: pilot orders, access blocks, menu availability, private customer and counter views, duplicate prevention, decline reasons, acceptance and completion.');
   console.log('PASS: Basic owner cover add/replace/remove and directory sync, two food/drink items with optional photos, Basic menu photo limit, reference preservation and photo removal, no contact or Pro activation, legacy media migration; explicit Basic publication and separate verification intent, reversible Return to Basic hides contacts and media, retains private evidence and assets, blocks stale Verified uploads and Pro activation, fresh re-verification restores Verified only, legacy verification migration is read-safe; Verified cover uploads preserve tier, explicit staff tier change preserves photos and contacts, Basic verification cannot be bypassed, stale tier forms rejected, legacy Pro migration preserved; Basic and Verified restaurant comments, staff-only commenter verification and moderation, pending/private projection, menu reference checks, duplicate limit, author removal, owner self-review block, revocation, withdrawal and audit; stable menu references, existing-item backfill, no reuse after deletion, PT/EN reference rendering; staff menu names in PT/EN rendered HTML, language fallback, source rename invalidation and media preservation; staff-reviewed English, source preservation, staff auth and stale source protection; logo add/replace/remove, owner isolation, file validation and media preservation; menu availability toggle, public status, photo/price preservation, owner isolation and stale edit protection; separate PT/EN descriptions and hours, original fallback, older-form translation preservation; owner description/hours save, stale edit protection, public rendering data; owner cover add/replace/remove, stale edits, directory sync, menu preservation; owner photo upload/removal, size/type validation, photo reference cleanup; owner session isolation, staff linking/revocation, inline save feedback; menu CRUD, auth, price validation, stale edits, Basic limits; UK registration; validation; unauthorized/consent guards; Basic publication; staff-only Verified contacts; private field isolation; duplicate review; rejection; withdrawal; atomic rollback; legacy preservation.');

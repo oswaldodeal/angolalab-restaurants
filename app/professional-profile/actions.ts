@@ -1,7 +1,7 @@
 'use server';
 
 import { randomUUID } from 'node:crypto';
-import { requestFppAccess, submitFppPost } from '@/lib/fpp-community';
+import { submitFppPost } from '@/lib/fpp-community';
 import { isFppPostType } from '@/lib/fpp-posts';
 import { revalidateFpp } from '@/lib/fpp-revalidation';
 import { auth } from '@clerk/nextjs/server';
@@ -34,21 +34,6 @@ export async function submitProfessionalProfile(_previous: ProfessionalProfileRe
   revalidatePath('/en/account');
   revalidatePath('/pt/conta');
   return 'saved';
-}
-
-export async function requestProfessionalProfileAccess() {
-  if (!accountsConfigured()) return 'unavailable';
-  const { userId } = await auth();
-  if (!userId) return 'unavailable';
-
-  try {
-    const contacts = await verifiedContactKeys(userId);
-    if (!(await requestFppAccess(userId, randomUUID(), contacts))) return 'not-eligible';
-  } catch {
-    return 'unavailable';
-  }
-  revalidateFpp();
-  return 'requested';
 }
 
 export async function shareFppPost(_previous: string | null, formData: FormData) {

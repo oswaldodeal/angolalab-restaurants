@@ -5,7 +5,6 @@ export const fppPostTypes = {
 } as const;
 
 export type FppPostType = keyof typeof fppPostTypes;
-export type FppRequestStatus = 'pending' | 'approved' | 'declined';
 
 export const fppPostStatusLabels = {
   pending: { en: 'Awaiting review', pt: 'A aguardar análise' },

@@ -1,20 +1,19 @@
 'use client';
 
 import { useActionState, useState } from 'react';
-import { requestProfessionalProfileAccess, shareFppPost } from '@/app/professional-profile/actions';
-import { fppPostStatusLabels, fppPostTypes, type FppRequestStatus } from '@/lib/fpp-posts';
+import { shareFppPost } from '@/app/professional-profile/actions';
+import { fppPostStatusLabels, fppPostTypes } from '@/lib/fpp-posts';
 import type { FppPost } from '@/lib/fpp-community';
 
 const button = 'rounded-lg bg-[#252a32] px-4 py-2 font-semibold text-white disabled:opacity-60';
 const input = 'mt-1 block w-full rounded-lg border border-[#ded8c5] bg-white px-3 py-2';
 
-export default function FppParticipation({ language, status, posts }: {
+export default function FppParticipation({ language, blocked, posts }: {
   language: 'en' | 'pt';
-  status: FppRequestStatus | null;
-  posts: FppPost[];
+  blocked: boolean;
+  posts: Array<Pick<FppPost, 'id' | 'kind' | 'title' | 'status'>>;
 }) {
   const pt = language === 'pt';
-  const [requestResult, request, requesting] = useActionState(requestProfessionalProfileAccess, null);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [postResult, sendPost, sending] = useActionState(async (_previous: string | null, formData: FormData) => {
@@ -28,20 +27,10 @@ export default function FppParticipation({ language, status, posts }: {
 
   return (
     <section className="mt-6 border-t border-[#ded8c5] pt-5">
-      <h3 className="font-semibold">{pt ? 'Participação na comunidade FPP' : 'FPP community access'}</h3>
-      {status === 'pending' && <p className="mt-3">{pt ? 'O teu pedido aguarda análise da equipa.' : 'Your request is awaiting staff review.'}</p>}
-      {status !== 'approved' && status !== 'pending' &&
-        <form action={request} className="mt-3 space-y-3">
-          <p>{status === 'declined'
-            ? (pt ? 'O teu pedido foi recusado. Podes enviar um novo pedido.' : 'Your request was declined. You can submit a new request.')
-            : (pt ? 'Pede acesso para partilhar ideias de negócio, perguntas e projetos.' : 'Request access to share business ideas, questions and projects.')}</p>
-          <button disabled={requesting} className={button}>{pt ? 'Pedir acesso ao FPP' : 'Request FPP access'}</button>
-        </form>}
-      {requestResult && requestResult !== 'requested' &&
-        <p role="status" className="mt-3 text-red-700">{pt ? 'Não foi possível enviar o pedido. Verifica o estado do perfil e tenta novamente.' : 'We couldn’t send the request. Check your profile status and try again.'}</p>}
-      {status === 'approved' &&
+      <h3 className="font-semibold">{pt ? 'Partilhar na comunidade FPP' : 'Share in the FPP community'}</h3>
+      {blocked ? <p role="status" className="mt-3 text-red-700">{pt ? 'O teu acesso a esta funcionalidade está bloqueado.' : 'Your access to this feature is blocked.'}</p> :
         <form action={sendPost} className="mt-3 space-y-4">
-          <p>{pt ? 'O teu acesso foi aprovado. A equipa analisa cada publicação antes de aparecer na comunidade.' : 'Your access is approved. Staff review each post before it appears in the community.'}</p>
+          <p>{pt ? 'A equipa analisa cada publicação antes de aparecer na comunidade.' : 'Staff review each post before it appears in the community.'}</p>
           <fieldset disabled={sending} className="space-y-4">
             <label className="block">{pt ? 'Tipo de publicação' : 'Post type'}
               <select name="kind" className={input}>

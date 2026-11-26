@@ -1,9 +1,11 @@
 import 'server-only';
 
+import { randomUUID } from 'node:crypto';
+
 import { pilotContactBlocked } from '@/lib/pilot-access-blocks';
 import { prepareProfessionalProfiles } from '@/lib/professional-profile';
 import { executePrivateSql, sqlRows } from '@/lib/turso';
-import type { FppPostStatus, FppPostType, FppRequestStatus } from '@/lib/fpp-posts';
+import type { FppPostStatus, FppPostType } from '@/lib/fpp-posts';
 
 async function prepareFppCommunity() {
   await prepareProfessionalProfiles();
@@ -32,38 +34,27 @@ async function prepareFppCommunity() {
 
 type PostDraft = { kind: FppPostType; title: string; body: string };
 export type FppPost = PostDraft & { id: string; author_name: string; status: FppPostStatus };
-export type FppReviewRequest = { id: string; user_id: string; display_name: string; status: FppRequestStatus };
-
-export async function getFppAccount(userId: string) {
+export async function getOwnFppPosts(userId: string) {
   await prepareFppCommunity();
-  const [access, posts] = await Promise.all([
-    executePrivateSql('SELECT status FROM fpp_requests WHERE user_id = ?', [userId]),
-    executePrivateSql(`SELECT id, kind, title, body, author_name, status FROM fpp_posts
-      WHERE user_id = ? ORDER BY created_at DESC, id DESC LIMIT 30`, [userId]),
-  ]);
-  return {
-    status: (sqlRows(access)[0]?.status ?? null) as FppRequestStatus | null,
-    posts: sqlRows(posts) as unknown as FppPost[],
-  };
-}
-
-export async function requestFppAccess(userId: string, id: string, contactKeys: string) {
-  await prepareFppCommunity();
-  const result = await executePrivateSql(`INSERT INTO fpp_requests (user_id, id, status, requested_at)
-    SELECT user_id, ?, 'pending', ? FROM professional_profiles WHERE user_id = ? AND NOT ${pilotContactBlocked}
-    ON CONFLICT(user_id) DO UPDATE SET id = excluded.id, status = 'pending',
-      requested_at = excluded.requested_at, reviewed_at = NULL
-    WHERE fpp_requests.status = 'declined'`, [id, new Date().toISOString(), userId, contactKeys]);
-  return Number(result.affected_row_count) === 1;
+  return sqlRows(await executePrivateSql(`SELECT id, kind, title, status FROM fpp_posts
+    WHERE user_id = ? ORDER BY created_at DESC, id DESC LIMIT 30`, [userId])) as unknown as
+    Array<Pick<FppPost, 'id' | 'kind' | 'title' | 'status'>>;
 }
 
 export async function submitFppPost(userId: string, id: string, post: PostDraft, contactKeys: string) {
   await prepareFppCommunity();
+  const now = new Date().toISOString();
+
+  // Existing post tables reference this row. Keep old decisions for history without using them as access gates.
+  await executePrivateSql(`INSERT INTO fpp_requests (user_id, id, status, requested_at)
+    SELECT user_id, ?, 'approved', ? FROM professional_profiles WHERE user_id = ? AND NOT ${pilotContactBlocked}
+    ON CONFLICT(user_id) DO NOTHING`, [randomUUID(), now, userId, contactKeys]);
+
   const result = await executePrivateSql(`INSERT INTO fpp_posts (id, user_id, kind, title, body, author_name, status, created_at)
     SELECT ?, p.user_id, ?, ?, ?, p.display_name, 'pending', ?
     FROM professional_profiles p JOIN fpp_requests r ON r.user_id = p.user_id
-    WHERE p.user_id = ? AND r.status = 'approved' AND NOT ${pilotContactBlocked}`,
-  [id, post.kind, post.title, post.body, new Date().toISOString(), userId, contactKeys]);
+    WHERE p.user_id = ? AND NOT ${pilotContactBlocked}`,
+  [id, post.kind, post.title, post.body, now, userId, contactKeys]);
   return Number(result.affected_row_count) === 1;
 }
 
@@ -75,26 +66,12 @@ export async function getPublishedFppPosts() {
 
 export const fppReviewPageSize = 25;
 
-export async function getFppReview(page: number, queue: 'requests' | 'posts') {
-  // Ordering the open queue first keeps decisions within reach while preserving access to history.
+export async function getFppReview(page: number) {
   await prepareFppCommunity();
   const offset = (page - 1) * fppReviewPageSize;
-  const pagination = [String(fppReviewPageSize + 1), String(offset)];
-  if (queue === 'requests') {
-    const requests = sqlRows(await executePrivateSql(`SELECT r.id, r.user_id, p.display_name, r.status
-      FROM fpp_requests r JOIN professional_profiles p ON p.user_id = r.user_id
-      ORDER BY (r.status = 'pending') DESC, r.requested_at DESC, r.id DESC LIMIT CAST(? AS INTEGER) OFFSET CAST(? AS INTEGER)`, pagination));
-    return { requests: requests as unknown as FppReviewRequest[], posts: [] as FppPost[] };
-  }
-  const posts = sqlRows(await executePrivateSql(`SELECT id, kind, title, body, author_name, status FROM fpp_posts
-    ORDER BY (status = 'pending') DESC, created_at DESC, id DESC LIMIT CAST(? AS INTEGER) OFFSET CAST(? AS INTEGER)`, pagination));
-  return { requests: [] as FppReviewRequest[], posts: posts as unknown as FppPost[] };
-}
-
-export async function reviewFppRequest(id: string, decision: 'approved' | 'declined') {
-  const result = await executePrivateSql(`UPDATE fpp_requests SET status = ?, reviewed_at = ?
-    WHERE id = ? AND status = 'pending'`, [decision, new Date().toISOString(), id]);
-  return Number(result.affected_row_count) === 1;
+  return sqlRows(await executePrivateSql(`SELECT id, kind, title, body, author_name, status FROM fpp_posts
+    ORDER BY (status = 'pending') DESC, created_at DESC, id DESC LIMIT CAST(? AS INTEGER) OFFSET CAST(? AS INTEGER)`,
+  [String(fppReviewPageSize + 1), String(offset)])) as unknown as FppPost[];
 }
 
 export async function reviewFppPost(id: string, decision: 'published' | 'declined' | 'removed') {
