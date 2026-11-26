@@ -31,7 +31,7 @@ export default async function FppCommunity({ language, restaurantId }: { languag
   return (
     <section className="min-h-[65vh] bg-white px-5 py-12 text-[#222]">
       <div className="mx-auto max-w-5xl">
-        <h1 className={pt ? 'text-[clamp(1rem,6vw,1.875rem)] leading-tight font-semibold sm:text-3xl' : 'text-3xl font-semibold'}>
+        <h1 className={pt ? 'text-[clamp(1rem,5.5vw,1.875rem)] leading-tight font-semibold sm:text-3xl' : 'text-3xl font-semibold'}>
           {pt ? 'Comunidade da AngolaLab' : 'AngolaLab Community'}
         </h1>
         <p className="mt-3">{pt ? 'Partilha ideias de negócio, faz perguntas, apresenta os teus projetos e publica avisos.' : 'Share business ideas, ask questions, show what you’re working on and post announcements.'}</p>
