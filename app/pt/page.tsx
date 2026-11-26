@@ -51,7 +51,7 @@ export default function EcosystemHomePage() {
     <h2 id="fpp-home-title" className="mt-3 text-3xl font-bold">Competências que atravessam fronteiras.</h2>
     <p className="mt-4 max-w-3xl leading-7 text-[#555]">Partilha ideias de negócio, faz perguntas e apresenta os teus projetos na comunidade FPP.</p>
     <div className="mt-6 flex flex-wrap gap-3">
-     <Link href="/pt/profissionais" className="rounded-lg bg-[#252a32] px-5 py-3 font-semibold text-white hover:bg-[#424850]">Explorar a comunidade FPP →</Link>
+     <Link href="/pt/profissionais" className="rounded-lg bg-[#252a32] px-5 py-3 font-semibold text-white hover:bg-[#424850]">Comunidade FPP →</Link>
      <Link href="/pt/profissionais/diretorio" className="rounded-lg border border-[#bca36b] px-5 py-3 font-semibold text-[#725716] hover:bg-[#fbf6e9]">Ver Directório de Demonstração →</Link>
     </div>
    </div>

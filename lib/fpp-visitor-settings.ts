@@ -26,12 +26,13 @@ export type VisitorSettings = Record<ExtraField, string> & {
   country: string;
   markets: string[];
   remote: boolean;
+  shareDetails: boolean;
   visible: VisitorField[];
 };
 
 export const emptyVisitorSettings: VisitorSettings = {
   interests: '', publication: '', founder: '', instagram: '', facebook: '', city: '',
-  country: '', markets: [], remote: false, visible: [],
+  country: '', markets: [], remote: false, shareDetails: false, visible: [],
 };
 
 function allowedCountry(code: string) {
@@ -70,6 +71,7 @@ export function readVisitorSettings(form: FormData): VisitorSettings | null {
     ...settings, instagram, facebook, country,
     markets: [...new Set(markets as string[])],
     remote: form.get('remote') === 'on',
+    shareDetails: form.get('shareDetails') === 'on',
     visible: visitorFields.filter(field => visibility.has(field.key)).map(field => field.key),
   };
 }

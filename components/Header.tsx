@@ -37,6 +37,10 @@ function HeaderNavigation({ path, lang, findMeQuery }: { path: string; lang: 'pt
         : currentSuffix;
       return `/${target}/${target === 'pt' ? 'restaurantes' : 'restaurants'}${suffix}`;
     }
+    const visitorProfile = /^\/(?:en\/professionals\/profile|pt\/profissionais\/perfil)\/([a-f0-9-]{36})$/.exec(path);
+    if (visitorProfile) return target === 'pt'
+      ? `/pt/profissionais/perfil/${visitorProfile[1]}`
+      : `/en/professionals/profile/${visitorProfile[1]}`;
     const suffix = path.startsWith('/en/professionals') || path.startsWith('/pt/profissionais') ? (target === 'pt' ? '/profissionais' : '/professionals')
       : path.startsWith('/en/cards') || path.startsWith('/pt/cartoes') ? (target === 'pt' ? '/cartoes' : '/cards')
       : path.startsWith('/en/restaurants/submit') || path.startsWith('/pt/restaurantes/registar') ? (target === 'pt' ? '/restaurantes/registar' : '/restaurants/submit')

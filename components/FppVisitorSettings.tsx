@@ -65,13 +65,17 @@ export default function FppVisitorSettings({ profile, settings, language }: {
             </label>
             <fieldset className="rounded-lg border border-[#ded8c5] p-4 sm:col-span-2">
               <legend className="px-1 font-semibold">{pt ? 'Visibilidade do perfil' : 'Profile visibility'}</legend>
-              <p className="mb-3 text-sm">{pt ? 'O nome de apresentação aparece sempre na pré-visualização.' : 'Your display name always appears in the preview.'}</p>
+              <p className="mb-3 text-sm">{pt ? 'A vista do visitante mostra os campos selecionados. Para os partilhares na comunidade, ativa a opção abaixo.' : 'The visitor preview shows the selected fields. Turn on sharing below to show them in the community.'}</p>
               <div className="grid gap-2 sm:grid-cols-2">
                 {visitorFields.map(field => <label key={field.key} className="flex items-center gap-2 text-sm">
                   <input type="checkbox" name="visible" value={field.key} defaultChecked={settings.visible.includes(field.key)} className="accent-[#927018]" />{field[language]}
                 </label>)}
               </div>
             </fieldset>
+            <label className="flex items-start gap-2 text-sm sm:col-span-2">
+              <input type="checkbox" name="shareDetails" defaultChecked={settings.shareDetails} className="mt-1 accent-[#927018]" />
+              {pt ? 'Mostrar os detalhes selecionados no meu perfil da comunidade' : 'Show the selected details on my community profile'}
+            </label>
             <div className="sm:col-span-2">
               <label className="block text-sm font-semibold">
                 {pt ? 'Fotografia de perfil (opcional)' : 'Profile photo (optional)'}

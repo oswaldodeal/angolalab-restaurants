@@ -3,6 +3,7 @@ import 'server-only';
 import { randomUUID } from 'node:crypto';
 
 import { pilotContactBlocked } from '@/lib/pilot-access-blocks';
+import { emptyVisitorSettings, fppVisitorDetails } from '@/lib/fpp-visitor-settings';
 import { prepareVisitorSettings } from '@/lib/fpp-visitor-storage';
 import { prepareRestaurantDatabase } from '@/lib/restaurant-data';
 import { prepareProfessionalProfiles } from '@/lib/professional-profile';
@@ -128,6 +129,27 @@ async function readFppFeed() {
     LEFT JOIN restaurant_verified_contacts v ON v.id = l.id
     LEFT JOIN restaurant_pro_plans plans ON plans.id = l.id
     WHERE p.status = 'published' AND (COALESCE(p.restaurant_id, '') = '' OR l.id IS NOT NULL) ORDER BY p.published_at DESC, p.id DESC LIMIT 50`)) as unknown as FeedPost[];
+}
+
+export async function getFppVisitorProfile(postId: string, language: 'en' | 'pt') {
+  await prepareFppCommunity();
+  await prepareVisitorSettings();
+
+  const [row] = sqlRows(await executePrivateSql(`SELECT p.author_name, a.profession, a.skills, a.languages, a.projects,
+      CASE WHEN json_extract(s.preferences, '$.shareDetails') = 1 THEN s.preferences ELSE NULL END AS shared_settings,
+      CASE WHEN ${visiblePhoto} AND json_extract(s.preferences, '$.photo') <> '' THEN 1 ELSE 0 END AS has_photo
+    FROM fpp_posts p JOIN professional_profiles a ON a.user_id = p.user_id
+    LEFT JOIN fpp_visitor_settings s ON s.user_id = p.user_id
+    WHERE p.id = ? AND p.status = 'published' AND COALESCE(p.restaurant_id, '') = ''`, [postId]));
+  if (!row?.author_name) return null;
+  const details = row.shared_settings ? fppVisitorDetails({
+    displayName: row.author_name,
+    profession: row.profession ?? '',
+    skills: row.skills ?? '',
+    languages: row.languages ?? '',
+    projects: row.projects ?? '',
+  }, { ...emptyVisitorSettings, ...JSON.parse(row.shared_settings) }, language) : [];
+  return { displayName: row.author_name, details, hasPhoto: row.has_photo === '1' };
 }
 
 export async function getPublishedFppPhoto(postId: string) {
