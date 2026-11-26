@@ -120,10 +120,10 @@ async function readFppFeed() {
         WHEN plans.profile_tier = 'pro' THEN 'pro' ELSE 'verified' END AS business_tier
     FROM fpp_posts p LEFT JOIN fpp_visitor_settings s ON s.user_id = p.user_id
     LEFT JOIN restaurant_listings l ON l.id = (
-      SELECT MIN(owned.id) FROM restaurant_owners o JOIN restaurant_listings owned ON owned.id = o.restaurant_id
+      SELECT CASE WHEN COUNT(*) = 1 THEN MIN(owned.id) END
+      FROM restaurant_owners o JOIN restaurant_listings owned ON owned.id = o.restaurant_id
       WHERE o.clerk_user_id = p.user_id AND (
         owned.id = p.restaurant_id OR (p.restaurant_id IS NULL AND owned.name = p.author_name COLLATE NOCASE))
-      HAVING COUNT(*) = 1
     )
     LEFT JOIN restaurant_verified_contacts v ON v.id = l.id
     LEFT JOIN restaurant_pro_plans plans ON plans.id = l.id
