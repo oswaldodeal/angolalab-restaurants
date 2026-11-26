@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import FppVisitorSettings from './FppVisitorSettings';
+import { getFppVisitorSettings } from '@/lib/fpp-visitor-storage';
 import FppParticipation from './FppParticipation';
 import { getOwnFppPosts } from '@/lib/fpp-community';
 import { isPilotContactBlocked, verifiedContactKeys } from '@/lib/pilot-access-blocks';
@@ -8,6 +10,7 @@ import { getProfessionalProfile } from '@/lib/professional-profile';
 export default async function AccountProfessionalProfile({ userId, language }: { userId: string; language: 'en' | 'pt' }) {
   const pt = language === 'pt';
   const profile = await getProfessionalProfile(userId).catch(() => undefined);
+  const settings = profile ? await getFppVisitorSettings(userId).catch(() => null) : null;
   const participation = profile ? await Promise.all([
     getOwnFppPosts(userId),
     verifiedContactKeys(userId).then(isPilotContactBlocked),
@@ -25,6 +28,8 @@ export default async function AccountProfessionalProfile({ userId, language }: {
       {profile === undefined
         ? <p className="mt-3 text-sm text-red-700">{pt ? 'O perfil está temporariamente indisponível.' : 'Your profile is temporarily unavailable.'}</p>
         : <ProfessionalProfileForm language={language} profile={profile} />}
+      {profile && settings && <FppVisitorSettings profile={profile} settings={settings} language={language} />}
+      {profile && !settings && <p role="alert" className="mt-4 text-sm text-red-700">{pt ? 'Não foi possível carregar as preferências do perfil.' : 'Unable to load profile preferences.'}</p>}
       {participation ? <FppParticipation language={language} posts={participation[0]} blocked={participation[1]} />
         : profile && <p role="alert" className="mt-4 text-sm text-red-700">{pt ? 'Não foi possível carregar o acesso ao FPP.' : 'Unable to load FPP access.'}</p>}
       <Link href={pt ? '/pt/profissionais' : '/en/professionals'} className="mt-4 inline-block font-semibold text-emerald-800 underline">
