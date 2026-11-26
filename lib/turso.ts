@@ -23,6 +23,11 @@ export async function executePrivateSql(sql: string, values: Array<string | null
   const first = data.results?.[0];
   if (first?.type !== 'ok' || !first.response?.result) {
     const detail = first?.error?.message ?? '';
+    if (sql.includes('ALTER TABLE fpp_posts') || sql.includes('l.id AS business_id')) {
+      const identifier = detail.match(/(?:no such (?:column|table)|near):?\s*["']?([a-zA-Z_][a-zA-Z0-9_.]*)/i)?.[1];
+      const code = first?.error?.code;
+      console.error('FPP SQL failed:', code && /^[A-Z0-9_]+$/.test(code) ? code : 'unknown', identifier ?? '');
+    }
     if (/no such table:\s*(?:main\.)?restaurant_profile_media\b/i.test(detail)) throw new Error('TURSO_MEDIA_NOT_MIGRATED');
     if (/no such table:\s*(?:main\.)?restaurant_profile_details\b/i.test(detail)) throw new Error('TURSO_DETAILS_NOT_MIGRATED');
     if (/no such table:\s*(?:main\.)?restaurant_logos\b/i.test(detail)) throw new Error('TURSO_LOGOS_NOT_MIGRATED');

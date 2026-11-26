@@ -97,7 +97,20 @@ type FeedPost = Omit<FppPost, 'status'> & {
 };
 
 export async function getPublishedFppPosts() {
-  await Promise.all([prepareFppCommunity(), prepareVisitorSettings(), prepareRestaurantDatabase()]);
+  try {
+    await prepareFppCommunity();
+    await prepareVisitorSettings();
+    await prepareRestaurantDatabase();
+    return await readFppFeed();
+  } catch (error) {
+    console.error('FPP feed enrichment failed:', error instanceof Error ? error.message : 'unknown');
+    const rows = sqlRows(await executePrivateSql(`SELECT id, kind, title, body, author_name FROM fpp_posts
+      WHERE status = 'published' AND COALESCE(restaurant_id, '') = '' ORDER BY published_at DESC, id DESC LIMIT 50`));
+    return rows.map(row => ({ ...row, has_photo: '0', business_id: null, business_name: null, business_tier: null })) as FeedPost[];
+  }
+}
+
+async function readFppFeed() {
   return sqlRows(await executePrivateSql(`SELECT p.id, p.kind, p.title, p.body, p.author_name,
       CASE WHEN ${visiblePhoto} AND json_extract(s.preferences, '$.photo') <> '' THEN 1 ELSE 0 END AS has_photo,
       l.id AS business_id, l.name AS business_name,
