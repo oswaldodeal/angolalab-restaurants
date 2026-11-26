@@ -21,6 +21,7 @@ export default async function FppCommunity({ language, restaurantId }: { languag
     group.push(comment);
     commentsByPost.set(comment.post_id, group);
   }
+  const restaurantBase = pt ? '/pt/restaurantes/' : '/en/restaurants/';
   const tiers = pt
     ? { basic: 'Perfil Básico', verified: 'Perfil Verificado', pro: 'Perfil Pro' }
     : { basic: 'Basic profile', verified: 'Verified profile', pro: 'Pro profile' };
@@ -49,11 +50,12 @@ export default async function FppCommunity({ language, restaurantId }: { languag
             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
               {post.has_photo === '1' && <img src={'/api/fpp/photo/' + post.id} alt="" loading="lazy" width={40} height={40} className="size-10 rounded-full object-cover" />}
               {post.business_id
-                ? <span className="break-words">{post.business_name ?? post.author_name}</span>
+                ? <Link href={restaurantBase + post.business_id}
+                    className="break-words font-semibold text-emerald-800 underline underline-offset-2">{post.business_name ?? post.author_name}</Link>
                 : <Link href={(pt ? '/pt/profissionais/perfil/' : '/en/professionals/profile/') + post.id}
                     className="break-words font-semibold text-emerald-800 underline underline-offset-2">{post.author_name}</Link>}
               {post.business_id && post.business_tier && <Link
-                href={(pt ? '/pt/restaurantes/' : '/en/restaurants/') + post.business_id}
+                href={restaurantBase + post.business_id}
                 className="rounded-full border border-[#ded8c5] bg-[#fffaf0] px-3 py-1 font-semibold text-[#76570f] hover:underline">
                 {tiers[post.business_tier]}
               </Link>}
