@@ -21,6 +21,7 @@ export default async function FppCommunity({ language, restaurantId }: { languag
     group.push(comment);
     commentsByPost.set(comment.post_id, group);
   }
+  const profileBase = pt ? '/pt/profissionais/perfil/' : '/en/professionals/profile/';
   const restaurantBase = pt ? '/pt/restaurantes/' : '/en/restaurants/';
   const tiers = pt
     ? { basic: 'Perfil Básico', verified: 'Perfil Verificado', pro: 'Perfil Pro' }
@@ -54,7 +55,7 @@ export default async function FppCommunity({ language, restaurantId }: { languag
             <h2 className="mt-2 break-words text-xl font-semibold">{post.title}</h2>
             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
               {post.has_photo === '1' && <img src={'/api/fpp/photo/' + post.id} alt="" loading="lazy" width={40} height={40} className="size-10 rounded-full object-cover" />}
-              <Link href={(pt ? '/pt/profissionais/perfil/' : '/en/professionals/profile/') + post.id}
+              <Link href={profileBase + post.id}
                 className="break-words font-semibold text-emerald-800 underline underline-offset-2">{post.business_name ?? post.author_name}</Link>
               {post.business_id && post.business_tier && <Link
                 href={restaurantBase + post.business_id}
@@ -67,7 +68,11 @@ export default async function FppCommunity({ language, restaurantId }: { languag
               <summary className="cursor-pointer font-semibold text-emerald-800">{pt ? 'Comentários' : 'Comments'}</summary>
               {comments === null && <p className="mt-3 text-sm">{pt ? 'Comentários temporariamente indisponíveis.' : 'Comments are temporarily unavailable.'}</p>}
               {commentsByPost.get(post.id)?.map(comment => <div key={comment.id} className="mt-3 rounded-lg bg-[#f7f5ef] p-3 text-sm">
-                <p className="break-words font-semibold">{comment.author_name}</p>
+                <p className="break-words font-semibold">
+                  {comment.profile_post_id
+                    ? <Link href={profileBase + comment.profile_post_id} className="text-emerald-800 underline underline-offset-2">{comment.author_name}</Link>
+                    : comment.author_name}
+                </p>
                 <p className="mt-1 whitespace-pre-wrap break-words">{comment.body}</p>
               </div>)}
               {profile ? <FppCommentForm id={post.id} language={language} /> : <Link href={account + '#professional-profile'} className="mt-3 inline-block text-sm font-semibold text-emerald-800 underline">

@@ -1059,6 +1059,7 @@ async function action(id, decision, consent = true) {
   await assert.rejects(decideFppComment(fppReviewForm), error => error.url === '/staff/review/fpp?view=comments&result=saved');
   const [publishedComment] = await getPublishedFppComments([businessPost.id]);
   assert.equal(publishedComment.author_name, 'Other learner');
+  assert.equal(publishedComment.profile_post_id, null, 'Authors without published profiles remain plain text');
   fppReviewForm.set('decision', 'removed');
   await assert.rejects(decideFppComment(fppReviewForm), error => error.url === '/staff/review/fpp?view=comments&result=saved');
   assert.equal((await getPublishedFppComments([businessPost.id])).length, 0);
@@ -1075,8 +1076,19 @@ async function action(id, decision, consent = true) {
   assert.equal((await getPublishedFppPosts()).find(post => post.id === note.id).kind, 'note');
   assert.equal(await staffDecision(note.id, 'removed'), '/staff/review/fpp?result=saved');
   console.log('PASS: Note survives the legacy schema migration and follows staff moderation.');
+  clerkUserId = 'user_secondcounter123456';
+  profileForm.set('displayName', 'Second counter test');
+  assert.equal(await submitProfessionalProfile(null, profileForm), 'saved');
+  assert.equal(await submitFppComment(null, fppCommentForm), 'submitted');
+  const [businessComment] = await getFppCommentReview(1, 25);
+  fppReviewForm.set('id', businessComment.id);
+  fppReviewForm.set('decision', 'published');
+  await assert.rejects(decideFppComment(fppReviewForm), error => error.url === '/staff/review/fpp?view=comments&result=saved');
+  const [linkedComment] = await getPublishedFppComments([businessPost.id]);
+  assert.equal(linkedComment.profile_post_id, businessPost.id, 'Comments link to the same author’s published FPP profile');
   db.prepare('DELETE FROM restaurant_owners WHERE restaurant_id=?').run(another.id);
   assert.equal((await getPublishedFppPosts()).length, 0, 'Revoking the owner link hides the attributed business post');
+  assert.equal((await getPublishedFppComments([businessPost.id]))[0].profile_post_id, null, 'Revoked business links are omitted');
   assert.equal(await submitFppComment(null, fppCommentForm), 'not-eligible');
   console.log('PASS: FPP photo consent, removal, business ownership and tiers, and comment moderation.');
   console.log('PASS: automatic FPP access, legacy requests, staff authorization, all post types, private pending entries, approval, rejection and removal.');

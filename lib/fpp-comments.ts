@@ -41,11 +41,25 @@ type VisibleComment = { id: string; post_id: string; author_name: string; body: 
 export async function getPublishedFppComments(postIds: string[]) {
   if (!postIds.length) return [];
   await prepareComments();
-  return sqlRows(await executePrivateSql(`SELECT id, post_id, author_name, body FROM (
-      SELECT id, post_id, author_name, body, created_at,
-        row_number() OVER (PARTITION BY post_id ORDER BY created_at DESC, id DESC) AS position
+  return sqlRows(await executePrivateSql(`WITH recent AS (
+    SELECT id, post_id, user_id, author_name, body, created_at FROM (
+      SELECT id, post_id, user_id, author_name, body, created_at,
+        ROW_NUMBER() OVER (PARTITION BY post_id ORDER BY created_at DESC, id DESC) AS position
       FROM fpp_comments WHERE status = 'published' AND post_id IN (SELECT value FROM json_each(?))
-    ) WHERE position <= 10 ORDER BY created_at, id`, [JSON.stringify(postIds)])) as unknown as VisibleComment[];
+    ) WHERE position <= 10
+  ), profiles AS (
+    SELECT c.id AS comment_id, p.id AS profile_post_id,
+      ROW_NUMBER() OVER (PARTITION BY c.id ORDER BY p.published_at DESC, p.id DESC) AS position
+    FROM recent c JOIN fpp_posts p ON p.user_id = c.user_id AND p.author_name = c.author_name COLLATE NOCASE
+    WHERE p.status = 'published' AND (COALESCE(p.restaurant_id, '') = '' OR EXISTS (
+      SELECT 1 FROM restaurant_owners o JOIN restaurant_listings l ON l.id = o.restaurant_id
+      WHERE o.clerk_user_id = p.user_id AND l.id = p.restaurant_id
+    ))
+  )
+  SELECT c.id, c.post_id, c.author_name, c.body, profiles.profile_post_id
+  FROM recent c LEFT JOIN profiles ON profiles.comment_id = c.id AND profiles.position = 1
+  ORDER BY c.created_at, c.id`, [JSON.stringify(postIds)])) as unknown as
+    Array<VisibleComment & { profile_post_id: string | null }>;
 }
 
 export async function getFppCommentReview(page: number, pageSize: number) {
