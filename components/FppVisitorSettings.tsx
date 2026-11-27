@@ -85,9 +85,15 @@ export default function FppVisitorSettings({ profile, settings, language }: {
               {pt ? 'Indicar no diretório que aceito apresentações profissionais' : 'Show in the directory that I welcome professional introductions'}
             </label>
             <div className="sm:col-span-2">
+              {settings.photo && <figure className="mb-3 flex items-center gap-3">
+                <img src={settings.photo} alt="" width={80} height={80} className="size-20 shrink-0 rounded-lg border border-[#ded8c5] object-cover" />
+                <figcaption className="text-sm font-semibold">{pt ? 'Fotografia guardada' : 'Saved profile photo'}</figcaption>
+              </figure>}
               <label className="block text-sm font-semibold">
-                {pt ? 'Fotografia de perfil (opcional)' : 'Profile photo (optional)'}
-                <p className="my-2 font-normal">{pt ? 'JPG, PNG ou WebP até 250 KB.' : 'JPG, PNG or WebP up to 250 KB.'}</p>
+                {settings.photo
+                  ? (pt ? 'Substituir fotografia' : 'Replace photo')
+                  : (pt ? 'Fotografia de perfil (opcional)' : 'Profile photo (optional)')}
+                <span className="my-2 block font-normal">{pt ? 'JPG, PNG ou WebP até 250 KB.' : 'JPG, PNG or WebP up to 250 KB.'}</span>
                 <input type="file" name="photoFile" accept="image/jpeg,image/png,image/webp" className="block w-full text-sm" />
               </label>
               {settings.photo && <label className="mt-2 flex items-center gap-2 text-sm">
