@@ -76,6 +76,14 @@ export default function FppVisitorSettings({ profile, settings, language }: {
               <input type="checkbox" name="shareDetails" defaultChecked={settings.shareDetails} className="mt-1 accent-[#927018]" />
               {pt ? 'Mostrar os detalhes selecionados no meu perfil da comunidade' : 'Show the selected details on my community profile'}
             </label>
+            <label className="flex items-start gap-2 text-sm sm:col-span-2">
+              <input type="checkbox" name="directoryDetails" defaultChecked={settings.directoryDetails} className="mt-1 accent-[#927018]" />
+              {pt ? 'Mostrar no diretório a profissão, as competências e os idiomas que selecionei' : 'Show my selected profession, skills and languages in the directory'}
+            </label>
+            <label className="flex items-start gap-2 text-sm sm:col-span-2">
+              <input type="checkbox" name="introductions" defaultChecked={settings.introductions} className="mt-1 accent-[#927018]" />
+              {pt ? 'Indicar no diretório que aceito apresentações profissionais' : 'Show in the directory that I welcome professional introductions'}
+            </label>
             <div className="sm:col-span-2">
               <label className="block text-sm font-semibold">
                 {pt ? 'Fotografia de perfil (opcional)' : 'Profile photo (optional)'}

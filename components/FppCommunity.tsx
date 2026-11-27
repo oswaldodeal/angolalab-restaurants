@@ -42,6 +42,9 @@ export default async function FppCommunity({ language, restaurantId }: { languag
           <Link href={account + '#professional-profile'} className="font-semibold text-emerald-800 underline">
             {pt ? 'A minha conta' : 'My account'}
           </Link>
+          <Link href={pt ? '/pt/profissionais/diretorio' : '/en/professionals/directory'} className="font-semibold text-emerald-800 underline">
+            {pt ? 'Diretório de pessoas' : 'People directory'}
+          </Link>
         </div>
         <section aria-label={pt ? 'Publicações recentes' : 'Recent posts'} className="mt-6 space-y-4">
           {posts === null && <p>{pt ? 'As publicações estão temporariamente indisponíveis.' : 'Posts are temporarily unavailable.'}</p>}

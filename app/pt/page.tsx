@@ -52,7 +52,7 @@ export default function EcosystemHomePage() {
     <p className="mt-4 max-w-3xl leading-7 text-[#555]">Partilha ideias de negócio, faz perguntas, apresenta os teus projetos e publica avisos na Comunidade da AngolaLab.</p>
     <div className="mt-6 flex flex-wrap gap-3">
      <Link href="/pt/profissionais" className="rounded-lg bg-[#252a32] px-5 py-3 font-semibold text-white hover:bg-[#424850]">Comunidade da AngolaLab →</Link>
-     <Link href="/pt/profissionais/diretorio" className="rounded-lg border border-[#bca36b] px-5 py-3 font-semibold text-[#725716] hover:bg-[#fbf6e9]">Ver Directório de Demonstração →</Link>
+     <Link href="/pt/profissionais/diretorio" className="rounded-lg border border-[#bca36b] px-5 py-3 font-semibold text-[#725716] hover:bg-[#fbf6e9]">Ver diretório de pessoas →</Link>
     </div>
    </div>
   </section>

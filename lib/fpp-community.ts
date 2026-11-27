@@ -141,6 +141,50 @@ async function readFppFeed() {
     WHERE p.status = 'published' AND (COALESCE(p.restaurant_id, '') = '' OR l.id IS NOT NULL) ORDER BY p.published_at DESC, p.id DESC LIMIT 50`)) as unknown as FeedPost[];
 }
 
+export type FppDirectoryProfile = {
+  id: string;
+  name: string;
+  profession: string;
+  skills: string;
+  languages: string;
+  hasPhoto: boolean;
+  introductions: boolean;
+};
+
+export async function getFppDirectory(): Promise<FppDirectoryProfile[]> {
+  await prepareFppCommunity();
+  await prepareVisitorSettings();
+  await prepareRestaurantDatabase();
+
+  const rows = sqlRows(await executePrivateSql(`WITH latest AS (
+    SELECT p.id, p.author_name,
+      CASE WHEN json_extract(s.preferences, '$.directoryDetails') = 1
+        THEN json_extract(s.preferences, '$.visible') END AS directory_fields,
+      CASE WHEN json_extract(s.preferences, '$.introductions') = 1 THEN 1 ELSE 0 END AS introductions,
+      CASE WHEN ${visiblePhoto} AND json_extract(s.preferences, '$.photo') <> '' THEN 1 ELSE 0 END AS has_photo,
+      a.profession, a.skills, a.languages,
+      ROW_NUMBER() OVER (PARTITION BY p.user_id ORDER BY p.published_at DESC, p.id DESC) AS position
+    FROM fpp_posts p JOIN professional_profiles a ON a.user_id = p.user_id
+    LEFT JOIN fpp_visitor_settings s ON s.user_id = p.user_id
+    ${fppBusinessJoin}
+    WHERE p.status = 'published' AND COALESCE(p.restaurant_id, '') = '' AND l.id IS NULL
+  ) SELECT id, author_name, directory_fields, introductions, has_photo, profession, skills, languages
+    FROM latest WHERE position = 1 ORDER BY author_name COLLATE NOCASE, id`));
+
+  return rows.map(row => {
+    const visible: string[] = row.directory_fields ? JSON.parse(row.directory_fields) : [];
+    return {
+      id: row.id!,
+      name: row.author_name!,
+      profession: visible.includes('profession') ? (row.profession ?? '') : '',
+      skills: visible.includes('skills') ? (row.skills ?? '') : '',
+      languages: visible.includes('languages') ? (row.languages ?? '') : '',
+      hasPhoto: row.has_photo === '1',
+      introductions: row.introductions === '1',
+    };
+  });
+}
+
 export async function getFppVisitorProfile(postId: string, language: 'en' | 'pt') {
   await prepareFppCommunity();
   await prepareVisitorSettings();

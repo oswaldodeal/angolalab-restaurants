@@ -953,7 +953,7 @@ async function action(id, decision, consent = true) {
   assert.deepEqual(Object.keys(visible).sort(), ['author_name', 'body', 'business_id', 'business_name', 'business_tier', 'has_photo', 'id', 'kind', 'title']);
   assert.equal(visible.author_name, 'João Updated');
   assert.equal(visible.id, idea.id);
-  const { getFppVisitorProfile } = load('lib/fpp-community');
+  const { getFppVisitorProfile, getFppDirectory } = load('lib/fpp-community');
   const { saveFppVisitorSettings: saveVisitorProfile } = load('app/professional-profile/visitor-actions');
   const visitorPreferences = new FormData();
   for (const key of ['interests', 'publication', 'founder', 'instagram', 'facebook', 'city', 'country']) visitorPreferences.set(key, '');
@@ -968,10 +968,25 @@ async function action(id, decision, consent = true) {
   const visitor = await getFppVisitorProfile(idea.id, 'pt');
   assert.deepEqual(visitor.details, [{ key: 'interests', label: 'Interesses', value: 'Restaurant research' }]);
   assert.equal(await getFppVisitorProfile(question.id, 'en'), null, 'Declined posts do not lead to visitor profiles');
+  visitorPreferences.append('visible', 'skills');
+  visitorPreferences.set('introductions', 'on');
+  assert.equal(await saveVisitorProfile(null, visitorPreferences), 'saved');
+  const [directoryWithoutConsent] = await getFppDirectory();
+  assert.deepEqual(directoryWithoutConsent, {
+    id: idea.id, name: 'João Updated', profession: '', skills: '', languages: '', hasPhoto: false, introductions: true,
+  });
+  visitorPreferences.set('directoryDetails', 'on');
+  assert.equal(await saveVisitorProfile(null, visitorPreferences), 'saved');
+  const directory = await getFppDirectory();
+  assert.equal(directory.length, 1);
+  assert.equal(directory[0].skills, 'Web design');
+  assert.equal(directory[0].profession, '');
+  assert.equal(JSON.stringify(directory).includes('Private city'), false);
   visitorPreferences.delete('shareDetails');
   assert.equal(await saveVisitorProfile(null, visitorPreferences), 'saved');
   assert.deepEqual((await getFppVisitorProfile(idea.id, 'en')).details, []);
   assert.equal(await staffDecision(idea.id, 'removed'), '/staff/review/fpp?result=saved');
+  assert.deepEqual(await getFppDirectory(), [], 'A removed post no longer lists its author');
   assert.equal(await getFppVisitorProfile(idea.id, 'en'), null, 'Removed posts do not lead to visitor profiles');
   assert.equal((await getPublishedFppPosts()).length, 0);
   assert.equal(await staffDecision(idea.id, 'published'), '/staff/review/fpp?result=stale');
