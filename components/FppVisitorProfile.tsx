@@ -17,7 +17,7 @@ export default async function FppVisitorProfile({ id, language }: { id: string; 
           <div className="flex flex-wrap items-center gap-4">
             {profile.hasPhoto && <img src={'/api/fpp/photo/' + id} width={80} height={80} alt="" className="size-20 rounded-full object-cover" />}
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-[#76570f]">{profile.businessId ? (pt ? 'Perfil empresarial FPP' : 'FPP business profile') : (pt ? 'Perfil Profissional' : 'Professional Profile')}</p>
+              <p className="text-sm font-semibold text-[#76570f]">{profile.businessId ? (pt ? 'Perfil Empresarial' : 'Business Profile') : (pt ? 'Perfil Profissional' : 'Professional Profile')}</p>
               <h1 className="mt-1 break-words text-3xl font-semibold">{profile.displayName}</h1>
             </div>
           </div>
