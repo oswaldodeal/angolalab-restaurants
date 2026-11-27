@@ -96,7 +96,7 @@ export default function FppVisitorSettings({ profile, settings, language }: {
                 <span className="my-2 block font-normal">{pt ? 'JPG, PNG ou WebP até 250 KB.' : 'JPG, PNG or WebP up to 250 KB.'}</span>
                 <input type="file" name="photoFile" accept="image/jpeg,image/png,image/webp" className="block w-full text-sm" />
               </label>
-              {settings.photo && <label className="mt-2 flex items-center gap-2 text-sm">
+              {settings.photo && <label className="mt-2 flex items-center gap-2 text-sm text-red-700">
                 <input type="checkbox" name="removePhoto" />{pt ? 'Remover fotografia guardada' : 'Remove saved photo'}
               </label>}
             </div>
