@@ -20,6 +20,8 @@ function FindMeHeader({ path }: { path: string }) {
 function HeaderNavigation({ path, lang, findMeQuery }: { path: string; lang: 'pt' | 'en'; findMeQuery?: string }) {
   const findMeHref = `/findme?lang=${lang}`;
   const isFindMe = path === '/findme';
+  const visitorProfile = /^\/(?:en\/professionals\/profile|pt\/profissionais\/perfil)\/([a-f0-9-]{36})$/.exec(path);
+  const communityPath = lang === 'pt' ? '/pt/profissionais' : '/en/professionals';
   const languageRef = useRef<HTMLDetailsElement>(null);
   const mobileRef = useRef<HTMLDetailsElement>(null);
   const languagePath = (target: 'pt' | 'en') => {
@@ -37,7 +39,6 @@ function HeaderNavigation({ path, lang, findMeQuery }: { path: string; lang: 'pt
         : currentSuffix;
       return `/${target}/${target === 'pt' ? 'restaurantes' : 'restaurants'}${suffix}`;
     }
-    const visitorProfile = /^\/(?:en\/professionals\/profile|pt\/profissionais\/perfil)\/([a-f0-9-]{36})$/.exec(path);
     if (visitorProfile) return target === 'pt'
       ? `/pt/profissionais/perfil/${visitorProfile[1]}`
       : `/en/professionals/profile/${visitorProfile[1]}`;
@@ -126,9 +127,11 @@ function HeaderNavigation({ path, lang, findMeQuery }: { path: string; lang: 'pt
 <header className={`sticky top-0 z-50 w-full max-w-full bg-[#22262D] shadow-sm`}>   
       <div className={`mx-auto flex min-w-0 items-center justify-between gap-3 py-3 ${headerWidth}`}>
        <Link
-  href={`/${lang}`}
+  href={visitorProfile ? communityPath : `/${lang}`}
   className="inline-flex min-w-0 shrink-0 items-center gap-2 rounded-md text-lg font-bold sm:gap-3 sm:text-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C]"
-  aria-label="AngolaLab home"
+  aria-label={visitorProfile
+    ? (lang === 'pt' ? 'Comunidade da AngolaLab' : 'AngolaLab Community')
+    : (lang === 'pt' ? 'Página inicial da AngolaLab' : 'AngolaLab home')}
 >
   <Image
     src="/angolalab-icon-gold3.png"
