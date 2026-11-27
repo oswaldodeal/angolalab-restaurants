@@ -28,10 +28,7 @@ export default function FppDirectory({ language, profiles }: {
   return (
     <section className="min-h-screen bg-[#f4f4f2] px-4 py-10 text-[#252525] sm:py-14">
       <div className="mx-auto w-full max-w-5xl">
-        <Link href={community} className="text-sm font-semibold text-emerald-800 underline underline-offset-4">
-          {pt ? 'Voltar à Comunidade da AngolaLab' : 'Back to AngolaLab Community'}
-        </Link>
-        <div className="mt-4 rounded-2xl border border-[#dedbd3] bg-white p-6 sm:p-9">
+        <div className="rounded-2xl border border-[#dedbd3] bg-white p-6 sm:p-9">
           <h1 className="text-3xl font-bold sm:text-4xl">{pt ? 'Descubra pessoas e competências' : 'Discover People & Skills'}</h1>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-[#555]">
             {pt ? 'Encontre profissionais, investigadores e criadores de projetos que já publicaram na comunidade. Os detalhes do perfil aparecem com autorização do titular.'

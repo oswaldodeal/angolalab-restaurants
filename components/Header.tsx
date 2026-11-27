@@ -21,6 +21,8 @@ function HeaderNavigation({ path, lang, findMeQuery }: { path: string; lang: 'pt
   const findMeHref = `/findme?lang=${lang}`;
   const isFindMe = path === '/findme';
   const visitorProfile = /^\/(?:en\/professionals\/profile|pt\/profissionais\/perfil)\/([a-f0-9-]{36})$/.exec(path);
+  const isPeopleDirectory = path === '/pt/profissionais/diretorio' || path === '/en/professionals/directory';
+  const logoReturnsToCommunity = Boolean(visitorProfile) || isPeopleDirectory;
   const communityPath = lang === 'pt' ? '/pt/profissionais' : '/en/professionals';
   const languageRef = useRef<HTMLDetailsElement>(null);
   const mobileRef = useRef<HTMLDetailsElement>(null);
@@ -127,9 +129,9 @@ function HeaderNavigation({ path, lang, findMeQuery }: { path: string; lang: 'pt
 <header className={`sticky top-0 z-50 w-full max-w-full bg-[#22262D] shadow-sm`}>   
       <div className={`mx-auto flex min-w-0 items-center justify-between gap-3 py-3 ${headerWidth}`}>
        <Link
-  href={visitorProfile ? communityPath : `/${lang}`}
+  href={logoReturnsToCommunity ? communityPath : `/${lang}`}
   className="inline-flex min-w-0 shrink-0 items-center gap-2 rounded-md text-lg font-bold sm:gap-3 sm:text-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2C94C]"
-  aria-label={visitorProfile
+  aria-label={logoReturnsToCommunity
     ? (lang === 'pt' ? 'Comunidade da AngolaLab' : 'AngolaLab Community')
     : (lang === 'pt' ? 'Página inicial da AngolaLab' : 'AngolaLab home')}
 >
