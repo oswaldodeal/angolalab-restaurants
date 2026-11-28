@@ -1,53 +1,32 @@
+import { readRestaurantMedia } from '@/lib/restaurant-media';
 import 'server-only';
+import { executePrivateSql, sqlRows } from '@/lib/turso';
+import { readMenuPhotos } from '@/lib/store';
+import { readProfileDetails, prepareRestaurantDatabase } from '@/lib/restaurant-data';
 
 export type StaffSubmission = {
-  id: string;
-  restaurant_name: string;
-  country: string;
-  city: string;
-  cuisine: string;
-  address: string;
-  opening_hours: string | null;
-  owner_name: string;
-  owner_email: string;
-  owner_phone: string;
-  status: string;
-  created_at: string;
+  details_updated_by: string | null; details_updated_at: string | null;
+  description: string; public_hours: string; description_en: string; opening_hours_en: string; details_version: string;
+  id: string; restaurant_name: string; country: string; city: string; cuisine: string;
+  address: string; opening_hours: string | null; owner_name: string; owner_email: string;
+  owner_phone: string; status: string; created_at: string; reviewed_at: string | null;
+  verified_at: string | null; profile_tier: string | null; pro_id: string | null; cover_photo_url: string | null; menu_photo_url: string | null; review_note: string | null; reviewed_by: string | null;
 };
 
-type Value = { type: string; value?: string };
-type QueryResult = {
-  results?: Array<{
-    type?: string;
-    response?: { result?: { cols?: Array<{ name: string }>; rows?: Value[][] } };
-  }>;
-};
-
-export async function getStaffSubmissions(): Promise<StaffSubmission[]> {
-  const url = process.env.TURSO_DATABASE_URL;
-  const token = process.env.TURSO_AUTH_TOKEN;
-  if (!url || !token) throw new Error('Database not configured');
-  const endpoint = url.replace(/^libsql:\/\//, 'https://').replace(/\/$/, '');
-  const parsed = new URL(endpoint);
-  if (parsed.protocol !== 'https:' || !parsed.hostname.endsWith('.turso.io')) {
-    throw new Error('Invalid database URL');
-  }
-  const sql = `SELECT id, restaurant_name, country, city, cuisine, address,
-    opening_hours, owner_name, owner_email, owner_phone, status, created_at
-    FROM restaurant_submissions ORDER BY created_at DESC LIMIT 50`;
-  const response = await fetch(endpoint + '/v2/pipeline', {
-    method: 'POST',
-    headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ requests: [{ type: 'execute', stmt: { sql } }, { type: 'close' }] }),
-    cache: 'no-store',
-    signal: AbortSignal.timeout(10000),
+export async function getStaffSubmissions(): Promise<Array<StaffSubmission & { menuPhotos: string[] }>> {
+  await prepareRestaurantDatabase();
+  const [result,details,media] = await Promise.all([executePrivateSql(`SELECT i.id,restaurant_name,country,city,cuisine,
+    address,i.opening_hours,owner_name,owner_email,owner_phone,status,created_at,
+    reviewed_at,review_note,reviewed_by,CASE WHEN v.is_active=1 THEN v.verified_at END AS verified_at,p.id AS pro_id,p.profile_tier,p.cover_photo_url,p.menu_photo_url,d.updated_by AS details_updated_by,d.updated_at AS details_updated_at FROM restaurant_intake i
+    LEFT JOIN restaurant_verified_contacts v ON v.id = i.id LEFT JOIN restaurant_pro_plans p ON p.id = v.id LEFT JOIN restaurant_profile_details d ON d.restaurant_id=i.id ORDER BY created_at DESC LIMIT 100`),readProfileDetails(),readRestaurantMedia()]);
+  const mediaById = new Map(media.map(item=>[item.id,item]));
+  const byId = new Map(details.map(item => [item.restaurant_id,item]));
+  const submissions = sqlRows(result) as unknown as StaffSubmission[];
+  return submissions.map(item => {
+    const saved = byId.get(item.id);
+    const photos=mediaById.get(item.id);
+    return {...item,...photos,description:saved?.description ?? '',public_hours:saved ? saved.opening_hours ?? '' : item.opening_hours ?? '',
+      description_en:saved?.description_en ?? '',opening_hours_en:saved?.opening_hours_en ?? '',details_version:saved?.version ?? '',
+      menuPhotos:readMenuPhotos(photos ? photos.menu_photo_url : item.menu_photo_url,photos ? photos.cover_photo_url : item.cover_photo_url)};
   });
-  if (!response.ok) throw new Error('Database request failed');
-  const data: QueryResult = await response.json();
-  const first = data.results?.[0];
-  if (first?.type !== 'ok' || !first.response?.result) throw new Error('Database query failed');
-  const { cols = [], rows = [] } = first.response.result;
-  return rows.map((row) => Object.fromEntries(cols.map((col, index) =>
-    [col.name, row[index]?.type === 'null' ? null : (row[index]?.value ?? '')]
-  )) as StaffSubmission);
 }

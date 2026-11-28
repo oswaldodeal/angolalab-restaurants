@@ -16,8 +16,10 @@ function signature(timestamp: string, password: string) {
 
 export function validPassword(input: string) {
   const password = secret();
-  if (!password || input.length !== password.length) return false;
-  return timingSafeEqual(Buffer.from(input), Buffer.from(password));
+  if (!password) return false;
+  const received = Buffer.from(input);
+  const expected = Buffer.from(password);
+  return received.length === expected.length && timingSafeEqual(received, expected);
 }
 
 export function makeSession() {
