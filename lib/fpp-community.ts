@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto';
 
 import { pilotContactBlocked } from '@/lib/pilot-access-blocks';
 import { emptyVisitorSettings, fppVisitorDetails } from '@/lib/fpp-visitor-settings';
-import { prepareVisitorSettings } from '@/lib/fpp-visitor-storage';
+import { prepareVisitorSettings, visiblePhoto } from '@/lib/fpp-visitor-storage';
 import { prepareRestaurantDatabase } from '@/lib/restaurant-data';
 import { prepareProfessionalProfiles } from '@/lib/professional-profile';
 import { executePrivateSql, sqlRows } from '@/lib/turso';
@@ -95,8 +95,6 @@ export async function getFppBusinesses(userId: string) {
     JOIN restaurant_listings l ON l.id = o.restaurant_id
     WHERE o.clerk_user_id = ? ORDER BY l.name, l.id`, [userId])) as unknown as Array<{ id: string; name: string }>;
 }
-
-const visiblePhoto = `EXISTS (SELECT 1 FROM json_each(s.preferences, '$.visible') WHERE value = 'photo')`;
 
 const fppBusinessJoin = `LEFT JOIN restaurant_listings l ON l.id = (
       SELECT CASE WHEN COUNT(*) = 1 THEN MIN(owned.id) END

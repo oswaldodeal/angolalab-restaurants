@@ -1005,7 +1005,8 @@ async function action(id, decision, consent = true) {
   for (const key of ['interests', 'publication', 'founder', 'instagram', 'facebook', 'city', 'country']) photoSettings.set(key, '');
   photoSettings.set('adult', 'on');
   photoSettings.set('visible', 'photo');
-  photoSettings.set('photoFile', new File([Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/2m0AAAAASUVORK5CYII=', 'base64')], 'avatar.png', { type: 'image/png' }));
+  const avatarFile = new File([Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/2m0AAAAASUVORK5CYII=', 'base64')], 'avatar.png', { type: 'image/png' });
+  photoSettings.set('photoFile', avatarFile);
   assert.equal(await saveFppVisitorSettings(null, photoSettings), 'saved');
   const avatarRoute = load('app/api/fpp/photo/[id]/route');
   const avatar = () => avatarRoute.GET(new Request('https://pilot.test/avatar'), { params: Promise.resolve({ id: businessPost.id }) });
@@ -1086,6 +1087,17 @@ async function action(id, decision, consent = true) {
   await assert.rejects(decideFppComment(fppReviewForm), error => error.url === '/staff/review/fpp?view=comments&result=saved');
   const [linkedComment] = await getPublishedFppComments([businessPost.id]);
   assert.equal(linkedComment.profile_post_id, businessPost.id, 'Comments link to the same author’s published FPP profile');
+  assert.equal(linkedComment.has_photo, '0', 'A removed photo is omitted from comments');
+  photoSettings.delete('removePhoto');
+  photoSettings.set('photoFile', avatarFile);
+  assert.equal(await saveFppVisitorSettings(null, photoSettings), 'saved');
+  assert.equal((await getPublishedFppComments([businessPost.id]))[0].has_photo, '1', 'Comments can show the public profile photo');
+  photoSettings.delete('photoFile');
+  photoSettings.delete('visible');
+  assert.equal(await saveFppVisitorSettings(null, photoSettings), 'saved');
+  assert.equal((await getPublishedFppComments([businessPost.id]))[0].has_photo, '0', 'Comments respect photo visibility');
+  photoSettings.set('visible', 'photo');
+  assert.equal(await saveFppVisitorSettings(null, photoSettings), 'saved');
   db.prepare('DELETE FROM restaurant_owners WHERE restaurant_id=?').run(another.id);
   assert.equal((await getPublishedFppPosts()).length, 0, 'Revoking the owner link hides the attributed business post');
   assert.equal((await getPublishedFppComments([businessPost.id]))[0].profile_post_id, null, 'Revoked business links are omitted');

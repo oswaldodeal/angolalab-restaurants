@@ -8,6 +8,17 @@ import { getPublishedFppPosts } from '@/lib/fpp-community';
 import { fppPostTypes } from '@/lib/fpp-posts';
 import { withRestaurantReferral } from '@/lib/restaurant-referral';
 
+function AuthorLink({ profileBase, id, name, hasPhoto }: {
+  profileBase: string; id: string; name: string; hasPhoto: boolean;
+}) {
+  return (
+    <Link href={profileBase + id} className="inline-flex min-w-0 items-center gap-3 rounded-sm font-semibold text-emerald-800 no-underline hover:text-emerald-950 focus-visible:outline-2 focus-visible:outline-offset-2">
+      {hasPhoto && <img src={'/api/fpp/photo/' + id} alt="" loading="lazy" width={40} height={40} className="size-10 shrink-0 rounded-full object-cover" />}
+      <span className="min-w-0 break-words">{name}</span>
+    </Link>
+  );
+}
+
 export default async function FppCommunity({ language, restaurantId }: { language: 'en' | 'pt'; restaurantId?: string }) {
   const pt = language === 'pt';
   const [posts, user] = accountsConfigured()
@@ -54,9 +65,7 @@ export default async function FppCommunity({ language, restaurantId }: { languag
             <p className="text-sm font-semibold text-emerald-800">{fppPostTypes[post.kind][language]}</p>
             <h2 className="mt-2 break-words text-xl font-semibold">{post.title}</h2>
             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
-              {post.has_photo === '1' && <img src={'/api/fpp/photo/' + post.id} alt="" loading="lazy" width={40} height={40} className="size-10 rounded-full object-cover" />}
-              <Link href={profileBase + post.id}
-                className="break-words font-semibold text-emerald-800 underline underline-offset-2">{post.business_name ?? post.author_name}</Link>
+              <AuthorLink profileBase={profileBase} id={post.id} name={post.business_name ?? post.author_name} hasPhoto={post.has_photo === '1'} />
               {post.business_id && post.business_tier && <Link
                 href={restaurantBase + post.business_id}
                 className="rounded-full border border-[#ded8c5] bg-[#fffaf0] px-3 py-1 font-semibold text-[#76570f] hover:underline">
@@ -70,7 +79,7 @@ export default async function FppCommunity({ language, restaurantId }: { languag
               {commentsByPost.get(post.id)?.map(comment => <div key={comment.id} className="mt-3 rounded-lg bg-[#f7f5ef] p-3 text-sm">
                 <p className="break-words font-semibold">
                   {comment.profile_post_id
-                    ? <Link href={profileBase + comment.profile_post_id} className="text-emerald-800 underline underline-offset-2">{comment.author_name}</Link>
+                    ? <AuthorLink profileBase={profileBase} id={comment.profile_post_id} name={comment.author_name} hasPhoto={comment.has_photo === '1'} />
                     : comment.author_name}
                 </p>
                 <p className="mt-1 whitespace-pre-wrap break-words">{comment.body}</p>

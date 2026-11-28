@@ -5,6 +5,8 @@ import { prepareProfessionalProfiles } from '@/lib/professional-profile';
 import { executePrivateSql, sqlRows } from '@/lib/turso';
 import { emptyVisitorSettings, type VisitorSettings } from '@/lib/fpp-visitor-settings';
 
+export const visiblePhoto = `EXISTS (SELECT 1 FROM json_each(s.preferences, '$.visible') WHERE value = 'photo')`;
+
 export async function prepareVisitorSettings() {
   await prepareProfessionalProfiles();
   await executePrivateSql(`CREATE TABLE IF NOT EXISTS fpp_visitor_settings (

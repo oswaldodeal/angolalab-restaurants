@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { prepareFppCommunity } from '@/lib/fpp-community';
+import { prepareVisitorSettings, visiblePhoto } from '@/lib/fpp-visitor-storage';
 import { pilotContactBlocked } from '@/lib/pilot-access-blocks';
 import { executePrivateSql, sqlRows } from '@/lib/turso';
 
@@ -41,6 +42,7 @@ type VisibleComment = { id: string; post_id: string; author_name: string; body: 
 export async function getPublishedFppComments(postIds: string[]) {
   if (!postIds.length) return [];
   await prepareComments();
+  await prepareVisitorSettings();
   return sqlRows(await executePrivateSql(`WITH recent AS (
     SELECT id, post_id, user_id, author_name, body, created_at FROM (
       SELECT id, post_id, user_id, author_name, body, created_at,
@@ -56,10 +58,13 @@ export async function getPublishedFppComments(postIds: string[]) {
       WHERE o.clerk_user_id = p.user_id AND l.id = p.restaurant_id
     ))
   )
-  SELECT c.id, c.post_id, c.author_name, c.body, profiles.profile_post_id
+  SELECT c.id, c.post_id, c.author_name, c.body, profiles.profile_post_id,
+    CASE WHEN profiles.profile_post_id IS NOT NULL AND ${visiblePhoto}
+      AND json_extract(s.preferences, '$.photo') <> '' THEN 1 ELSE 0 END AS has_photo
   FROM recent c LEFT JOIN profiles ON profiles.comment_id = c.id AND profiles.position = 1
+  LEFT JOIN fpp_visitor_settings s ON s.user_id = c.user_id
   ORDER BY c.created_at, c.id`, [JSON.stringify(postIds)])) as unknown as
-    Array<VisibleComment & { profile_post_id: string | null }>;
+    Array<VisibleComment & { profile_post_id: string | null; has_photo: '0' | '1' }>;
 }
 
 export async function getFppCommentReview(page: number, pageSize: number) {
