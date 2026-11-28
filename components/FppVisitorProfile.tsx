@@ -23,7 +23,7 @@ export default async function FppVisitorProfile({ id, language }: { id: string; 
           </div>
           {profile.businessId && <Link href={(pt ? '/pt/restaurantes/' : '/en/restaurants/') + profile.businessId}
             className="mt-5 inline-block font-semibold text-emerald-800 underline underline-offset-4">
-            {pt ? 'Ver perfil do restaurante' : 'View restaurant listing'}
+            {pt ? 'O nosso restaurante' : 'Our Restaurant'}
           </Link>}
           {profile.details.length > 0 && <dl className="mt-6 grid gap-5 border-t border-[#ded8c5] pt-6 sm:grid-cols-2">
             {profile.details.map(detail => <div key={detail.key} className="min-w-0">
